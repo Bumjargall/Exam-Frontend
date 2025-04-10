@@ -32,7 +32,7 @@ export default function NavbarTeacher() {
             </Link>
           ))}
           <Link
-            href={""}
+            href={"/teacher/profile"}
             className="text-gray-600 hover:border p-2 rounded-lg border-gray-900"
           >
             <User className="h-5 w-5" />

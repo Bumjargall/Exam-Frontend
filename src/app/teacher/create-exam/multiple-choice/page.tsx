@@ -13,7 +13,7 @@ export default function MultipleChoice() {
           <div className="max-w-2xl mx-auto mb-20 shadow">
             <div className="bg-gray-100">
               <div className="py-4 shadow">
-                <p className="pl-4 text-gray-900">Multiple Choice</p>
+                <p className="pl-4 text-gray-900">Олон сонголт</p>
               </div>
             </div>
             <div className='p-5 space-y-3'>

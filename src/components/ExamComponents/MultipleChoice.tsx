@@ -4,8 +4,7 @@ import Texteditor from "@/components/rich-text/TextEditor"
 import SaveQuestion from '@/components/ui/savequestion'
 import AnswerOption from '@/components/create-exam/AnswerOption'
 import MarkingRules from '@/components/create-exam/MarkingRules'
-import SimpleAnswerOption from '@/components/create-exam/SimpleAnswerOption'
-export default function FreeChoice() {
+export default function MultipleChoice(handleSelect:any) {
   return (
     <div className="mt-20">
       <div className="max-w-4xl mx-auto flex">
@@ -14,12 +13,12 @@ export default function FreeChoice() {
           <div className="max-w-2xl mx-auto mb-20 shadow">
             <div className="bg-gray-100">
               <div className="py-4 shadow">
-                <p className="pl-4 text-gray-900">Эссэ</p>
+                <p className="pl-4 text-gray-900">Олон сонголт</p>
               </div>
             </div>
             <div className='p-5 space-y-3'>
             <Texteditor/>
-            <SimpleAnswerOption/>
+            <AnswerOption/>
             <MarkingRules/>
             </div>
             <SaveQuestion text = "Хадгалах"/>
