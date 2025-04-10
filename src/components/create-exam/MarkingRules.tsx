@@ -1,0 +1,45 @@
+"use client"
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
+import { Geist, Geist_Mono } from "next/font/google";
+export default function MarkingRules() {
+  const [open, setOpen] = useState(false);
+
+  return (
+      <div className="max-w-2xl mx-auto">
+      <Link
+        href=""
+        onClick={() => setOpen(!open)}
+        type="button"
+        className="flex items-center justify-between w-full py-3 text-gray-900 bg-gray-100 gap-3 px-2 rounded-t-lg"
+      >
+        <span className="text-gray-600 pl-3">Marking rules</span>
+        <svg
+          className={`w-3 h-3 transform transition-transform ${
+            open ? "rotate-180" : "rotate-0"
+          }`}
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 10 6"
+        >
+          <path
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M9 5 5 1 1 5"
+          />
+        </svg>
+      </Link>
+      {open && (
+            <div className="p-5 bg-gray-100 rounded-b-lg border-b">
+                <label className="font-medium text-gray-900 mb-2 block">Шалгалтын оноо</label>
+                <input name="number" type="number" className="rounded-md bg-white px-3 py-1.5 text-gray-900 border border-gray-800 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500" defaultValue={1} />
+            </div>
+      )}
+    </div>
+    
+  );
+}

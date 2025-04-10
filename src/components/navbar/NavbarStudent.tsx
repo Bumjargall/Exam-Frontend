@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Menu,LogOut } from "lucide-react";
+import { Menu, LogOut } from "lucide-react";
 
 export default function NavbarStudent() {
   return (
@@ -16,11 +16,25 @@ export default function NavbarStudent() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-6 items-center">
+          <div className="relative w-full">
+            <input
+              type="text"
+              id="text"
+              className="block p-2.5 w-full text-gray-900 bg-white border border-gray-900 rounded-lg placeholder:text-gray-900"
+              placeholder="Exam Key"
+            />
+            <button
+              type="submit"
+              className="absolute top-0 end-0 p-2.5 h-full font-medium text-black bg-white border border-gray-900 rounded-e-lg cursor-pointer hover:bg-gray-100"
+            >
+              <i className="ri-arrow-right-line"></i>
+            </button>
+          </div>
           <Link
             href={""}
             className="text-gray-700 hover:text-black text-sm border border-gray-900 p-2 rounded-lg hover:bg-gray-100"
           >
-            <LogOut className="h-5 w-5"/>
+            <LogOut className="h-5 w-5" />
           </Link>
         </nav>
 
@@ -34,12 +48,13 @@ export default function NavbarStudent() {
             </SheetTrigger>
             <SheetContent side="left">
               <nav className="flex flex-col space-y-4 m-6">
-                  <Link href={""}
-                    className="text-gray-600 hover:text-black text-base font-medium border-b pb-2 flex items-center space-x-2"
-                  >
-                    <LogOut className="h-5 w-5"/>
-                    <span>Гарах</span>
-                  </Link>
+                <Link
+                  href={""}
+                  className="text-gray-600 hover:text-black text-base font-medium border-b pb-2 flex items-center space-x-2"
+                >
+                  <LogOut className="h-5 w-5" />
+                  <span>Гарах</span>
+                </Link>
               </nav>
             </SheetContent>
           </Sheet>

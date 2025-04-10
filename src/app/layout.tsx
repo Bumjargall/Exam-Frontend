@@ -15,12 +15,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="mn">
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.css"
+        />
+      </head>
       <body>
-        <div className="flex">
-          <div className="flex-1 flex flex-col">
-            <Navbar/>
-            <main className="">{children}</main>
-          </div>
+        <div>
+          <Navbar />
+          <main className="">{children}</main>
         </div>
       </body>
     </html>

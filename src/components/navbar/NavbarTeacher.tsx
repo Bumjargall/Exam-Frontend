@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Menu, User, LogOut } from "lucide-react";
 
 const navItems = [
-  { label: "Шалгалт үүсгэх", href: "/" },
-  { label: "Шалгалтууд", href: "/exams" },
+  { label: "Шалгалт үүсгэх", href: "/teacher/create-exam" },
+  { label: "Шалгалтууд", href: "/teacher/exams" },
   { label: "Шалгалтын мэдээлэл", href: "/about" },
 ];
 
