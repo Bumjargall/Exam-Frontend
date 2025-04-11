@@ -11,12 +11,12 @@ export default function QuestionList({handleSelect}:functionType) {
           <p className="text-[14px] text-gray-900">= Автомат тест</p>
         </div>
         <div className="grid grid-cols-4 gap-4 text-gray-900">
-          <QuestionType icon="ri-information-line" label="Мэдээлэл" handType="information-block" handleSelect={handleSelect}/>
-          <QuestionType imageSrc="/multiplechoice.svg" label="Олон сонголт" handType="multiple-choice" badge/>
-          <QuestionType icon="ri-menu-line" label="Богино хариулт" handType="simple-choice" badge />
-          <QuestionType icon="ri-file-text-line" label="Текст талбар" handType="free-text" />
-          <QuestionType icon="ri-code-s-slash-line" label="Код" handType="free-text" />
-          <QuestionType imageSrc="/fill.svg" label="Нөхөх" handType="fill-choice" badge />
+          <QuestionType icon="ri-information-line" label="Мэдээлэл" QuestionType="information-block" handleSelect={handleSelect}/>
+          <QuestionType imageSrc="/multiplechoice.svg" label="Олон сонголт" QuestionType="multiple-choice" handleSelect={handleSelect} badge/>
+          <QuestionType icon="ri-menu-line" label="Богино хариулт" QuestionType="simple-choice" handleSelect={handleSelect} badge />
+          <QuestionType icon="ri-file-text-line" label="Текст талбар" QuestionType="free-text" handleSelect={handleSelect} />
+          <QuestionType icon="ri-code-s-slash-line" label="Код" QuestionType="free-text" handleSelect={handleSelect} />
+          <QuestionType imageSrc="/fill.svg" label="Нөхөх" QuestionType="fill-choice" handleSelect={handleSelect} badge />
         </div>
       </div>
     </div>
