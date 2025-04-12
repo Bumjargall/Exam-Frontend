@@ -12,7 +12,7 @@ export default function FreeChoice({handleSelect}: functionType) {
   return (
     <div className="max-w-2xl mx-auto mb-20 shadow">
       <div className="bg-gray-100 flex justify-between items-center">
-        <div className="py-4 shadow">
+        <div className="py-4">
           <p className="pl-4 text-gray-900">Эссэ</p>
         </div>
         <button className="cursor-pointer pr-4" onClick={() => handleSelect(null)}>

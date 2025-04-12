@@ -8,11 +8,10 @@ export default function MarkingRules() {
 
   return (
       <div className="max-w-2xl mx-auto">
-      <Link
-        href=""
+      <button
         onClick={() => setOpen(!open)}
         type="button"
-        className="flex items-center justify-between w-full py-3 text-gray-900 bg-gray-100 gap-3 px-2 rounded-t-lg"
+        className="flex items-center justify-between w-full py-3 text-gray-900 bg-gray-100 gap-3 px-2 rounded-t-lg cursor-pointer"
       >
         <span className="text-gray-600 pl-3">Marking rules</span>
         <svg
@@ -32,7 +31,7 @@ export default function MarkingRules() {
             d="M9 5 5 1 1 5"
           />
         </svg>
-      </Link>
+      </button>
       {open && (
             <div className="p-5 bg-gray-100 rounded-b-lg border-b">
                 <label className="font-medium text-gray-900 mb-2 block">Шалгалтын оноо</label>

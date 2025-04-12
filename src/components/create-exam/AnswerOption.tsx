@@ -2,20 +2,36 @@
 import { useState } from "react";
 import { ListOrdered, Shuffle, CheckSquare, CircleDot } from "lucide-react";
 import Link from "next/link";
+import { string } from "zod";
+import { Switch } from "@/components/ui/switch";
+import {Label} from "@/components/ui/label"
 
 export default function AnswerOption() {
   const [open, setOpen] = useState(false);
   const [isShuffled, setIsShuffled] = useState(false);
   const [isSingleSelect, setIsSingleSelect] = useState(false);
+  const [addAnswer, setAddAnswer] = useState<{text:string;active:boolean}[]>([])
+  const [value, setValue] = useState("");
+
+  const handleAddAnswer = () => {
+    if(value.trim() !== ""){
+      setAddAnswer([...addAnswer, {text:value, active:false}])
+      setValue("");
+    }
+  }
+  const toggleAnswerActive = (index:number) =>{
+    const updated = [...addAnswer];
+    updated[index].active = !updated[index].active;
+    setAddAnswer(updated);
+  }
 
   return (
     <div className="max-w-2xl mx-auto">
       {/* Answer Option Toggle */}
-      <Link
-        href=""
+      <button
         onClick={() => setOpen(!open)}
         type="button"
-        className="flex items-center justify-between w-full py-3 text-gray-900 bg-gray-100 gap-3 px-2 rounded-t-lg"
+        className="flex items-center justify-between w-full py-3 text-gray-900 bg-gray-100 gap-3 px-2 rounded-t-lg cursor-pointer"
       >
         <span className="text-gray-600">Answer option</span>
         <svg
@@ -35,7 +51,7 @@ export default function AnswerOption() {
             d="M9 5 5 1 1 5"
           />
         </svg>
-      </Link>
+      </button>
 
       {/* Toggles */}
       {open && (
@@ -113,15 +129,31 @@ export default function AnswerOption() {
                 type="text"
                 className="bg-white py-2.5 px-3 w-full border rounded-lg"
                 placeholder="...."
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
               />
             </div>
             <div>
-              <Link href=""
+              <button
                 type="button"
+                onClick={handleAddAnswer}
                 className="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5"
               >
-                Асуулт нэмэх
-              </Link>
+                Хариулт нэмэх
+              </button>
+            </div>
+            <div className="space-y-3">
+              {addAnswer.map((addAnswer,index) => (
+                <div key={index} className="flex items-center justify-between bg-white p-3 rounded-lg">
+                  <span className="text-gray-800">{addAnswer.text}</span>
+                  <label className="flex items-center cursor-pointer">
+                     <Switch id="airplane-mode"
+                     checked={addAnswer.active}
+                     onChange={() => toggleAnswerActive(index)}
+                     className="cursor-pointer"/>
+                  </label>
+                </div>
+              ))}
             </div>
           </div>
         </div>

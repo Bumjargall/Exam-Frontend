@@ -11,7 +11,7 @@ export default function SimpleChoice({handleSelect} : functionType) {
   return (
     <div className="max-w-2xl mx-auto mb-20 shadow">
       <div className="flex justify-between items-center bg-gray-100">
-        <div className="py-4 shadow">
+        <div className="py-4">
           <p className="pl-4 text-gray-900">Богино хариулт</p>
         </div>
         <button type="button" className="cursor-pointer pr-4" onClick={() => handleSelect(null)}>
