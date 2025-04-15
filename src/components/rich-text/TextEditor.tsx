@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import {
   Form,
   FormControl,
@@ -12,7 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-function extractTextFromHTML(html) {
+function extractTextFromHTML(html:string) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
   return doc.body.textContent?.trim() || "";
@@ -41,7 +42,6 @@ export default function Home() {
   const onSubmit = (data:any) => {
     console.log(data);
   };
-
   return (
     <div className="max-w-2xl mx-auto py-5">
       <Form {...form}>

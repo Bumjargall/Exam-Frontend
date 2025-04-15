@@ -9,10 +9,11 @@ import Image from "@tiptap/extension-image";
 import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
 import ImageResize from "tiptap-extension-resize-image";
+import { useEffect } from "react";
 
 
 
-export default function RichTextEditor({ content, onChange }:{content:any, onChange:any}) {
+export default function RichTextEditor({ content, onChange,}:{content:any, onChange:any,}) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure(),

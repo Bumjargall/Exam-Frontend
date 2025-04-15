@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-export default function AnswerOption() {
+export default function FillAnswerOption() {
   const [open, setOpen] = useState(false);
   const [isShuffled, setIsShuffled] = useState(false);
   const [isSingleSelect, setIsSingleSelect] = useState(false);
@@ -70,24 +70,9 @@ export default function AnswerOption() {
       {open && (
         <div className="flex flex-col space-y-5 bg-gray-100 p-3 py-5">
           {/* Input and Button */}
-          <div className="flex flex-col space-y-5">
+          <div className="flex flex-col space-y-2">
             <div>
-              <input
-                type="text"
-                className="bg-white py-2.5 px-3 w-full border rounded-lg"
-                placeholder="...."
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-              />
-            </div>
-            <div>
-              <button
-                type="button"
-                className="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 cursor-pointer"
-                onClick={HandleAddAnswer}
-              >
-                Хариулт нэмэх
-              </button>
+                <p>Gaps</p>
             </div>
             <div className="space-y-3">
               {addAnswer.map((addAnswer, index) => (

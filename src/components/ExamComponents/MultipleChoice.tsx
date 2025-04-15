@@ -1,9 +1,10 @@
 import React from "react";
-import Texteditor from "@/components/rich-text/TextEditor";
+import TextEditor from "@/components/rich-text/TextEditor";
 import SaveQuestion from "@/components/ui/savequestion";
 import AnswerOption from "@/components/create-exam/AnswerOption";
 import MarkingRules from "@/components/create-exam/MarkingRules";
 import { X } from "lucide-react";
+import RichTextEditor from "../rich-text";
 type functionType = {
   handleSelect: (type: string | null) => void;
 }
@@ -19,7 +20,7 @@ export default function MultipleChoice({handleSelect}: functionType) {
         </button>
       </div>
       <div className="p-5 space-y-3">
-        <Texteditor />
+        <TextEditor />
         <AnswerOption />
         <MarkingRules />
       </div>

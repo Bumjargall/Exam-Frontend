@@ -1,10 +1,11 @@
 import React from "react";
-import Texteditor from "@/components/rich-text/TextEditor";
+import TextEditor from "@/components/rich-text/TextEditor";
 import SaveQuestion from "@/components/ui/savequestion";
 import AnswerOption from "@/components/create-exam/AnswerOption";
 import MarkingRules from "@/components/create-exam/MarkingRules";
 import Link from "next/link";
 import SimpleAnswerOption from "@/components/create-exam/SimpleAnswerOption";
+import FillAnswerOption from "../create-exam/FillAnserOption";
 import { X } from "lucide-react";
 type functionType = {
   handleSelect: (type:string | null) => void
@@ -21,16 +22,15 @@ export default function FillChoice({handleSelect}: functionType) {
         </button>
       </div>
       <div className="p-5 space-y-3">
-        <Texteditor />
+        <TextEditor />
         <div className="flex text-center text-gray-900 items-start">
-          <Link
-            href=""
-            className="py-1 border border-gray-900 px-4 rounded-2xl hover:bg-gray-100"
+          <button
+            className="py-1 border border-gray-900 px-4 rounded-2xl hover:bg-gray-100 cursor-pointer"
           >
-            Gap
-          </Link>
+            Gap 
+          </button>
         </div>
-        <SimpleAnswerOption />
+        <FillAnswerOption />
         <MarkingRules />
       </div>
       <SaveQuestion text="Хадгалах" />
