@@ -1,28 +1,16 @@
-"use client";
+import React from "react";
 import TextEditor from "@/components/rich-text/TextEditor";
 import SaveQuestion from "@/components/ui/savequestion";
-import FillAnswerOption from "../create-exam/FillAnserOption";
+import AnswerOption from "@/components/create-exam/AnswerOption";
 import MarkingRules from "@/components/create-exam/MarkingRules";
+import Link from "next/link";
+import SimpleAnswerOption from "@/components/create-exam/SimpleAnswerOption";
+import FillAnswerOption from "../create-exam/FillAnserOption";
 import { X } from "lucide-react";
-import { useRef, useState } from "react";
-
 type functionType = {
-  handleSelect: (type: string | null) => void;
-};
-
-export default function FillChoice({ handleSelect }: functionType) {
-  const editorRef = useRef<any>(null);
-  const [addAnswer, setAddAnswer] = useState<
-    { text: string; editMode: boolean }[]
-  >([]);
-
-  const handleAddGap = (gapText: string) => {
-    setAddAnswer((prev) => [
-      ...prev,
-      { text: `${prev.length + 1}`, editMode: false },
-    ]);
-  };
-
+  handleSelect: (type:string | null) => void
+}
+export default function FillChoice({handleSelect}: functionType) {
   return (
     <div className="max-w-2xl mx-auto mb-20 shadow">
       <div className="bg-gray-100 flex justify-between items-center">
@@ -34,14 +22,18 @@ export default function FillChoice({ handleSelect }: functionType) {
         </button>
       </div>
       <div className="p-5 space-y-3">
-        <TextEditor onAddGap={handleAddGap} ref={editorRef} />
-        <FillAnswerOption
-          addAnswer={addAnswer}
-          setAddAnswer={setAddAnswer}
-        />
+        <TextEditor />
+        <div className="flex text-center text-gray-900 items-start">
+          <button
+            className="py-1 border border-gray-900 px-4 rounded-2xl hover:bg-gray-100 cursor-pointer"
+          >
+            Gap 
+          </button>
+        </div>
+        <FillAnswerOption />
         <MarkingRules />
       </div>
-      <SaveQuestion text="Хадгалах" />
+      <SaveQuestion text="Хадгалах"/>
     </div>
   );
 }
