@@ -25,7 +25,6 @@ export default function MultipleChoice({handleSelect}: functionType) {
         <MarkingRules />
       </div>
       <SaveQuestion text="Хадгалах" />
-      <div>ahhhaa</div>
     </div>
   );
 }

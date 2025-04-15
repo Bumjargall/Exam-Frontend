@@ -33,7 +33,7 @@ export default function FillChoice({handleSelect}: functionType) {
         <FillAnswerOption />
         <MarkingRules />
       </div>
-      <SaveQuestion text="Хадгалах" />
+      <SaveQuestion text="Хадгалах"/>
     </div>
   );
 }
