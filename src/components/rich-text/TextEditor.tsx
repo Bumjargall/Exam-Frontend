@@ -54,7 +54,7 @@ export default function Home() {
                 <FormLabel></FormLabel>
                 <FormControl>
                   <RichTextEditor
-                    content={field.value}
+                    value={field.value}
                     onChange={(value:any) => field.onChange(value)}
                   />
                 </FormControl>

@@ -13,7 +13,7 @@ import { useEffect } from "react";
 
 
 
-export default function RichTextEditor({ content, onChange,}:{content:any, onChange:any,}) {
+export default function RichTextEditor({ value, onChange,}:{value:any, onChange:any,}) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure(),
@@ -37,15 +37,16 @@ export default function RichTextEditor({ content, onChange,}:{content:any, onCha
       Image,
       ImageResize,
     ],
-    content: content,
+    content: value,
     editorProps: {
       attributes: {
         class: "min-h-[156px] border rounded-md bg-slate-50 py-2 px-3",
       },
     },
     onUpdate: ({ editor }) => {
-      console.log(editor.getHTML());
       onChange(editor.getHTML());
+      onChange(editor.getText())
+      console.log(editor.getText());
     },
   });
 
