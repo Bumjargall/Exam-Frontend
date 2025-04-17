@@ -1,8 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { connectDB } from "./mongodb";
-import User, { UserRole } from "@/models/User";
 export const authConfig: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -13,29 +11,41 @@ export const authConfig: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Invalid credentials");
+          throw new Error("Мэйл болон нууц үгээ оруулна уу...");
         }
-        await connectDB();
-        const user = await User.findOne({ email: credentials.email });
-        if (!user) {
-          throw new Error("No user found");
+        try {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/login`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body:JSON.stringify({
+              email: credentials.email,
+              password: credentials.password,
+            })
+          })
+          if(!response.ok){
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Нэвтрэхэд алдаа гарлаа.");
+          }
+          const user = await response.json()
+
+          if (!user) {
+            throw new Error("No user found");
+          }
+          return {
+            id: user._id,
+            lastName: user.lastName,
+            firtstName: user.firstName,
+            email: user.email,
+            orginization: user.organization,
+            role: user.role,
+          };
+        }catch (error) {
+          console.error("Нэвтрэхэд алдаа гарлаа:", error);
+          throw new Error("Нэвтрэхэд алдаа гарлаа.");
         }
-        const isPasswordMatch = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
-        if (!isPasswordMatch) {
-          throw new Error("Invalid password");
-        }
-        return {
-          id: user._id.toString(),
-          lastName: user.lastName,
-          firtstName: user.firstName,
-          email: user.email,
-          orginization: user.organization,
-          role: user.role,
-        };
-      },
+      }
     }),
   ],
   callbacks: {
@@ -49,7 +59,7 @@ export const authConfig: NextAuthOptions = {
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id as string;
-        session.user.role = token.role as UserRole;
+        session.user.role = token.role as string;
       }
       return session;
     },

@@ -1,12 +1,10 @@
+"use client"
 import LoginForm from "@/components/auth/LoginForm";
 import { getServerSession } from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { redirect } from "next/navigation";
-async function login() {
-  const session = await getServerSession(authConfig);
-  if(session){
-
-  }
+ function login() {
+ 
   return (
     <div>
         <LoginForm/>

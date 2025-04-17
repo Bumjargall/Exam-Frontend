@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu, User, LogOut } from "lucide-react";
-
+import { useRouter } from "next/navigation";
 const navItems = [
   { label: "Шалгалт үүсгэх", href: "/teacher/create-exam" },
   { label: "Шалгалтууд", href: "/teacher/exams" },
@@ -13,6 +13,14 @@ const navItems = [
 ];
 
 export default function NavbarTeacher() {
+  const router = useRouter();
+
+  const logoutUser = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    router.push("/");
+  };
   return (
     <header className="w-full shadow-sm border-b">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
@@ -38,7 +46,8 @@ export default function NavbarTeacher() {
             <User className="h-5 w-5" />
           </Link>
           <Link
-            href={""}
+            href={"#"}
+            onClick={logoutUser}
             className="text-gray-600 hover:border p-2 rounded-lg border-gray-900"
           >
             <LogOut className="h-5 w-5" />
