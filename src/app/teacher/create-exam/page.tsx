@@ -10,6 +10,7 @@ import QuestionList from "@/components/create-exam/QuestionList";
 export default function Page() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [examTitle, setExamTitle] = useState("")
+  const [exam, setExam]=useState([])
   const handleSelectType = (type: string | null) => {
     console.log(type);
     setSelectedType(type);
@@ -52,6 +53,13 @@ export default function Page() {
             </div>
           </div>
           <div className="max-w-2xl mx-auto mb-20">
+            {/*
+            {exam && 
+              <div>
+                <h1>Examuud garna</h1>  
+              <div/>
+            }
+            */}
             {!selectedType && <QuestionList handleSelect={handleSelectType} />}
             {selectedType === "multiple-choice" && (
               <MultipleChoice handleSelect={handleSelectType} />
@@ -60,7 +68,7 @@ export default function Page() {
               <SimpleChoice handleSelect={handleSelectType} />
             )}
             {selectedType === "fill-choice" && (
-              <FillChoice handleSelect={handleSelectType} />
+              <FillChoice handleSelect={handleSelectType} exam={exam} setExam={setExam}/>
             )}
             {selectedType === "free-text" && (
               <FreeText handleSelect={handleSelectType} />

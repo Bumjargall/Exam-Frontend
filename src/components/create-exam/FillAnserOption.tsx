@@ -58,7 +58,7 @@ export default function FillAnswerOption({
                       className="border border-gray-400 py-1 rounded-lg px-2 items-center w-full"
                     />
                   ) : (
-                    <span className="text-gray-900">{answer.text}</span>
+                    <span className="text-gray-900">{index+1}. {answer.text}</span>
                   )}
                 </div>
                 <div className="flex justify-between items-center space-x-2">

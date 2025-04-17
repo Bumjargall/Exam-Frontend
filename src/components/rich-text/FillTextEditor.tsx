@@ -20,7 +20,7 @@ const TextEditor = forwardRef(({ onAddGap }: TextEditorProps, ref) => {
 
   const handleAddGap = () => {
     if (!editor) return;
-    const gap = "_____"; // Gap текст
+    const gap = `N`; // Gap текст
     editor.commands.insertContent(gap);
     onAddGap(gap); // addAnswer-д хадгалах
   };
