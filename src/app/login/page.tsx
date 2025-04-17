@@ -1,6 +1,12 @@
-import React from 'react'
-import LoginForm from '@/components/auth/LoginForm'
-function login() {
+import LoginForm from "@/components/auth/LoginForm";
+import { getServerSession } from "next-auth";
+import { authConfig } from "@/lib/auth";
+import { redirect } from "next/navigation";
+async function login() {
+  const session = await getServerSession(authConfig);
+  if(session){
+
+  }
   return (
     <div>
         <LoginForm/>
