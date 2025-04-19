@@ -207,7 +207,7 @@ export default function FillChoice({
               <input
                 name="number"
                 type="number"
-                className="score"
+                className="rounded-md bg-white px-3 py-1.5 text-gray-900 border border-gray-800 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500"
                 value={score}
                 onChange={(e) => setScore(Number(e.target.value))}
               />

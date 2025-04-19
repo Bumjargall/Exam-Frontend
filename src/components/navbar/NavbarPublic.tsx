@@ -11,7 +11,6 @@ const navItems = [
   { label: "Видео сан", href: "/exams" },
   { label: "Нэвтрэх", href: "/login" },
 ];
-
 export default function Navbar() {
 
   return (

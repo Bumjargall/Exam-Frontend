@@ -11,6 +11,7 @@ export default function Home() {
 
   useEffect(() => {
     const fetchData = () => {
+      console.log({NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL});
       try {
         const userJson = JSON.parse(localStorage.getItem("user") as string);
         setRole(userJson?.user.role);

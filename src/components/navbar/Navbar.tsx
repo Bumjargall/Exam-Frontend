@@ -1,23 +1,41 @@
 "use client";
+
+import { useEffect, useState } from "react";
 import NavbarPublic from "@/components/navbar/NavbarPublic";
 import NavbarAdmin from "@/components/navbar/NavbarAdmin";
 import NavbarStudent from "@/components/navbar/NavbarStudent";
 import NavbarTeacher from "@/components/navbar/NavbarTeacher";
-import { useEffect, useState } from "react";
 
-interface userType {}
 export default function Navbar() {
-  const [user, setUser] = useState("");
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const userJson = JSON.parse(localStorage.getItem("user") as string);
-    setUser(userJson?.user.email);
-    setRole(userJson?.user.role);
-  }, [user]);
+    const userString = localStorage.getItem("user");
 
-  if (!user) return <NavbarPublic />;
+    if (!userString) {
+      setRole(null);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const userJson = JSON.parse(userString);
+      setRole(userJson?.user?.role || null);
+    } catch (err) {
+      console.error("Хэрэглэгчийн мэдээллийг уншихад алдаа гарлаа:", err);
+      setRole(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // ⏳ LocalStorage-оос мэдээлэл авч байх үед
+  if (loading) return null;
+  // 👥 Хэрэглэгч байхгүй үед Public Navbar
+  if (!role) return <NavbarPublic />;
   if (role == "teacher") return <NavbarTeacher />;
   if (role == "student") return <NavbarStudent />;
-  return <div>Logged Nav Bar</div>;
+  if (role == "admin") return <NavbarAdmin />;
+  return <NavbarPublic />;
 }

@@ -75,6 +75,7 @@ export async function register(values: z.infer<typeof RegisterSchema>) {
 
 
 export const login = (email: string, password: string) => {
+  console.log("login function called");
   return axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/login`, {
     email:email,
     password:password
