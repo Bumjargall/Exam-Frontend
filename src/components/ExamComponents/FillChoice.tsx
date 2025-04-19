@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { X, Trash2, Pencil } from "lucide-react";
@@ -9,11 +9,17 @@ type FillChoiceProps = {
   handleSelect: (type: string | null) => void;
   setExam: React.Dispatch<React.SetStateAction<any[]>>;
   exam: any[];
+  editingIndex: number | null;
+  setEditingIndex: React.Dispatch<React.SetStateAction<number | null>>;
+  setSelectedType: React.Dispatch<React.SetStateAction<string | null>>;
 };
 export default function FillChoice({
   handleSelect,
   setExam,
   exam,
+  editingIndex,
+  setEditingIndex,
+  setSelectedType
 }: FillChoiceProps) {
   const [questionContent, setQuestionContent] = useState<string>("");
   const [addAnswer, setAddAnswer] = useState<
@@ -28,6 +34,16 @@ export default function FillChoice({
       setQuestionContent(editor.getHTML());
     },
   });
+
+  useEffect(() => {
+    if (editingIndex !== null) {
+      const current = exam[editingIndex];
+      setQuestionContent(current.question);
+      setAddAnswer(current.answers);
+      setScore(current.score);
+      editor?.commands.setContent(current.question);
+    }
+  }, [editingIndex, exam, editor]);
 
   const handleAddGap = () => {
     if (!editor) return;
@@ -81,16 +97,19 @@ export default function FillChoice({
       answers: addAnswer,
       score: score,
     };
+
     setExam((prevExam) => {
-      const updateExam = [...exam, newData];
-
-      console.log(updateExam)
-      //final data
-      return updateExam
-
+      if (editingIndex !== null) {
+        const updated = [...prevExam];
+        updated[editingIndex] = newData;
+        return updated;
+      } else {
+        return [...prevExam, newData];
+      }
     });
-    // буцах
     handleSelect(null);
+    setEditingIndex(null);
+    setSelectedType(null);
   };
   return (
     <div className="max-w-2xl mx-auto mb-20 shadow">
@@ -100,7 +119,7 @@ export default function FillChoice({
         </div>
         <button
           className="cursor-pointer pr-4"
-          onClick={() => handleSelect(null)}
+          onClick={() => {handleSelect(null) ; setEditingIndex(null); setSelectedType(null);}}
         >
           <X />
         </button>

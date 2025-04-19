@@ -7,14 +7,18 @@ import SimpleChoice from "@/components/ExamComponents/Simple-Choice";
 import InformationBlock from "@/components/ExamComponents/Information-block";
 import Link from "next/link";
 import QuestionList from "@/components/create-exam/QuestionList";
+import { Button } from "@/components/ui/button";
+import GapRenderer from "@/components/ExamComponents/GapRenderer";
+import { set } from "zod";
 export default function Page() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [examTitle, setExamTitle] = useState("");
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [exam, setExam] = useState<
     { type: string; question: string; answers: any[]; score: number }[]
   >([]);
   const handleSelectType = (type: string | null) => {
-    console.log("----> ",type);
+    console.log("----> ", type);
     setSelectedType(type);
   };
 
@@ -55,22 +59,58 @@ export default function Page() {
             </div>
           </div>
           <div className="max-w-2xl mx-auto mb-20">
-            {/*
-            {exam && 
-              <div>
-                <h1>Examuud garna</h1>  
-              <div/>
-            }
-            */}
+            {exam.length > 0 && (
+              <div className="w-full text-gray-900 space-y-5 border p-4 rounded-lg mb-10">
+                <div className="flex items-center justify-between gap-3 bg-gray-100 p-3 rounded">
+                  <span className="text-gray-800 font-semibold">
+                    Шалгалтын асуултууд
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  {exam.map((item, index) => (
+                    <div
+                      key={index}
+                      className="border p-3 rounded-lg bg-white shadow-sm"
+                    >
+                      <div className="flex items-center justify-between mb-5">
+                        <h2 className="flex items-center text-sm font-semibold gap-2">
+                          {index + 1}. <GapRenderer text={item.question} />
+                        </h2>
+                        <Button
+                          onClick={() => {
+                            setEditingIndex(index);
+                            setSelectedType(exam[index].type);
+                          }}
+                          variant={"outline"}
+                          className="cursor-pointer"
+                        >
+                          Засах
+                        </Button>
+                      </div>
+
+                      <p className="flex text-sm text-gray-600 mb-2 justify-end">
+                        Оноо: {item.score}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {!selectedType ? (
               <QuestionList handleSelect={handleSelectType} />
             ) : (
               (() => {
                 switch (selectedType) {
                   case "multiple-choice":
-                    return <MultipleChoice handleSelect={handleSelectType} 
-                    exam={exam}
-                    setExam={setExam}/>;
+                    return (
+                      <MultipleChoice
+                        handleSelect={handleSelectType}
+                        exam={exam}
+                        setExam={setExam}
+                      />
+                    );
                   case "simple-choice":
                     return <SimpleChoice handleSelect={handleSelectType} />;
                   case "fill-choice":
@@ -79,6 +119,9 @@ export default function Page() {
                         handleSelect={handleSelectType}
                         exam={exam}
                         setExam={setExam}
+                        editingIndex={editingIndex}
+                        setEditingIndex={setEditingIndex} // энэ заавал байх ёстой
+                        setSelectedType={setSelectedType} // энэ ч бас
                       />
                     );
                   case "free-text":

@@ -36,7 +36,7 @@ const GapRenderer: React.FC<GapRendererProps> = ({ text, onChange }) => {
             <input
               key={index}
               type="text"
-              className="border border-gray-300 w-28 px-3 rounded-xl text-center focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all"
+              className="border border-gray-300 w-28 px-3 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all"
               placeholder={``}
               value={answers[currentIndex]}
               onChange={(e) => handleInputChange(currentIndex, e.target.value)}
