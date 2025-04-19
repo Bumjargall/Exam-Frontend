@@ -7,19 +7,12 @@ import SimpleChoice from "@/components/ExamComponents/Simple-Choice";
 import InformationBlock from "@/components/ExamComponents/Information-block";
 import Link from "next/link";
 import QuestionList from "@/components/create-exam/QuestionList";
-import GapRenderer from "@/components/ExamComponents/GapRenderer";
-import { Button } from "@/components/ui/button";
-
 export default function Page() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [examTitle, setExamTitle] = useState("");
-  const [exam, setExam] = useState<Exam[]>([]);
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
-
-  interface Exam {
-    question: string;
-    score: number;
-  }
+  const [exam, setExam] = useState<
+    { type: string; question: string; answers: any[]; score: number }[]
+  >([]);
   const handleSelectType = (type: string | null) => {
     console.log("----> ",type);
     setSelectedType(type);
@@ -61,59 +54,41 @@ export default function Page() {
               </ul>
             </div>
           </div>
-          <div className="max-w-2xl mx-auto mb-20 rounded-t-lg">
-            {exam.length > 0 && (
-              <div className="w-full text-gray-900 border mb-10 rounded-lg overflow-hidden">
-                <div className="px-4 py-3 bg-gray-100 border-b">
-                  <span className="text-gray-700 font-medium">
-                    Шалгалтын асуултууд
-                  </span>
-                </div>
-                <div className="divide-y">
-                  {exam.map((item, index) => (
-                    <div key={index} className="px-4 pt-3 bg-white space-y-5">
-                      <div className="flex items-center justify-between">
-                        <span className="flex items-center gap-2 text-gray-800">
-                          {index + 1}. <GapRenderer text={item.question} />
-                        </span>
-                        <Button onClick={() => setEditingIndex(index)} className="cursor-pointer">Засах</Button>
-                        {
-                          editingIndex === index && (
-                            <div>
-                              <h1>{index}</h1>
-                            </div>
-                          )
-                        }
-                      </div>
-                      <div>
-                        <span className="flex justify-end">
-                          Оноо: {item.score}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            {!selectedType && <QuestionList handleSelect={handleSelectType} />}
-            {selectedType === "multiple-choice" && (
-              <MultipleChoice handleSelect={handleSelectType} />
-            )}
-            {selectedType === "simple-choice" && (
-              <SimpleChoice handleSelect={handleSelectType} />
-            )}
-            {selectedType === "fill-choice" && (
-              <FillChoice
-                handleSelect={handleSelectType}
-                exam={exam}
-                setExam={setExam}
-              />
-            )}
-            {selectedType === "free-text" && (
-              <FreeText handleSelect={handleSelectType} />
-            )}
-            {selectedType === "information-block" && (
-              <InformationBlock handleSelect={handleSelectType} />
+          <div className="max-w-2xl mx-auto mb-20">
+            {/*
+            {exam && 
+              <div>
+                <h1>Examuud garna</h1>  
+              <div/>
+            }
+            */}
+            {!selectedType ? (
+              <QuestionList handleSelect={handleSelectType} />
+            ) : (
+              (() => {
+                switch (selectedType) {
+                  case "multiple-choice":
+                    return <MultipleChoice handleSelect={handleSelectType} 
+                    exam={exam}
+                    setExam={setExam}/>;
+                  case "simple-choice":
+                    return <SimpleChoice handleSelect={handleSelectType} />;
+                  case "fill-choice":
+                    return (
+                      <FillChoice
+                        handleSelect={handleSelectType}
+                        exam={exam}
+                        setExam={setExam}
+                      />
+                    );
+                  case "free-text":
+                    return <FreeText handleSelect={handleSelectType} />;
+                  case "information-block":
+                    return <InformationBlock handleSelect={handleSelectType} />;
+                  default:
+                    return null; // Аль ч тохирохгүй тохиолдолд юу ч буцаахгүй
+                }
+              })()
             )}
           </div>
         </div>
