@@ -9,10 +9,12 @@ import Link from "next/link";
 import QuestionList from "@/components/create-exam/QuestionList";
 export default function Page() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [examTitle, setExamTitle] = useState("")
-  const [exam, setExam]=useState([])
+  const [examTitle, setExamTitle] = useState("");
+  const [exam, setExam] = useState<
+    { type: string; question: string; answers: any[]; score: number }[]
+  >([]);
   const handleSelectType = (type: string | null) => {
-    console.log(type);
+    console.log("----> ",type);
     setSelectedType(type);
   };
 
@@ -23,7 +25,7 @@ export default function Page() {
           <div className="flex justify-between items-center p-3 bg-gray-50 rounded-t-lg border-b">
             <div>
               <input
-              value={examTitle}
+                value={examTitle}
                 type="text"
                 id="text"
                 className="w-[500px] py-2 bg-white border border-gray-300 rounded-lg pl-4 placeholder-gray-500"
@@ -60,21 +62,31 @@ export default function Page() {
               <div/>
             }
             */}
-            {!selectedType && <QuestionList handleSelect={handleSelectType} />}
-            {selectedType === "multiple-choice" && (
-              <MultipleChoice handleSelect={handleSelectType} />
-            )}
-            {selectedType === "simple-choice" && (
-              <SimpleChoice handleSelect={handleSelectType} />
-            )}
-            {selectedType === "fill-choice" && (
-              <FillChoice handleSelect={handleSelectType} exam={exam} setExam={setExam}/>
-            )}
-            {selectedType === "free-text" && (
-              <FreeText handleSelect={handleSelectType} />
-            )}
-            {selectedType === "information-block" && (
-              <InformationBlock handleSelect={handleSelectType} />
+            {!selectedType ? (
+              <QuestionList handleSelect={handleSelectType} />
+            ) : (
+              (() => {
+                switch (selectedType) {
+                  case "multiple-choice":
+                    return <MultipleChoice handleSelect={handleSelectType} />;
+                  case "simple-choice":
+                    return <SimpleChoice handleSelect={handleSelectType} />;
+                  case "fill-choice":
+                    return (
+                      <FillChoice
+                        handleSelect={handleSelectType}
+                        exam={exam}
+                        setExam={setExam}
+                      />
+                    );
+                  case "free-text":
+                    return <FreeText handleSelect={handleSelectType} />;
+                  case "information-block":
+                    return <InformationBlock handleSelect={handleSelectType} />;
+                  default:
+                    return null; // Аль ч тохирохгүй тохиолдолд юу ч буцаахгүй
+                }
+              })()
             )}
           </div>
         </div>

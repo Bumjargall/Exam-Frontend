@@ -21,9 +21,20 @@ export default function Home() {
     fetchData();
   }, [user]);
 
-  if (role === "teacher") router.push("/teacher/create-exam");
-  else if (role === "student") router.push("/student")
-  else (<div></div>)
+  useEffect(() => {
+    if (role) {
+      switch (role) {
+        case "teacher":
+          router.push("/teacher/create-exam");
+          break;
+        case "student":
+          router.push("/student");
+          break;
+        default:
+          router.push("/"); // Аль ч тохирохгүй тохиолдолд үндсэн хуудас руу чиглүүлнэ
+      }
+    }
+  }, [role, router]);
 
   return <div></div>;
 }
