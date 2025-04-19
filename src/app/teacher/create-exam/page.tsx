@@ -136,7 +136,9 @@ export default function Page() {
               (() => {
                 switch (selectedType) {
                   case "multiple-choice":
-                    return <MultipleChoice handleSelect={handleSelectType} />;
+                    return <MultipleChoice handleSelect={handleSelectType} 
+                    exam={exam}
+                    setExam={setExam}/>;
                   case "simple-choice":
                     return <SimpleChoice handleSelect={handleSelectType} />;
                   case "fill-choice":

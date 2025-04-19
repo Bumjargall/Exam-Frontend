@@ -11,9 +11,14 @@ import OrderedList from "@tiptap/extension-ordered-list";
 import ImageResize from "tiptap-extension-resize-image";
 import { useEffect } from "react";
 
+type ChoiseProps = {
+  value: any;
+  onChange: any;
+  setQuestionData: React.Dispatch<React.SetStateAction<string>>;
+  questionData: string;
+};
 
-
-export default function RichTextEditor({ value, onChange,}:{value:any, onChange:any,}) {
+export default function RichTextEditor({ value, onChange, setQuestionData, questionData }: ChoiseProps) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure(),
@@ -43,10 +48,13 @@ export default function RichTextEditor({ value, onChange,}:{value:any, onChange:
         class: "min-h-[156px] border rounded-md bg-slate-50 py-2 px-3",
       },
     },
+
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
-      onChange(editor.getText())
-      console.log(editor.getText());
+      onChange(editor.getText());
+      const examData = editor.getText()
+      console.log("questionData editor ---> ", examData);
+      setQuestionData(examData)
     },
   });
 

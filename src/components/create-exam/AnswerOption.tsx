@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ListOrdered,
   Shuffle,
@@ -13,7 +13,12 @@ import { string } from "zod";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
-export default function AnswerOption() {
+type ChoiseProps = {
+  options: string
+  setOptions: React.Dispatch<React.SetStateAction<string>>
+};
+
+export default function AnswerOption({options, setOptions}:ChoiseProps ) {
   const [open, setOpen] = useState(false);
   const [isShuffled, setIsShuffled] = useState(false);
   const [isSingleSelect, setIsSingleSelect] = useState(false);
@@ -33,8 +38,10 @@ export default function AnswerOption() {
   };
   const toggleAnswerActive = (index: number) => {
     const updated = [...addAnswer];
-    updated[index].active = !updated[index].active;
+
+      updated[index].active = !updated[index].active;
     setAddAnswer(updated);
+
   };
   const toggleEditMode = (index: number) => {
     const updated = [...addAnswer];
@@ -43,8 +50,10 @@ export default function AnswerOption() {
   };
 
   const handleDeleteAnswer = (index: number) => {
-    const updated = addAnswer.filter((_, i) => i !== index);
-    setAddAnswer(updated);
+    if (confirm("Энэ хариултыг устгах уу?")) {
+      const updated = addAnswer.filter((_, i) => i !== index);
+      setAddAnswer(updated);
+    }
   };
 
   const handleEditText = (index: number, newText: string) => {
@@ -52,6 +61,21 @@ export default function AnswerOption() {
     updated[index].text = newText;
     setAddAnswer(updated);
   };
+
+  useEffect(() => {
+    if (value.trim() !== "") {
+      const newOptions = [
+        ...options, 
+        { text: value, isCorrect: false }, 
+      ]; 
+      setValue("");
+
+      console.log("New options ---->", newOptions);
+      console.log("options ---->", options);
+    }
+  }, [value, options, setOptions]);
+
+
   return (
     <div className="max-w-2xl mx-auto">
       {/* Answer Option Toggle */}
