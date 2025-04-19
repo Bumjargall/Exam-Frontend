@@ -5,6 +5,7 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+
 import {
   Form,
   FormControl,
@@ -13,6 +14,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+
+
 function extractTextFromHTML(html:string) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
@@ -29,8 +32,12 @@ const formSchema = z.object({
     }
   ),
 });
+type ChoiseProps = {
+  setQuestionData: React.Dispatch<React.SetStateAction<string>>;
+  questionData: string;
 
-export default function Home() {
+}
+export default function Home({questionData, setQuestionData}: ChoiseProps) {
   const form = useForm({
     mode: "onTouched",
     resolver: zodResolver(formSchema),
@@ -56,6 +63,7 @@ export default function Home() {
                   <RichTextEditor
                     value={field.value}
                     onChange={(value:any) => field.onChange(value)}
+                    questionData={questionData} setQuestionData={setQuestionData}
                   />
                 </FormControl>
                 <FormMessage />
