@@ -19,7 +19,7 @@ export default function FillChoice({
   exam,
   editingIndex,
   setEditingIndex,
-  setSelectedType
+  setSelectedType,
 }: FillChoiceProps) {
   const [questionContent, setQuestionContent] = useState<string>("");
   const [addAnswer, setAddAnswer] = useState<
@@ -104,9 +104,22 @@ export default function FillChoice({
         updated[editingIndex] = newData;
         return updated;
       } else {
-        return [...prevExam, newData];
+        const updateExam = [...prevExam, newData];
+        console.log("exam--->", updateExam);
+        //final data
+        return updateExam;
       }
     });
+    {
+      /*
+      setExam((prev) => {
+      const updateExam = [...prev, newData];
+      console.log("exam--->", updateExam);
+      //final data
+      return updateExam;
+    });
+      */
+    }
     handleSelect(null);
     setEditingIndex(null);
     setSelectedType(null);
@@ -119,7 +132,11 @@ export default function FillChoice({
         </div>
         <button
           className="cursor-pointer pr-4"
-          onClick={() => {handleSelect(null) ; setEditingIndex(null); setSelectedType(null);}}
+          onClick={() => {
+            handleSelect(null);
+            setEditingIndex(null);
+            setSelectedType(null);
+          }}
         >
           <X />
         </button>

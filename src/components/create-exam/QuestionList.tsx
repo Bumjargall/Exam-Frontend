@@ -48,7 +48,7 @@ export default function QuestionList({ handleSelect }: functionType) {
             <QuestionType
               icon="ri-code-s-slash-line"
               label="Код"
-              QuestionType="free-text"
+              QuestionType="code"
               handleSelect={handleSelect}
             />
             <QuestionType

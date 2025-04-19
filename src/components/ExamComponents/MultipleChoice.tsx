@@ -50,11 +50,13 @@ export default function MultipleChoice({
       answers: addAnswer,
       score: score,
     };
-    console.log("Add options----> ",newQuestion)
 
-    setExam([...exam, newQuestion]);
-    console.log("exam--->", exam)
-    handleSelect(null); // Form-oo хаах
+    setExam(prevExam => {
+      const updatedExam = [...prevExam, newQuestion];
+      console.log("exam--->", updatedExam);
+      return updatedExam;
+    });
+    handleSelect(null);
   };
 
   //answer options

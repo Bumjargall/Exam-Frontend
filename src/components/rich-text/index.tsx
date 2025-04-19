@@ -53,7 +53,7 @@ export default function RichTextEditor({ value, onChange, setQuestionData, quest
       onChange(editor.getHTML());
       onChange(editor.getText());
       const examData = editor.getText()
-      console.log("questionData editor ---> ", examData);
+      //console.log("questionData editor ---> ", examData);
       setQuestionData(examData)
     },
   });

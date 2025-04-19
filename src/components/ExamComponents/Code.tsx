@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Texteditor from "@/components//rich-text/TextEditor";
+import Texteditor from "@/components/rich-text/TextEditor";
 import SaveQuestion from "@/components/ui/savequestion";
 import AnswerOption from "@/components/create-exam/AnswerOption";
 import MarkingRules from "@/components/create-exam/MarkingRules";
@@ -10,20 +10,20 @@ type functionType = {
   setExam: React.Dispatch<React.SetStateAction<any[]>>;
   exam: any[];
 };
-export default function InformationBlock({
+export default function Code({
   handleSelect,
-  setExam,
   exam,
+  setExam,
 }: functionType) {
   const [questionData, setQuestionData] = useState<string>("");
   const [score, setScore] = useState<number>(0);
+
   const handleSave = () => {
     const newQuestion = {
-      type: "imformation-block",
+      type: "code",
       question: questionData,
       score: score,
     };
-    console.log("Add options----> ", newQuestion);
 
     setExam(prevExam => {
       const updatedExam = [...prevExam, newQuestion];
@@ -36,7 +36,7 @@ export default function InformationBlock({
     <div className="max-w-2xl mx-auto mb-20 shadow">
       <div className="bg-gray-100 flex justify-between items-center">
         <div className="py-4">
-          <p className="pl-4 text-gray-900">Мэдээлэл</p>
+          <p className="pl-4 text-gray-900">Кодын шалгалт</p>
         </div>
         <button
           className="cursor-pointer pr-4"

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MultipleChoice from "@/components/ExamComponents/MultipleChoice";
 import FillChoice from "@/components/ExamComponents/FillChoice";
 import FreeText from "@/components/ExamComponents/FreeText";
@@ -10,6 +10,7 @@ import QuestionList from "@/components/create-exam/QuestionList";
 import { Button } from "@/components/ui/button";
 import GapRenderer from "@/components/ExamComponents/GapRenderer";
 import { set } from "zod";
+import Code from "@/components/ExamComponents/Code";
 export default function Page() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [examTitle, setExamTitle] = useState("");
@@ -112,7 +113,13 @@ export default function Page() {
                       />
                     );
                   case "simple-choice":
-                    return <SimpleChoice handleSelect={handleSelectType} />;
+                    return (
+                      <SimpleChoice
+                        handleSelect={handleSelectType}
+                        exam={exam}
+                        setExam={setExam}
+                      />
+                    );
                   case "fill-choice":
                     return (
                       <FillChoice
@@ -125,9 +132,29 @@ export default function Page() {
                       />
                     );
                   case "free-text":
-                    return <FreeText handleSelect={handleSelectType} />;
+                    return (
+                      <FreeText
+                        handleSelect={handleSelectType}
+                        exam={exam}
+                        setExam={setExam}
+                      />
+                    );
                   case "information-block":
-                    return <InformationBlock handleSelect={handleSelectType} />;
+                    return (
+                      <InformationBlock
+                        handleSelect={handleSelectType}
+                        exam={exam}
+                        setExam={setExam}
+                      />
+                    );
+                  case "code":
+                    return (
+                      <Code
+                        handleSelect={handleSelectType}
+                        exam={exam}
+                        setExam={setExam}
+                      />
+                    );
                   default:
                     return null; // Аль ч тохирохгүй тохиолдолд юу ч буцаахгүй
                 }
