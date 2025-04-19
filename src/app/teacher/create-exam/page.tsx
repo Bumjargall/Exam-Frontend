@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 export default function Page() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [examTitle, setExamTitle] = useState("");
-<<<<<<< HEAD
   const [exam, setExam] = useState<Exam[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
@@ -21,11 +20,6 @@ export default function Page() {
     question: string;
     score: number;
   }
-=======
-  const [exam, setExam] = useState<
-    { type: string; question: string; answers: any[]; score: number }[]
-  >([]);
->>>>>>> 6bef27ae27eec8b9f65301b03ce43bcf2d525aee
   const handleSelectType = (type: string | null) => {
     console.log("----> ",type);
     setSelectedType(type);
@@ -67,7 +61,6 @@ export default function Page() {
               </ul>
             </div>
           </div>
-<<<<<<< HEAD
           <div className="max-w-2xl mx-auto mb-20 rounded-t-lg">
             {exam.length > 0 && (
               <div className="w-full text-gray-900 border mb-10 rounded-lg overflow-hidden">
@@ -121,43 +114,6 @@ export default function Page() {
             )}
             {selectedType === "information-block" && (
               <InformationBlock handleSelect={handleSelectType} />
-=======
-          <div className="max-w-2xl mx-auto mb-20">
-            {/*
-            {exam && 
-              <div>
-                <h1>Examuud garna</h1>  
-              <div/>
-            }
-            */}
-            {!selectedType ? (
-              <QuestionList handleSelect={handleSelectType} />
-            ) : (
-              (() => {
-                switch (selectedType) {
-                  case "multiple-choice":
-                    return <MultipleChoice handleSelect={handleSelectType} 
-                    exam={exam}
-                    setExam={setExam}/>;
-                  case "simple-choice":
-                    return <SimpleChoice handleSelect={handleSelectType} />;
-                  case "fill-choice":
-                    return (
-                      <FillChoice
-                        handleSelect={handleSelectType}
-                        exam={exam}
-                        setExam={setExam}
-                      />
-                    );
-                  case "free-text":
-                    return <FreeText handleSelect={handleSelectType} />;
-                  case "information-block":
-                    return <InformationBlock handleSelect={handleSelectType} />;
-                  default:
-                    return null; // Аль ч тохирохгүй тохиолдолд юу ч буцаахгүй
-                }
-              })()
->>>>>>> 6bef27ae27eec8b9f65301b03ce43bcf2d525aee
             )}
           </div>
         </div>
