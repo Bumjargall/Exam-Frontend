@@ -15,33 +15,33 @@ import { Input } from "../ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import * as z from "zod";
-import {login} from "@/lib/actions/auth-action"
+import { login } from "@/lib/actions/auth-action";
 import Navbar from "../navbar/NavbarPublic";
 import { useRouter } from "next/navigation";
-const LoginForm =  () => {
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-const router = useRouter();
-  const form = useForm({
+type FormData = z.infer<typeof LoginSchema>;
+const LoginForm = () => {
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const form = useForm<FormData>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
-  const onSubmit = async (data: z.infer<typeof LoginSchema>) => {
+  const onSubmit = async (data: FormData) => {
     setLoading(true);
     setError(null);
 
     try {
-      console.log(data)
+      console.log(data);
       const userData = await login(data.email, data.password); // login функцийг дуудах
-      console.log("Амжилттай нэвтэрлээ:", userData?.data.user);
-      console.log("Амжилттай нэвтэрлээ:", userData?.data.token);
-      let role = userData?.data.user.role
-      localStorage.setItem("user",JSON.stringify(userData?.data))
-
-      router.push("/")
+      console.log("Амжилттай нэвтэрлээ:", userData?.user);
+      console.log("Амжилттай нэвтэрлээ:", userData?.token);
+      let role = userData?.user.role;
+      localStorage.setItem("user", JSON.stringify(userData));
+      router.push("/");
     } catch (err: any) {
       setError(err.message);
     } finally {

@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import AuthError from "next-auth";
 import { error } from "console";
 import axios from "axios";
+import path from "path";
 
 {
   /**
@@ -76,19 +77,24 @@ export async function register(values: z.infer<typeof RegisterSchema>) {
   */
 }
 
-export const login = (email: string, password: string) => {
-  return axios
-    .post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/login`, {
-      email: email,
-      password: password,
-    })
-    .then(function (response) {
-      console.log(response);
-      return response;
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+export const login = async (email: string, password: string) => {
+  try {
+    console.log("Хүсэлт илгээж байна:", email, password);
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/login`,
+      { email, password }
+    );
+    const data = await response.data;
+    console.log("Хариу :", data);
+    return data;
+  } catch (error: any) {
+    console.log("Login алдаа:", error);
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    } else {
+      throw new Error("Интернэт эсвэл серверийн алдаа гарлаа.");
+    }
+  }
 };
 
 {

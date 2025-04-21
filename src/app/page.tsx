@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { fetchHelloMessage } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import QuestionList from "@/components/create-exam/QuestionList";
 
@@ -11,16 +10,18 @@ export default function Home() {
 
   useEffect(() => {
     const fetchData = () => {
-      console.log({NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL});
+      console.log({
+        NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
+      });
       try {
         const userJson = JSON.parse(localStorage.getItem("user") as string);
         setRole(userJson?.user.role);
       } catch (err) {
-        console.error(err);
+        console.error("Failed to parse user from localStorage", err);
       }
     };
     fetchData();
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     if (role) {
