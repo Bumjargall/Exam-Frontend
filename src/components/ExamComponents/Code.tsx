@@ -10,22 +10,22 @@ type functionType = {
   setExam: React.Dispatch<React.SetStateAction<any[]>>;
   exam: any[];
 };
-export default function Code({
-  handleSelect,
-  exam,
-  setExam,
-}: functionType) {
+export default function Code({ handleSelect, exam, setExam }: functionType) {
   const [questionData, setQuestionData] = useState<string>("");
   const [score, setScore] = useState<number>(0);
 
   const handleSave = () => {
+    if (score === 0) {
+      alert("Таны оноо 0 байна. Оноогоо оруулна уу!.");
+      return;
+    }
     const newQuestion = {
       type: "code",
       question: questionData,
       score: score,
     };
 
-    setExam(prevExam => {
+    setExam((prevExam) => {
       const updatedExam = [...prevExam, newQuestion];
       console.log("exam--->", updatedExam);
       return updatedExam;

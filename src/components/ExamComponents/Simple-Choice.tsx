@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Texteditor from "@/components/rich-text/TextEditor";
 import SaveQuestion from "@/components/ui/savequestion";
 import MarkingRules from "@/components/create-exam/MarkingRules";
@@ -22,11 +22,17 @@ type functionType = {
       { type: string; question: string; answers: any[]; score: number }[]
     >
   >;
+  editingIndex: number | null;
+  setEditingIndex: React.Dispatch<React.SetStateAction<number | null>>;
+  setSelectedType: React.Dispatch<React.SetStateAction<string | null>>;
 };
 export default function SimpleChoice({
   handleSelect,
   exam,
-  setExam
+  setExam,
+  editingIndex,
+  setEditingIndex,
+  setSelectedType,
 }: functionType) {
   const [questionData, setQuestionData] = useState<string>("");
   const [score, setScore] = useState<number>(0);
@@ -46,6 +52,15 @@ export default function SimpleChoice({
     }
     setValue("");
   };
+  useEffect(() => {
+    if (editingIndex !== null) {
+      const current = exam[editingIndex];
+      setQuestionData(current.question);
+      setAddAnswer(current.answers);
+      setScore(current.score);
+      editor?.command.setContent(current.question);
+    }
+  }, [editingIndex, exam]);
 
   // simple answer options
   const handleEditText = (index: number, newText: string) => {
@@ -64,6 +79,10 @@ export default function SimpleChoice({
   };
   // save btn
   const handleSave = () => {
+    if (score === 0) {
+      alert("Таны оноо 0 байна. Оноогоо оруулна уу");
+      return;
+    }
     const newQuestion = {
       type: "simple-choice",
       question: questionData,

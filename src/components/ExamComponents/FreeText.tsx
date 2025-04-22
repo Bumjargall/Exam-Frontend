@@ -19,12 +19,16 @@ export default function FreeChoice({
   const [score, setScore] = useState<number>(0);
 
   const handleSave = () => {
+    if (score === 0) {
+      alert("Тоо оноо 0-с их байх ёстой");
+      return;
+    }
     const newQuestion = {
       type: "free-text",
       question: questionData,
       score: score,
     };
-    setExam(prevExam => {
+    setExam((prevExam) => {
       const updatedExam = [...prevExam, newQuestion];
       console.log("exam--->", updatedExam);
       return updatedExam;

@@ -43,6 +43,10 @@ export default function MultipleChoice({
       alert("Асуулт болон сонголтуудыг бүрэн бөглөнө үү.");
       return;
     }
+    if (score === 0) {
+      alert("Таны оноо 0 байна. Оноогоо оруулна уу");
+      return;
+    }
 
     const newQuestion = {
       type: "multiple-choice",
@@ -51,7 +55,7 @@ export default function MultipleChoice({
       score: score,
     };
 
-    setExam(prevExam => {
+    setExam((prevExam) => {
       const updatedExam = [...prevExam, newQuestion];
       console.log("exam--->", updatedExam);
       return updatedExam;
@@ -295,10 +299,7 @@ export default function MultipleChoice({
             </div>
           )}
         </div>
-        <MarkingRules
-          score={score}
-          setScore={setScore}
-        />
+        <MarkingRules score={score} setScore={setScore} />
       </div>
 
       {/*Save button */}

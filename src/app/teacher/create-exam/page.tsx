@@ -11,6 +11,12 @@ import { Button } from "@/components/ui/button";
 import GapRenderer from "@/components/ExamComponents/GapRenderer";
 import { set } from "zod";
 import Code from "@/components/ExamComponents/Code";
+import { spawn } from "child_process";
+import { Span } from "next/dist/trace";
+import { Label } from "@radix-ui/react-label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 export default function Page() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [examTitle, setExamTitle] = useState("");
@@ -63,7 +69,7 @@ export default function Page() {
             {exam.length > 0 && (
               <div className="w-full text-gray-900 space-y-5 border p-4 rounded-lg mb-10">
                 <div className="flex items-center justify-between gap-3 bg-gray-100 p-3 rounded">
-                  <span className="text-gray-800 font-semibold">
+                  <span className="text-gray-800 font-semibold rounded-lg">
                     Шалгалтын асуултууд
                   </span>
                 </div>
@@ -74,8 +80,8 @@ export default function Page() {
                       key={index}
                       className="border p-3 rounded-lg bg-white shadow-sm"
                     >
-                      <div className="flex items-center justify-between mb-5">
-                        <h2 className="flex items-center text-sm font-semibold gap-2">
+                      <div className="flex items-center justify-between">
+                        <h2 className="flex items-center gap-2">
                           {index + 1}. <GapRenderer text={item.question} />
                         </h2>
                         <Button
@@ -90,9 +96,61 @@ export default function Page() {
                         </Button>
                       </div>
 
-                      <p className="flex text-sm text-gray-600 mb-2 justify-end">
-                        Оноо: {item.score}
-                      </p>
+                      {item.type === "multiple-choice" && (
+                        <div className="text-gray-700 my-3">
+                          <RadioGroup disabled>
+                            {item.answers.map((answer, idx) => (
+                              <div
+                                key={idx}
+                                className="flex items-center space-x-2 pl-6 font-semibold"
+                              >
+                                <RadioGroupItem
+                                  value={answer.text}
+                                  id={`question-${index}-answer-${idx}`}
+                                />
+                                <Label
+                                  htmlFor={`question-${index}-answer-${idx}`}
+                                >
+                                  {answer.text}
+                                </Label>
+                              </div>
+                            ))}
+                          </RadioGroup>
+                        </div>
+                      )}
+                      {item.type === "simple-choice" && (
+                        <div className="flex justify-end my-6">
+                          <Input
+                            type={"text"}
+                            disabled
+                            placeholder="Хариулт..."
+                            className="w-1/5 border-gray-900 rounded-lg pl-4 placeholder-gray-900"
+                          />
+                        </div>
+                      )}
+                      {item.type === "free-text" && (
+                        <div className="p-3 space-y-4">
+                          <p className="font-semibold">Хариулт:</p>
+                          <Textarea
+                            disabled
+                            placeholder="Type your message here."
+                          />
+                        </div>
+                      )}
+                      {item.type === "code" && (
+                        <div className="p-3 space-y-4">
+                          <p className="font-semibold">Хариулт:</p>
+                          <Textarea
+                            disabled
+                            placeholder="Type your message here."
+                          />
+                        </div>
+                      )}
+                      {item.type !== "information-block" && (
+                        <p className="flex text-sm text-gray-600 mb-2 justify-end mt-2">
+                          Оноо: {item.score}
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -118,6 +176,9 @@ export default function Page() {
                         handleSelect={handleSelectType}
                         exam={exam}
                         setExam={setExam}
+                        editingIndex={editingIndex}
+                        setEditingIndex={setEditingIndex} // энэ заавал байх ёстой
+                        setSelectedType={setSelectedType}
                       />
                     );
                   case "fill-choice":

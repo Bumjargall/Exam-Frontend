@@ -25,7 +25,7 @@ export default function FillChoice({
   const [addAnswer, setAddAnswer] = useState<
     { text: string; editMode: boolean }[]
   >([]);
-  const [score, setScore] = useState<number>(1);
+  const [score, setScore] = useState<number>(0);
   const [open, setOpen] = useState(false);
   const editor = useEditor({
     extensions: [StarterKit],
@@ -69,7 +69,6 @@ export default function FillChoice({
       let content = editor.getHTML();
       content = content.replaceAll(gapText, "");
       editor.commands.setContent(content);
-
       const updatedAnswers = addAnswer.filter((_, i) => i !== index);
 
       //үлдсэн gap дугаар шинэчлэх
@@ -91,6 +90,10 @@ export default function FillChoice({
     setAddAnswer(updated);
   };
   const handleSave = () => {
+    if (score === 0) {
+      alert("Таны оноо 0 байна. Оноогоо оруулна уу");
+      return;
+    }
     const newData = {
       type: "fill-choice",
       question: editor?.getText() || "",

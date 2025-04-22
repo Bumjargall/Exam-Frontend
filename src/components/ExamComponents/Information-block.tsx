@@ -1,9 +1,6 @@
 import React, { useState } from "react";
-import Texteditor from "@/components//rich-text/TextEditor";
-import SaveQuestion from "@/components/ui/savequestion";
-import AnswerOption from "@/components/create-exam/AnswerOption";
+import Texteditor from "@/components/rich-text/TextEditor";
 import MarkingRules from "@/components/create-exam/MarkingRules";
-import SimpleAnswerOption from "@/components/create-exam/SimpleAnswerOption";
 import { X } from "lucide-react";
 type functionType = {
   handleSelect: (type: string | null) => void;
@@ -16,16 +13,18 @@ export default function InformationBlock({
   exam,
 }: functionType) {
   const [questionData, setQuestionData] = useState<string>("");
-  const [score, setScore] = useState<number>(0);
   const handleSave = () => {
+    if (!questionData.trim()) {
+      alert("Асуултын текст хоосон байна!");
+      return;
+    }
     const newQuestion = {
-      type: "imformation-block",
+      type: "information-block",
       question: questionData,
-      score: score,
     };
     console.log("Add options----> ", newQuestion);
 
-    setExam(prevExam => {
+    setExam((prevExam) => {
       const updatedExam = [...prevExam, newQuestion];
       console.log("exam--->", updatedExam);
       return updatedExam;
@@ -50,7 +49,6 @@ export default function InformationBlock({
           questionData={questionData}
           setQuestionData={setQuestionData}
         />
-        <MarkingRules score={score} setScore={setScore} />
       </div>
       {/*Save button */}
       <div className="rounded-b-lg border-t">
