@@ -5,6 +5,7 @@ import AnswerOption from "@/components/create-exam/AnswerOption";
 import MarkingRules from "@/components/create-exam/MarkingRules";
 import SimpleAnswerOption from "@/components/create-exam/SimpleAnswerOption";
 import { X } from "lucide-react";
+import { toast } from "sonner";
 type functionType = {
   handleSelect: (type: string | null) => void;
   setExam: React.Dispatch<React.SetStateAction<any[]>>;
@@ -15,8 +16,16 @@ export default function Code({ handleSelect, exam, setExam }: functionType) {
   const [score, setScore] = useState<number>(0);
 
   const handleSave = () => {
+    if (!questionData.trim()) {
+      toast("Асуултын текст хоосон байна!", {
+        action: { label: "Хаах", onClick: () => console.log("OK") },
+      });
+      return;
+    }
     if (score === 0) {
-      alert("Таны оноо 0 байна. Оноогоо оруулна уу!.");
+      toast("Та оноогоо тохируулж өгнө үү!", {
+        action: { label: "Хаах", onClick: () => console.log("OK") },
+      });
       return;
     }
     const newQuestion = {
@@ -57,7 +66,7 @@ export default function Code({ handleSelect, exam, setExam }: functionType) {
         <div className="py-5">
           <div className="text-center text-gray-900">
             <button
-              className="py-2 border border-gray-900 px-4 rounded-2xl hover:bg-gray-100"
+              className="py-2 border border-gray-900 px-4 rounded-2xl hover:bg-gray-100 cursor-pointer"
               onClick={handleSave}
             >
               Хадгалах

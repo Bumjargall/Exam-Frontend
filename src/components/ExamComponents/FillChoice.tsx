@@ -4,6 +4,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { X, Trash2, Pencil } from "lucide-react";
 import { Button } from "../ui/button";
+import { toast } from "sonner";
 
 type FillChoiceProps = {
   handleSelect: (type: string | null) => void;
@@ -90,8 +91,16 @@ export default function FillChoice({
     setAddAnswer(updated);
   };
   const handleSave = () => {
+    if (!questionContent.trim()) {
+      toast("Асуултын текст хоосон байна!", {
+        action: { label: "Хаах", onClick: () => console.log("OK") },
+      });
+      return;
+    }
     if (score === 0) {
-      alert("Таны оноо 0 байна. Оноогоо оруулна уу");
+      toast("Та оноогоо тохируулж өгнө үү!", {
+        action: { label: "Хаах", onClick: () => console.log("OK") },
+      });
       return;
     }
     const newData = {

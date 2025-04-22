@@ -5,6 +5,7 @@ import AnswerOption from "@/components/create-exam/AnswerOption";
 import MarkingRules from "@/components/create-exam/MarkingRules";
 import SimpleAnswerOption from "@/components/create-exam/SimpleAnswerOption";
 import { X } from "lucide-react";
+import { toast } from "sonner";
 type functionType = {
   handleSelect: (type: string | null) => void;
   setExam: React.Dispatch<React.SetStateAction<any[]>>;
@@ -19,8 +20,16 @@ export default function FreeChoice({
   const [score, setScore] = useState<number>(0);
 
   const handleSave = () => {
+    if (!questionData.trim()) {
+      toast("Асуултын текст хоосон байна!", {
+        action: { label: "Хаах", onClick: () => console.log("OK") },
+      });
+      return;
+    }
     if (score === 0) {
-      alert("Тоо оноо 0-с их байх ёстой");
+      toast("Та оноогоо тохируулж өгнө үү!", {
+        action: { label: "Хаах", onClick: () => console.log("OK") },
+      });
       return;
     }
     const newQuestion = {

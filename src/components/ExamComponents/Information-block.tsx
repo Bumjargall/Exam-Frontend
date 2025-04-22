@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Texteditor from "@/components/rich-text/TextEditor";
 import MarkingRules from "@/components/create-exam/MarkingRules";
 import { X } from "lucide-react";
+import { toast } from "sonner";
 type functionType = {
   handleSelect: (type: string | null) => void;
   setExam: React.Dispatch<React.SetStateAction<any[]>>;
@@ -15,7 +16,9 @@ export default function InformationBlock({
   const [questionData, setQuestionData] = useState<string>("");
   const handleSave = () => {
     if (!questionData.trim()) {
-      alert("Асуултын текст хоосон байна!");
+      toast("Асуултын текст хоосон байна!", {
+        action: { label: "Хаах", onClick: () => console.log("OK") },
+      });
       return;
     }
     const newQuestion = {

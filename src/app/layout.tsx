@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar/Navbar";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -23,8 +24,9 @@ export default function RootLayout({
       </head>
       <body>
         <div>
-          <Navbar/>
+          <Navbar />
           <main className="">{children}</main>
+          <Toaster />
         </div>
       </body>
     </html>

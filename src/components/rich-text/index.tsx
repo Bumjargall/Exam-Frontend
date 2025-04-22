@@ -57,6 +57,11 @@ export default function RichTextEditor({ value, onChange, setQuestionData, quest
       setQuestionData(examData)
     },
   });
+  useEffect(() => {
+    if(editor && value) {
+      editor.commands.setContent(value)
+    }
+  }, [editor, value])
 
   return (
     <div>

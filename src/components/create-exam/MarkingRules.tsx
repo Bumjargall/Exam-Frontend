@@ -1,7 +1,7 @@
 "use client"
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 
 type ScoreProps = {
@@ -11,6 +11,10 @@ type ScoreProps = {
 export default function MarkingRules({score, setScore}:ScoreProps) {
   const [open, setOpen] = useState(false);
 
+  const scoreUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setScore(Number(e.target.value));
+  };
+  
   return (
       <div className="max-w-2xl mx-auto">
       <button
@@ -40,7 +44,7 @@ export default function MarkingRules({score, setScore}:ScoreProps) {
       {open && (
             <div className="p-5 bg-gray-100 rounded-b-lg border-b">
                 <label className="font-medium text-gray-900 mb-2 block">Шалгалтын оноо</label>
-                <input name="number" type="number" className="rounded-md bg-white px-3 py-1.5 text-gray-900 border border-gray-800 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500" defaultValue={1} onChange={(e)=> setScore(Number(e.target.value))}/>
+                <input name="number" type="number" className="rounded-md bg-white px-3 py-1.5 text-gray-900 border border-gray-800 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500" defaultValue={0} onChange={scoreUpdate}/>
             </div>
       )}
     </div>

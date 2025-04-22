@@ -17,6 +17,7 @@ import Link from "next/link";
 import { string } from "zod";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 type functionType = {
   handleSelect: (type: string | null) => void;
@@ -40,11 +41,15 @@ export default function MultipleChoice({
 
   const handleSave = () => {
     if (!questionData || addAnswer.length === 0) {
-      alert("Асуулт болон сонголтуудыг бүрэн бөглөнө үү.");
+      toast("Асуултын болон хариултын текст хоосон байна!", {
+        action: { label: "Хаах", onClick: () => console.log("OK") },
+      });
       return;
     }
     if (score === 0) {
-      alert("Таны оноо 0 байна. Оноогоо оруулна уу");
+      toast("Та оноогоо тохируулж өгнө үү!", {
+        action: { label: "Хаах", onClick: () => console.log("OK") },
+      });
       return;
     }
 

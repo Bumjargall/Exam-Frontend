@@ -3,8 +3,22 @@ import Texteditor from "@/components/rich-text/TextEditor";
 import SaveQuestion from "@/components/ui/savequestion";
 import MarkingRules from "@/components/create-exam/MarkingRules";
 import SimpleAnswerOption from "@/components/create-exam/SimpleAnswerOption";
+import RichTextEditor from "@/components/rich-text";
+import { useForm } from "react-hook-form";
 import { X } from "lucide-react";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   ListOrdered,
   Shuffle,
@@ -27,6 +41,29 @@ type functionType = {
   setEditingIndex: React.Dispatch<React.SetStateAction<number | null>>;
   setSelectedType: React.Dispatch<React.SetStateAction<string | null>>;
 };
+
+// texteditor
+function extractTextFromHTML(html: string) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
+  return doc.body.textContent?.trim() || "";
+}
+
+const formSchema = z.object({
+  post: z.string().refine(
+    (value) => {
+      return extractTextFromHTML(value).trim().length >= 5;
+    },
+    {
+      message: "The text must be at least 5 characters long after trimming",
+    }
+  ),
+});
+type ChoiseProps = {
+  setQuestionData: React.Dispatch<React.SetStateAction<string>>;
+  questionData: string;
+};
+
 export default function SimpleChoice({
   handleSelect,
   exam,
@@ -59,6 +96,7 @@ export default function SimpleChoice({
       setQuestionData(current.question);
       setAddAnswer(current.answers);
       setScore(current.score);
+      form.reset({ post: current.question });
     }
   }, [editingIndex, exam]);
 
@@ -79,12 +117,6 @@ export default function SimpleChoice({
   };
   // save btn
   const handleSave = () => {
-    if (!questionData.trim()) {
-      toast("Асуултын текст хоосон байна!", {
-        action: { label: "Хаах", onClick: () => console.log("OK") },
-      });
-      return;
-    }
     if (score === 0) {
       toast("Та оноогоо тохируулж өгнө үү!", {
         action: { label: "Хаах", onClick: () => console.log("OK") },
@@ -99,14 +131,37 @@ export default function SimpleChoice({
     };
     console.log("Add options----> ", newQuestion);
 
-    setExam((prev) => {
-      const updatedExam = [...prev, newQuestion];
-      console.log("exam after add--->", updatedExam);
-      return updatedExam;
+    setExam((prevExam) => {
+      if (editingIndex !== null) {
+        const updated = [...prevExam];
+        updated[editingIndex] = newQuestion;
+        return updated;
+      } else {
+        const updateExam = [...prevExam, newQuestion];
+        console.log("exam--->", updateExam);
+        //final data
+        return updateExam;
+      }
     });
-    handleSelect(null); // Form-oo хаах
+    handleSelect(null);
     setEditingIndex(null);
     setSelectedType(null);
+  };
+
+  //textEditor
+  const handleEdit = (newText: string) => {
+    setQuestionData(newText);
+  };
+  const form = useForm({
+    mode: "onTouched",
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      post: "",
+    },
+  });
+
+  const onSubmit = (data: any) => {
+    console.log(data);
   };
 
   return (
@@ -128,10 +183,33 @@ export default function SimpleChoice({
         </button>
       </div>
       <div className="p-5 space-y-3">
-        <Texteditor
-          questionData={questionData}
-          setQuestionData={setQuestionData}
-        />
+        <div className="max-w-2xl mx-auto py-5">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <FormField
+                control={form.control}
+                name="post"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel></FormLabel>
+                    <FormControl>
+                      <RichTextEditor
+                        value={field.value}
+                        onChange={(value: string) => {
+                          field.onChange(value);
+                          handleEdit(value);
+                        }}
+                        questionData={questionData}
+                        setQuestionData={setQuestionData}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
+        </div>
         <div className="max-w-2xl mx-auto">
           {/* Answer Option Toggle */}
           <button
@@ -227,7 +305,51 @@ export default function SimpleChoice({
             </div>
           )}
         </div>
+        {/*
         <MarkingRules score={score} setScore={setScore} />
+*/}
+        {/*Marking rules*/}
+
+        <div className="max-w-2xl mx-auto">
+          <button
+            onClick={() => setOpen(!open)}
+            type="button"
+            className="flex items-center justify-between w-full py-3 text-gray-900 bg-gray-100 gap-3 px-2 rounded-t-lg cursor-pointer"
+          >
+            <span className="text-gray-600 pl-3">Marking rules</span>
+            <svg
+              className={`w-3 h-3 transform transition-transform ${
+                open ? "rotate-180" : "rotate-0"
+              }`}
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 10 6"
+            >
+              <path
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M9 5 5 1 1 5"
+              />
+            </svg>
+          </button>
+          {open && (
+            <div className="p-5 bg-gray-100 rounded-b-lg border-b">
+              <label className="font-medium text-gray-900 mb-2 block">
+                Шалгалтын оноо
+              </label>
+              <input
+                name="number"
+                type="number"
+                className="rounded-md bg-white px-3 py-1.5 text-gray-900 border border-gray-800 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500"
+                value={score}
+                onChange={(e) => setScore(Number(e.target.value))}
+              />
+            </div>
+          )}
+        </div>
       </div>
       {/*Save button */}
       <div className="rounded-b-lg border-t">

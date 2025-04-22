@@ -88,6 +88,7 @@ export default function Page() {
                           onClick={() => {
                             setEditingIndex(index);
                             setSelectedType(exam[index].type);
+                            console.log("type: ", exam[index].type);
                           }}
                           variant={"outline"}
                           className="cursor-pointer"
