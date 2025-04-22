@@ -4,6 +4,7 @@ import SaveQuestion from "@/components/ui/savequestion";
 import MarkingRules from "@/components/create-exam/MarkingRules";
 import SimpleAnswerOption from "@/components/create-exam/SimpleAnswerOption";
 import { X } from "lucide-react";
+import { toast } from "sonner";
 import {
   ListOrdered,
   Shuffle,
@@ -58,7 +59,6 @@ export default function SimpleChoice({
       setQuestionData(current.question);
       setAddAnswer(current.answers);
       setScore(current.score);
-      editor?.command.setContent(current.question);
     }
   }, [editingIndex, exam]);
 
@@ -79,8 +79,16 @@ export default function SimpleChoice({
   };
   // save btn
   const handleSave = () => {
+    if (!questionData.trim()) {
+      toast("Асуултын текст хоосон байна!", {
+        action: { label: "Хаах", onClick: () => console.log("OK") },
+      });
+      return;
+    }
     if (score === 0) {
-      alert("Таны оноо 0 байна. Оноогоо оруулна уу");
+      toast("Та оноогоо тохируулж өгнө үү!", {
+        action: { label: "Хаах", onClick: () => console.log("OK") },
+      });
       return;
     }
     const newQuestion = {
@@ -97,6 +105,8 @@ export default function SimpleChoice({
       return updatedExam;
     });
     handleSelect(null); // Form-oo хаах
+    setEditingIndex(null);
+    setSelectedType(null);
   };
 
   return (
@@ -108,7 +118,11 @@ export default function SimpleChoice({
         <button
           type="button"
           className="cursor-pointer pr-4"
-          onClick={() => handleSelect(null)}
+          onClick={() => {
+            handleSelect(null);
+            setEditingIndex(null);
+            setSelectedType(null);
+          }}
         >
           <X />
         </button>
