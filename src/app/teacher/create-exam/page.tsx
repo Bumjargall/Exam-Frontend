@@ -1,31 +1,37 @@
 "use client";
 import { useEffect, useState } from "react";
-import MultipleChoice from "@/components/ExamComponents/MultipleChoice";
-import FillChoice from "@/components/ExamComponents/FillChoice";
-import FreeText from "@/components/ExamComponents/FreeText";
-import SimpleChoice from "@/components/ExamComponents/Simple-Choice";
-import InformationBlock from "@/components/ExamComponents/Information-block";
 import Link from "next/link";
 import QuestionList from "@/components/create-exam/QuestionList";
 import { Button } from "@/components/ui/button";
 import GapRenderer from "@/components/ExamComponents/GapRenderer";
-import { set } from "zod";
 import Code from "@/components/ExamComponents/Code";
-import { spawn } from "child_process";
-import { Span } from "next/dist/trace";
 import { Label } from "@radix-ui/react-label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import NewMultipleChoice from "@/components/ExamComponents/NewMultipleChoice";
+import NewSimpleChoice from "@/components/ExamComponents/NewSimple-Choice";
+import { useExamStore } from "@/store/ExamStore";
+import NewFreeText from "@/components/ExamComponents/NewFreeText";
+import NewInformationBlock from "@/components/ExamComponents/NewInformation-block";
+import NewCode from "@/components/ExamComponents/NewCode";
+
 export default function Page() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [examTitle, setExamTitle] = useState("");
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [exam, setExam] = useState<
-    { type: string; question: string; answers: any[]; score: number }[]
-  >([]);
+  const { exams, removeToExam } = useExamStore();
+  console.log("all exams:", exams);
+  interface ExamQuestion {
+    type: string;
+    question: string;
+    answers: {
+      text: string;
+      isCorrect?: boolean;
+    }[];
+    score: number;
+  }
   const handleSelectType = (type: string | null) => {
-    console.log("----> ", type);
     setSelectedType(type);
   };
 
@@ -66,7 +72,7 @@ export default function Page() {
             </div>
           </div>
           <div className="max-w-2xl mx-auto mb-20">
-            {exam.length > 0 && (
+            {exams.length > 0 && (
               <div className="w-full text-gray-900 space-y-5 border p-4 rounded-lg mb-10">
                 <div className="flex items-center justify-between gap-3 bg-gray-100 p-3 rounded">
                   <span className="text-gray-800 font-semibold rounded-lg">
@@ -75,42 +81,55 @@ export default function Page() {
                 </div>
 
                 <div className="space-y-2">
-                  {exam.map((item, index) => (
+                  {exams.map((item, index) => (
                     <div
                       key={index}
-                      className="border p-3 rounded-lg bg-white shadow-sm"
+                      className="border p-4 rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition"
                     >
                       <div className="flex items-center justify-between">
-                        <h2 className="flex items-center gap-2">
-                          {index + 1}. <GapRenderer text={item.question} />
-                        </h2>
-                        <Button
-                          onClick={() => {
-                            setEditingIndex(index);
-                            setSelectedType(exam[index].type);
-                            console.log("type: ", exam[index].type);
-                          }}
-                          variant={"outline"}
-                          className="cursor-pointer"
-                        >
-                          Засах
-                        </Button>
+                        <div>
+                          <h2 className="flex items-center gap-2">
+                            {index + 1}. <GapRenderer text={item.question} />
+                          </h2>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            onClick={() => {
+                              removeToExam(item.id);
+                            }}
+                            variant={"outline"}
+                            className="cursor-pointer"
+                          >
+                            Утсгах
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              setEditingIndex(index);
+                              setSelectedType(exams[index].type);
+                            }}
+                            variant={"outline"}
+                            className="cursor-pointer"
+                          >
+                            Засах
+                          </Button>
+                        </div>
                       </div>
 
                       {item.type === "multiple-choice" && (
                         <div className="text-gray-700 my-3">
                           <RadioGroup disabled>
-                            {item.answers.map((answer, idx) => (
+                            {item.answers?.map((answer, idx) => (
                               <div
                                 key={idx}
                                 className="flex items-center space-x-2 pl-6 font-semibold"
                               >
                                 <RadioGroupItem
                                   value={answer.text}
-                                  id={`question-${index}-answer-${idx}`}
+                                  id={`question-${item.id}-answer-${idx}`}
                                 />
                                 <Label
-                                  htmlFor={`question-${index}-answer-${idx}`}
+                                  htmlFor={`question-${item.id}-answer-${idx}`}
                                 >
                                   {answer.text}
                                 </Label>
@@ -165,18 +184,17 @@ export default function Page() {
                 switch (selectedType) {
                   case "multiple-choice":
                     return (
-                      <MultipleChoice
+                      <NewMultipleChoice
                         handleSelect={handleSelectType}
-                        exam={exam}
-                        setExam={setExam}
+                        editingIndex={editingIndex}
+                        setEditingIndex={setEditingIndex} // энэ заавал байх ёстой
+                        setSelectedType={setSelectedType}
                       />
                     );
                   case "simple-choice":
                     return (
-                      <SimpleChoice
+                      <NewSimpleChoice
                         handleSelect={handleSelectType}
-                        exam={exam}
-                        setExam={setExam}
                         editingIndex={editingIndex}
                         setEditingIndex={setEditingIndex} // энэ заавал байх ёстой
                         setSelectedType={setSelectedType}
@@ -184,37 +202,38 @@ export default function Page() {
                     );
                   case "fill-choice":
                     return (
-                      <FillChoice
+                      <NewCode
                         handleSelect={handleSelectType}
-                        exam={exam}
-                        setExam={setExam}
                         editingIndex={editingIndex}
-                        setEditingIndex={setEditingIndex} // энэ заавал байх ёстой
-                        setSelectedType={setSelectedType} // энэ ч бас
+                        setEditingIndex={setEditingIndex}
+                        setSelectedType={setSelectedType}
                       />
                     );
                   case "free-text":
                     return (
-                      <FreeText
+                      <NewFreeText
                         handleSelect={handleSelectType}
-                        exam={exam}
-                        setExam={setExam}
+                        editingIndex={editingIndex}
+                        setEditingIndex={setEditingIndex} // энэ заавал байх ёстой
+                        setSelectedType={setSelectedType}
                       />
                     );
                   case "information-block":
                     return (
-                      <InformationBlock
+                      <NewInformationBlock
                         handleSelect={handleSelectType}
-                        exam={exam}
-                        setExam={setExam}
+                        editingIndex={editingIndex}
+                        setEditingIndex={setEditingIndex} // энэ заавал байх ёстой
+                        setSelectedType={setSelectedType}
                       />
                     );
                   case "code":
                     return (
-                      <Code
+                      <NewCode
                         handleSelect={handleSelectType}
-                        exam={exam}
-                        setExam={setExam}
+                        editingIndex={editingIndex}
+                        setEditingIndex={setEditingIndex}
+                        setSelectedType={setSelectedType}
                       />
                     );
                   default:

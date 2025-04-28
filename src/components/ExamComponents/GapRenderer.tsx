@@ -10,7 +10,9 @@ type GapRendererProps = {
 const GapRenderer: React.FC<GapRendererProps> = ({ text, onChange }) => {
   const parts = text.split(/(\{gap(?:-\d+)?\})/g);
 
-  const initialAnswers = parts.filter((p) => /\{gap(?:-\d+)?\}/.test(p)).map(() => "");
+  const initialAnswers = parts
+    .filter((p) => /\{gap(?:-\d+)?\}/.test(p))
+    .map(() => "");
   const [answers, setAnswers] = useState<string[]>(initialAnswers);
 
   useEffect(() => {
@@ -26,6 +28,14 @@ const GapRenderer: React.FC<GapRendererProps> = ({ text, onChange }) => {
     newAnswers[index] = value;
     setAnswers(newAnswers);
   };
+  function stripHtml(html: string) {
+    if (typeof document !== "undefined") {
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      return doc.body.textContent || "";
+    }
+    return html;
+  }
+  const cleanText = stripHtml(text);
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -45,7 +55,7 @@ const GapRenderer: React.FC<GapRendererProps> = ({ text, onChange }) => {
         } else {
           return (
             <span key={index} className="text-gray-900 whitespace-pre-wrap">
-              {part}
+              {cleanText}
             </span>
           );
         }

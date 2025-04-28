@@ -18,7 +18,12 @@ type ChoiseProps = {
   questionData: string;
 };
 
-export default function RichTextEditor({ value, onChange, setQuestionData, questionData }: ChoiseProps) {
+export default function RichTextEditor({
+  value,
+  onChange,
+  setQuestionData,
+  questionData,
+}: ChoiseProps) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure(),
@@ -52,16 +57,16 @@ export default function RichTextEditor({ value, onChange, setQuestionData, quest
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
       onChange(editor.getText());
-      const examData = editor.getText()
+      const examData = editor.getText();
       //console.log("questionData editor ---> ", examData);
-      setQuestionData(examData)
+      setQuestionData(examData);
     },
   });
   useEffect(() => {
-    if(editor && value) {
-      editor.commands.setContent(value)
+    if (editor && value) {
+      editor.commands.setContent(value);
     }
-  }, [editor, value])
+  }, [editor, value]);
 
   return (
     <div>

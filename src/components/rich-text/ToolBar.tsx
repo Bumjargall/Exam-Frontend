@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { ListOrdered } from "lucide-react";
 
-export default function ToolBar({editor}:{editor:any}) {
+export default function ToolBar({ editor }: { editor: any }) {
   if (!editor) return null;
   const addImage = () => {
     const url = window.prompt("URL");

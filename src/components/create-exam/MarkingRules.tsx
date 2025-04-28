@@ -1,22 +1,30 @@
-"use client"
-import Image from "next/image";
-import Link from "next/link";
+"use client";
 import { useEffect, useState } from "react";
-import { Geist, Geist_Mono } from "next/font/google";
 
 type ScoreProps = {
-  score : number,
-  setScore:React.Dispatch<React.SetStateAction<number>>;
-}
-export default function MarkingRules({score, setScore}:ScoreProps) {
+  score: number;
+  setScore: React.Dispatch<React.SetStateAction<number>>;
+  initialScore?: number;
+};
+export default function MarkingRules({
+  score,
+  setScore,
+  initialScore = 0,
+}: ScoreProps) {
   const [open, setOpen] = useState(false);
 
   const scoreUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setScore(Number(e.target.value));
+    const newScore = Number(e.target.value);
+    if (!isNaN(newScore)) {
+      setScore(newScore);
+    }
   };
-  
+  useEffect(() => {
+    setScore(initialScore);
+  }, [initialScore, setScore]);
+
   return (
-      <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto">
       <button
         onClick={() => setOpen(!open)}
         type="button"
@@ -42,12 +50,20 @@ export default function MarkingRules({score, setScore}:ScoreProps) {
         </svg>
       </button>
       {open && (
-            <div className="p-5 bg-gray-100 rounded-b-lg border-b">
-                <label className="font-medium text-gray-900 mb-2 block">Шалгалтын оноо</label>
-                <input name="number" type="number" className="rounded-md bg-white px-3 py-1.5 text-gray-900 border border-gray-800 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500" defaultValue={0} onChange={scoreUpdate}/>
-            </div>
+        <div className="p-5 bg-gray-100 rounded-b-lg border-b">
+          <label className="font-medium text-gray-900 mb-2 block">
+            Шалгалтын оноо
+          </label>
+          <input
+            name="score"
+            type="number"
+            value={score}
+            className="rounded-md bg-white px-3 py-1.5 text-gray-900 border border-gray-800 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500"
+            defaultValue={0}
+            onChange={scoreUpdate}
+          />
+        </div>
       )}
     </div>
-    
   );
 }
