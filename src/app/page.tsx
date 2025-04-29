@@ -38,5 +38,9 @@ export default function Home() {
     }
   }, [role, router]);
 
-  return <div></div>;
+  return <div>
+    <div className="flex justify-center items-center h-min-screen mt-24">
+      <img src="/free_exam.jpg" alt="" className="w-[40vh]"/>
+    </div>
+  </div>;
 }
