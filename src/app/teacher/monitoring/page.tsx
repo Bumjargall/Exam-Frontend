@@ -1,18 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { ClientPageRoot } from "next/dist/client/components/client-page";
-import { ExamsData } from "@/data/Exams";
-import { StudentsExamScore } from "@/data/StudetsExamScore";
-import { UserData } from "@/data/UserData";
 import SelectExamComponent from "@/app/teacher/monitoring/components/SelectExamComponent";
-import { set } from "react-hook-form";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+//import { getExams, getResult, getResultByUser } from "@/lib/api";
 
-const studentScoreData = StudentsExamScore;
-const userData = UserData;
-const examData = ExamsData;
 
 const downloadPDF = () => {
   const element = document.getElementById("pdf-content"); // PDF-д оруулах элемент
@@ -43,6 +36,8 @@ const downloadPDF = () => {
 };
 
 export default function Page() {
+  const [examData, setExamData] = useState([]);
+  const [studentScoreData, setStudentScoreData] = useState([])
   const [isExamTitleVisible, setExamTitleVisible] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDropdownStatus, setIsDropdownStatus] = useState(false);
@@ -55,8 +50,30 @@ export default function Page() {
       ? examData.slice(-1)[0]
       : { id: "", title: "Шалгалтын гарчиг...", key: "0", status: "active" }
   );
+  const [userData, setUserData]=useState([])
   const key = lastExam.key;
   const [isStatus, setIsStatus] = useState(false);
+  //database дуудах
+  useEffect(()=> {
+    const fetchData = async () => {
+      try {
+        const data = await getExams();
+        if(data.data.length>0){
+          setLastExam(data.data[data.data.length-1])
+        }
+        const examUserData = await getResultByUser(lastExam.id)
+        const resultData = await getResult()
+        console.log("Exam database: ", data.data);
+        setExamData(data.data);
+        setUserData(examUserData.data)
+        setStudentScoreData(resultData)
+      } catch (error) {
+        console.error("Сервертэй холбогдох үед алдаа гарлаа:", error);
+      }
+    };
+    fetchData();
+  }, [])
+
   //дарах үед солигдох функц
   const toggleTitleDropdown = () => {
     setExamTitleVisible(!isExamTitleVisible);
@@ -89,7 +106,8 @@ export default function Page() {
     setLastExam(exam);
     closeMenu();
   };
-
+  
+  
   return (
     <div className="max-w-7xl mx-auto">
       <div className=" flex justify-between h-24">
@@ -516,6 +534,9 @@ export default function Page() {
               <i className="ri-send-plane-fill px-1"></i>
             </div>
           </div>
+
+          
+
         </div>
       </div>
     </div>
