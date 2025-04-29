@@ -48,28 +48,33 @@ export const loginUser = async (email: string, password: string) => {
   }
 };
 
-
-// Шалтгалт үүсгэх
-export const createExam = async (examData: {
+type ExamInput = {
   title: string;
   description: string;
   questions: { question: string; options: string[]; answer: number }[];
-  dateTime: string;
+  dateTime: Date;
   duration: number;
   totalScore: number;
   status: string;
   key: string;
   createUserById: string;
-}) => {
+  createdAt: Date;
+}
+export const getByUserAllExams = async () => {
+
+}
+
+// Шалтгалт үүсгэх
+export const createExam = async (examData:ExamInput) => {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-
+    console.log(examData);
     // URL-г шалгах
     if (!backendUrl) {
       throw new Error(`${process.env.NEXT_PUBLIC_BACKEND_URL} тодорхойлогдоогүй байна.`);
     }
 
-    const response = await fetch(`${backendUrl}/exams`, {
+    const response = await fetch(`${backendUrl}/exams/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -83,7 +88,7 @@ export const createExam = async (examData: {
       const errorData = await response.json();
       throw new Error(errorData.message || "Шалтгалт үүсгэхэд алдаа гарлаа...");
     }
-
+    console.log(response.body);
     // JSON өгөгдлийг буцаах
     return await response.json();
   } catch (err) {

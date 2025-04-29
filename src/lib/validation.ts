@@ -42,6 +42,8 @@ export const LoginSchema = z.object({
     .regex(/[0-9]/, "Нууц үг тоо агуулсан байх ёстой!"),
 });
 export const ConfigureSchema = z.object({
+  title: z.string().min(1, {
+    message: "Шалгалтын нэрийг оруулна уу!",}),
   description: z.string().optional(),
   dateTime: z.coerce.date({
     required_error: "Шалгалтын огноог оруулна уу!",
