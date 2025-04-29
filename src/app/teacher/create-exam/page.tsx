@@ -15,12 +15,17 @@ import { useExamStore } from "@/store/ExamStore";
 import NewFreeText from "@/components/ExamComponents/NewFreeText";
 import NewInformationBlock from "@/components/ExamComponents/NewInformation-block";
 import NewCode from "@/components/ExamComponents/NewCode";
+import { useRouter } from "next/navigation";
+import { createExam } from "@/lib/api";
+
+
 
 export default function Page() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [examTitle, setExamTitle] = useState("");
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const { exams, removeToExam } = useExamStore();
+  const router = useRouter();
   console.log("all exams:", exams);
   interface ExamQuestion {
     type: string;
@@ -34,6 +39,13 @@ export default function Page() {
   const handleSelectType = (type: string | null) => {
     setSelectedType(type);
   };
+  const createExamHandleSave = async () => {
+    try{
+
+    } catch (error) {
+      console.error("Error creating exam:", error);
+    }
+  }
 
   return (
     <div className="mt-10">
@@ -53,17 +65,12 @@ export default function Page() {
             <div>
               <ul className="flex space-x-4">
                 <li>
-                  <Link
-                    href="/register"
-                    className="p-2.5 bg-white border border-gray-900 rounded-lg text-gray-900 hover:bg-gray-200"
-                  >
-                    <i className="ri-eye-line"></i>
-                  </Link>
                 </li>
                 <li>
                   <Link
-                    href="/register"
+                    href="/teacher/exams"
                     className="p-2.5 border border-gray-900 rounded-lg text-black hover:bg-gray-200"
+                    onClick={() =>  createExamHandleSave()}
                   >
                     Баталгаажуулах
                   </Link>
