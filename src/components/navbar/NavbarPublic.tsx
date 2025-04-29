@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Menu,User } from "lucide-react";
 
 const navItems = [
-  { label: "Танилцуулга", href: "/" },
-  { label: "Видео сан", href: "/exams" },
   { label: "Нэвтрэх", href: "/login" },
 ];
 export default function Navbar() {
@@ -17,7 +15,7 @@ export default function Navbar() {
     <header className="w-full shadow-sm border-b">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link href="/" className="text-xl font-medium">
-          Онлайн шалгалтын систем
+          <img src="/logo.jpg" alt="logo" className="w-12 rounded-xl"/>
         </Link>
 
         {/* Desktop Navigation */}
