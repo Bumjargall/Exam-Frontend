@@ -6,7 +6,6 @@ import html2canvas from "html2canvas";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 //import { getExams, getResult, getResultByUser } from "@/lib/api";
 
-
 const downloadPDF = () => {
   const element = document.getElementById("pdf-content"); // PDF-д оруулах элемент
   if (!element) return;
@@ -37,7 +36,7 @@ const downloadPDF = () => {
 
 export default function Page() {
   const [examData, setExamData] = useState([]);
-  const [studentScoreData, setStudentScoreData] = useState([])
+  const [studentScoreData, setStudentScoreData] = useState([]);
   const [isExamTitleVisible, setExamTitleVisible] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDropdownStatus, setIsDropdownStatus] = useState(false);
@@ -50,29 +49,29 @@ export default function Page() {
       ? examData.slice(-1)[0]
       : { id: "", title: "Шалгалтын гарчиг...", key: "0", status: "active" }
   );
-  const [userData, setUserData]=useState([])
+  const [userData, setUserData] = useState([]);
   const key = lastExam.key;
   const [isStatus, setIsStatus] = useState(false);
   //database дуудах
-  useEffect(()=> {
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await getExams();
-        if(data.data.length>0){
-          setLastExam(data.data[data.data.length-1])
+        if (data.data.length > 0) {
+          setLastExam(data.data[data.data.length - 1]);
         }
-        const examUserData = await getResultByUser(lastExam.id)
-        const resultData = await getResult()
+        const examUserData = await getResultByUser(lastExam.id);
+        const resultData = await getResult();
         console.log("Exam database: ", data.data);
         setExamData(data.data);
-        setUserData(examUserData.data)
-        setStudentScoreData(resultData)
+        setUserData(examUserData.data);
+        setStudentScoreData(resultData);
       } catch (error) {
         console.error("Сервертэй холбогдох үед алдаа гарлаа:", error);
       }
     };
     fetchData();
-  }, [])
+  }, []);
 
   //дарах үед солигдох функц
   const toggleTitleDropdown = () => {
@@ -106,8 +105,7 @@ export default function Page() {
     setLastExam(exam);
     closeMenu();
   };
-  
-  
+
   return (
     <div className="max-w-7xl mx-auto">
       <div className=" flex justify-between h-24">
@@ -178,12 +176,14 @@ export default function Page() {
         </div>
         {/*Main*/}
         <div className="w-3/5 mx-4 bg-gray-50 rounded-2xl border-2 border-gray-100">
-          
-
           <Tabs defaultValue="account" className="w-full">
             <TabsList className="flex justify-center py-4 w-full border-b-2 border-sky-400 bg-white text-sky-400 rounded-t-2xl cursor-pointer">
-              <TabsTrigger value="account" className="text-xl my-4">Хянах</TabsTrigger>
-              <TabsTrigger value="password" className="text-xl my-8">Хариу</TabsTrigger>
+              <TabsTrigger value="account" className="text-xl my-4">
+                Хянах
+              </TabsTrigger>
+              <TabsTrigger value="password" className="text-xl my-8">
+                Хариу
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="account">
               <div className="container my-4 mx-2">
@@ -514,8 +514,6 @@ export default function Page() {
               </div>
             </TabsContent>
           </Tabs>
-
-   
         </div>
         {/*Right*/}
         <div className="right_container  w-1/5 text-white px-2 ">
@@ -534,9 +532,6 @@ export default function Page() {
               <i className="ri-send-plane-fill px-1"></i>
             </div>
           </div>
-
-          
-
         </div>
       </div>
     </div>

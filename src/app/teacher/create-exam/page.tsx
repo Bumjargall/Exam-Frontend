@@ -18,8 +18,6 @@ import NewCode from "@/components/ExamComponents/NewCode";
 import { useRouter } from "next/navigation";
 import { createExam } from "@/lib/api";
 
-
-
 export default function Page() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [examTitle, setExamTitle] = useState("");
@@ -40,12 +38,11 @@ export default function Page() {
     setSelectedType(type);
   };
   const createExamHandleSave = async () => {
-    try{
-
+    try {
     } catch (error) {
       console.error("Error creating exam:", error);
     }
-  }
+  };
 
   return (
     <div className="mt-10">
@@ -64,13 +61,12 @@ export default function Page() {
             </div>
             <div>
               <ul className="flex space-x-4">
-                <li>
-                </li>
+                <li></li>
                 <li>
                   <Link
                     href="/teacher/create-exam/configure"
                     className="p-2.5 border border-gray-900 rounded-lg text-black hover:bg-gray-200"
-                    onClick={() =>  createExamHandleSave()}
+                    onClick={() => createExamHandleSave()}
                   >
                     Баталгаажуулах
                   </Link>
