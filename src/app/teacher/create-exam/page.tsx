@@ -62,7 +62,7 @@ export default function Page() {
                 </li>
                 <li>
                   <Link
-                    href="/register"
+                    href="/teacher/create-exam/configure"
                     className="p-2.5 border border-gray-900 rounded-lg text-black hover:bg-gray-200"
                   >
                     Баталгаажуулах
