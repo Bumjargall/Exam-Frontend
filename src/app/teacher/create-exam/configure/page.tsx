@@ -27,19 +27,43 @@ import {
 import { useEffect, useState } from "react";
 import { TimePicker } from "@/components/time/time-picker";
 import { createExam } from "@/lib/api";
+import {generateExamKey} from "@/lib/utils";
+import { useExamStore } from "@/store/ExamStore";
+import {useRouter} from "next/navigation";
+
 type FormData = z.infer<typeof ConfigureSchema>;
 
 export default function ConfigureForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState("");
-
+  const [examKey, setExamKey] = useState("");
+  const [totalScore, setTotalScore] = useState(0);
+  const { exams} = useExamStore();
+  const router = useRouter();
+  useEffect(() => {
+    console.log("exams-----------------", exams);
+    const questions = JSON.parse(
+      localStorage.getItem("exam-storage") || "[]"
+    );
+    if (questions.state.exams.length > 0) {
+      const total = questions.state.exams.reduce(
+        (acc: number, question: { score: number }) => acc + question.score,
+        0
+      );
+      setTotalScore(total);
+    }
+    if (questions.state.exams.length === 0) {
+      setTotalScore(0);
+    }
+  }, []);
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     if (!user || !user.id) {
       console.error("Хэрэглэгчийн бүртгэл...");
     }
     setUserId(user.user._id);
+    setExamKey(generateExamKey());
   }, [userId]);
 
   const onSubmit = async (data: FormData) => {
@@ -50,23 +74,26 @@ export default function ConfigureForm() {
         localStorage.getItem("exam-storage") || "[]"
       );
       const dateTime = form.getValues("dateTime").toString();
-      console.log("userId-Data59---> ", userId);
       const examData = await createExam({
         title: form.getValues("title"),
         description: form.getValues("description") as string,
-        dateTime: dateTime,
+        dateTime: new Date(dateTime),
         duration: form.getValues("time"),
-        totalScore: 0,
+        totalScore: totalScore,
         status: "active",
-        key: "2222",
+        key: examKey,
         questions: questions.state.exams,
-        createUserById: userId,
+        createUserById: userId as string,
         createdAt: new Date(),
       });
 
       if (examData) {
         console.log("Шалгалт амжилттай үүсгэгдлээ!");
       }
+      router.push("/teacher/exams");
+      localStorage.removeItem("exam-storage");
+      setExamKey("");
+      setTotalScore(0);
     } catch (error) {
       console.error("Алдаа:", error);
       setError("Шалгалт үүсгэхэд алдаа гарлаа.");

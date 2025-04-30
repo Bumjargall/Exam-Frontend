@@ -1,3 +1,6 @@
+import { create } from "domain";
+import {Types} from "mongoose";
+
 export const fetchHelloMessage = async () => {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -68,10 +71,13 @@ export const getByUserAllExams = async () => {
 export const createExam = async (examData:ExamInput) => {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    console.log(examData);
     // URL-г шалгах
     if (!backendUrl) {
       throw new Error(`${process.env.NEXT_PUBLIC_BACKEND_URL} тодорхойлогдоогүй байна.`);
+    }
+    const examDataWithObjectId = {
+      ...examData,
+      createUserById: new Types.ObjectId(examData.createUserById),
     }
 
     const response = await fetch(`${backendUrl}/exams/`, {
@@ -79,20 +85,20 @@ export const createExam = async (examData:ExamInput) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(examData),
+      body: JSON.stringify(examDataWithObjectId),
     });
-    console.log("Exam created successfully----> ", response);
+    console.log("Exam created successfully----> ", examDataWithObjectId);
 
     // Хариуг шалгах
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || "Шалтгалт үүсгэхэд алдаа гарлаа...");
+      throw new Error(errorData.message || "Шалгалт үүсгэхэд алдаа гарлаа...");
     }
     console.log(response.body);
     // JSON өгөгдлийг буцаах
     return await response.json();
   } catch (err) {
-    console.error("Шалтгалт үүсгэхэд алдаа гарлаа:", err);
+    console.error("Шалтг үүсгэхэд алдаа гарлаа:", err);
     throw err;
   }
 };
