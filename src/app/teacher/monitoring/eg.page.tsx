@@ -10,6 +10,8 @@ import { title } from "process";
 import { Description } from "@radix-ui/react-dialog";
 import { duration } from "html2canvas/dist/types/css/property-descriptors/duration";
 
+
+
 const downloadPDF = () => {
   const element = document.getElementById("pdf-content"); // PDF-д оруулах элемент
   if (!element) return;
@@ -38,120 +40,98 @@ const downloadPDF = () => {
 };
 
 const defaultExam = {
-  _id: "",
-  title: "Шалгалтын гарчиг...",
-  key: "0",
-  status: "active",
-  description: "",
-  questions: [],
+  _id:"",
+  title:"Шалгалтын гарчиг...", 
+  key:"0",
+  status:"active",
+  description:"",
+  questions:[],
   dateTime: new Date(),
-  duration: 0,
-  totalScore: 0,
-  createUserById: "",
+  duration:0,
+  totalScore:0,
+  createUserById:"",
   createdAt: new Date(),
-  updatedAt: new Date(),
-};
+  updateAt: new Date(),
+}
 export default function MonitoringPage() {
   const [examData, setExamData] = useState<Exam[]>([]);
   const [studentScoreData, setStudentScoreData] = useState<Result[]>([]);
-  const [lastExam, setLastExam] = useState<Exam>(defaultExam); 
-  const [userData, setUserData] = useState<User[]>([]);
-
-  //UI state
   const [isExamTitleVisible, setExamTitleVisible] = useState(false);
-  const [dropdownStates, setDropdownStates] = useState({
-    key: false,
-    status: false,
-    download: false,
-    print: false,
-    send: false,
-  });
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDropdownStatus, setIsDropdownStatus] = useState(false);
+  //    const [activeTab, setActiveTab] =
+  const [isDropdownOpen1, setIsDropdownOpen1] = useState(false);
+  const [isDropdownOpen2, setIsDropdownOpen2] = useState(false);
+
+  const [lastExam, setLastExam] = useState(
+    examData.length > 0
+      ? examData.slice(-1)[0]
+      : { id: "", title: "Шалгалтын гарчиг...", key: "0", status: "active" }
+  );
+  const [userData, setUserData] = useState([]);
+  const key = lastExam.key;
+  const [isStatus, setIsStatus] = useState(false);
 
   //database дуудах
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [examsResponse, resultResponse] = await Promise.all([
-          getExams(),
-          getResults(),
-        ]);
+        const data = await getExams();
+        console.log("Last exam: ", data.data[data.data.length - 1]);
 
-        if (examsResponse.data?.length > 0) {
-          setExamData(examsResponse.data);
-          setLastExam(examsResponse.data[examsResponse.data.length - 1]);
+        if (!data.data) {
+          setLastExam(data.data[data.data.length - 1]);
         }
-        if (resultResponse.data) {
-          setStudentScoreData(resultResponse.data);
-        }
-        if (lastExam._id) {
-          const examUserResponse = await getResultByUser(lastExam._id);
-          setUserData(examUserResponse.data || []);
-        }
+        console.log("Last exam 2: ", lastExam);
+
+        const examUserData = await getResultByUser(lastExam.id);
+        const result = await getResults();
+        const resultData = result.data 
+        setExamData(data.data);
+        console.log("Exams: ", examData);
+        setUserData(examUserData.data);
+        console.log("Result data data: ", resultData);
+        setStudentScoreData(resultData);
+
       } catch (error) {
         console.error("Сервертэй холбогдох үед алдаа гарлаа:", error);
       }
     };
     fetchData();
-  }, [lastExam._id]);
+  }, []);
 
-  // Toggle functions
-  const toggleDropdown = (key: keyof typeof dropdownStates) => {
-    setDropdownStates((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
+  //дарах үед солигдох функц
+  const toggleTitleDropdown = () => {
+    setExamTitleVisible(!isExamTitleVisible);
   };
-
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+  const toggleDropdown1 = () => {
+    setIsDropdownOpen1(!isDropdownOpen1);
+  };
+  const toggleDropdown2 = () => {
+    setIsDropdownOpen2(!isDropdownOpen2);
+  };
+  const toggleStatusDropdown = () => {
+    setIsDropdownStatus(!isDropdownStatus);
+  };
+  const toggleStatus = () => {
+    setIsStatus(!isStatus);
+  };
   //гарчигийг хаах функц
-  const closeAllDropdowns = () => {
-    setDropdownStates({
-      key: false,
-      status: false,
-      download: false,
-      print: false,
-      send: false,
-    });
+  const closeMenu = () => {
     setExamTitleVisible(false);
+    setIsDropdownOpen(false);
+    setIsDropdownOpen1(false);
+    setIsDropdownOpen2(false);
+    setIsStatus(false);
   };
-  const handleExamSelect = (exam: Exam) => {
-    setLastExam(exam);
-    closeAllDropdowns();
-  };
-
   //шалгалтын гарчиг дээр дарах үед гарчигийг харуулах функц
   const clickExam = (exam: { id: string; title: string }) => {
     setLastExam(exam);
     closeMenu();
   };
-
-  const handleCopy = async (text: string, message: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      alert(message);
-    } catch (err) {
-      console.error("Хуулахад алдаа гарлаа:", err);
-    }
-  };
-  const renderStudentList = (status: "taking" | "submitted") => (
-    <ul>
-      {studentScoreData
-        .filter((data) => data.status === status)
-        .map((data, index) => (
-          <li
-            key={index}
-            className="flex justify-between items-center pl-2 cursor-pointer"
-          >
-            <p>
-              {data.studentId && typeof data.studentId !== "string"
-                ? `${data.studentId.lastName?.charAt(0)}.${
-                    data.studentId.firstName
-                  }`
-                : "Unknown Student"}
-            </p>
-          </li>
-        ))}
-    </ul>
-  );
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -159,7 +139,7 @@ export default function MonitoringPage() {
         {/*Monitoring Left banner -> Exam title, student names*/}
         <div className="left_container w-1/5 px-2">
           <div
-            onClick={()=> setExamTitleVisible(!isExamTitleVisible)}
+            onClick={toggleTitleDropdown}
             className="last_exam flex border-b-2 bg-sky-200 px-2 relative cursor-pointer"
             id="menu-button"
             aria-expanded={isExamTitleVisible}
@@ -172,8 +152,8 @@ export default function MonitoringPage() {
           {isExamTitleVisible && (
             <SelectExamComponent
               exam={examData}
-              onMouseLeave={closeAllDropdowns}
-              onClickExam={handleExamSelect}
+              onMouseLeave={closeMenu}
+              onClickExam={clickExam}
             />
           )}
 
@@ -191,11 +171,33 @@ export default function MonitoringPage() {
             {/*Starting*/}
             <div className="starting">
               <p className="font-medium w-full border-b-1">Starting</p>
-              {renderStudentList("taking")}
+              <ul>
+                {studentScoreData
+                  .filter((data) => data.status == "taking")
+                  .map((data, index) => (
+                    <li
+                      key={index}
+                      className="flex justify-between items-center pl-2 cursor-pointer"
+                    >
+                      <p>{data?.studentId.lastName.charAt[0]}.{data?.studentId.firstName}</p>
+                    </li>
+                  ))}
+              </ul>
             </div>
             <div className="submitted">
               <p className="font-medium w-full border-b-1">Submitted</p>
-              {renderStudentList("submitted")}
+              <ul>
+                {studentScoreData
+                  .filter((s) => s?.status === "submitted")
+                  .map((s, index) => (
+                    <li
+                      key={index}
+                      className="flex justify-between items-center pl-2 cursor-pointer"
+                    >
+                      <p>{s?.studentId.lastName.charAt[0]}.{s?.studentId.firstName}</p>
+                    </li>
+                  ))}
+              </ul>
             </div>
           </div>
         </div>
@@ -219,21 +221,22 @@ export default function MonitoringPage() {
                       <p className="mr-4">Exam key</p>
                       <button
                         className="px-2 border-2  rounded-2xl cursor-pointer relative hover:text-yellow-500"
-                        onClick={()=> toggleDropdown('key')}
+                        onClick={toggleDropdown}
                         id="key"
                       >
-                        {lastExam.key} <i className="ri-arrow-down-s-fill"></i>
+                        {key} <i className="ri-arrow-down-s-fill"></i>
                       </button>
-                      {dropdownStates.key && (
+                      {isDropdownOpen && (
                         <div
                           className="absolute mt-6 bg-white border-1 border-slate-500 m-6 rounded-2xl z-10"
-                          
+                          onMouseLeave={closeMenu}
                         >
                           <ul className="">
                             <li
                               className="px-1 py-1 hover:bg-gray-100 rounded-2xl cursor-pointer"
                               onClick={() => {
-                                handleCopy(lastExam.key, "Түлхүүр хуулагдлаа...")
+                                navigator.clipboard.writeText(key);
+                                closeMenu();
                               }}
                             >
                               <i className="ri-file-copy-line mr-2"></i>Түлхүүр
@@ -242,7 +245,11 @@ export default function MonitoringPage() {
                             <li
                               className="px-1 py-1 hover:bg-gray-100 rounded-2xl cursor-pointer"
                               onClick={() => {
-                                handleCopy(`https://exam.com/${lastExam.key}`, "Линк хуулагдлаа")}}
+                                navigator.clipboard.writeText(
+                                  `https://exam.com/${key}`
+                                );
+                                closeMenu();
+                              }}
                             >
                               <i className="ri-link mr-2"></i>Шалгалтын линк
                               хуулах
@@ -251,14 +258,14 @@ export default function MonitoringPage() {
                         </div>
                       )}
                     </div>
-                    {/*status*/}
                     <div className="flex justify-between pr-6 py-2">
                       <p className="mr-4">Төлөв</p>
                       <button
                         className="px-2 border-2  rounded-2xl cursor-pointer relative hover:text-yellow-500"
-                        onClick={()=> toggleDropdown("status")}
+                        onClick={toggleStatus}
                       >
-                        {lastExam.status == "active" ? (
+                        {" "}
+                        {isStatus == "active" ? (
                           <>
                             <i className="ri-circle-fill text-[12px] text-lime-500"></i>{" "}
                             Нээлттэй
@@ -271,26 +278,50 @@ export default function MonitoringPage() {
                         )}
                         <i className="ri-arrow-down-s-fill"></i>
                       </button>
-                      {dropdownStates.status && (
+                      {isStatus && (
                         <div
                           className="absolute left-2/6 mt-[28px] bg-white border-1 border-slate-500 m-6 rounded-2xl z-10"
-                        
+                          onMouseLeave={closeMenu}
                         >
-                          <ul>
-                              <li className="px-4 py-2 hover:bg-gray-100 rounded-2xl cursor-pointer">
-                                <i className="ri-circle-fill text-[12px] text-lime-500 mr-2"></i>
-                                Нээлттэй
-                              </li>
-                              <li className="px-4 py-2 hover:bg-gray-100 rounded-2xl cursor-pointer">
-                                <i className="ri-close-circle-fill text-[12px] text-red-500 mr-2"></i>
-                                Хаалттай
-                              </li>
-                            </ul>
+                          <ul className="">
+                            <li
+                              className="px-1 py-1 hover:bg-gray-100 rounded-2xl cursor-pointer"
+                              onClick={() => {
+                                navigator.clipboard
+                                  .readText()
+                                  .then((text) => {
+                                    setIsStatus(text);
+                                    closeMenu();
+                                  })
+                                  .catch((err) => {
+                                    console.log("Status алдаа : " + err);
+                                  });
+                              }}
+                            >
+                              <i className="ri-circle-fill text-[12px] text-lime-500"></i>{" "}
+                              Нээлттэй
+                            </li>
+                            <li
+                              className="px-1 py-1 hover:bg-gray-100 rounded-2xl cursor-pointer"
+                              onClick={() => {
+                                navigator.clipboard
+                                  .readText()
+                                  .then((text) => {
+                                    setIsStatus(text);
+                                    closeMenu();
+                                  })
+                                  .catch((err) => {
+                                    console.log("Status алдаа : " + err);
+                                  });
+                              }}
+                            >
+                              <i className="ri-circle-fill text-[12px] text-red-500"></i>{" "}
+                              Хаалттай
+                            </li>
+                          </ul>
                         </div>
                       )}
                     </div>
-
-                    {/*Share*/}
                     <div className="share_link flex justify-between pr-6 py-2 align-center">
                       <p className="mr-4">Илгээх</p>
                       <i
@@ -350,26 +381,26 @@ export default function MonitoringPage() {
                   </div>
 
                   <div className="buttons flex">
-                    <div className="pr-4 relative">
+                    <div className="pr-4">
                       <button
                         className="flex items-center justify-center w-[18vh] wx-auto border-1 border-slate-400 rounded-full my-1 py-1 hover:bg-slate-100 hover:border-2  duration-[.3s]"
-                        onClick={()=> toggleDropdown('download')}
+                        onClick={toggleDropdown}
                       >
                         <i className="ri-download-line text-[14px] mr-2"></i>
                         Татах
                         <i className="ri-arrow-down-s-fill"></i>
                       </button>
-                      {dropdownStates.download && (
+                      {isDropdownOpen && (
                         <div
                           className="absolute mt-[0] w-1/9 bg-white border border-gray-200 rounded-md shadow-lg z-10"
-                        
+                          onMouseLeave={closeMenu}
                         >
                           <ul className="py-1">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
                                 downloadPDF(); // Хуудсыг хэвлэх
-                                closeAllDropdowns()
+                                closeMenu();
                               }}
                             >
                               <i className="ri-printer-line mr-2"></i>PDF
@@ -379,7 +410,7 @@ export default function MonitoringPage() {
                               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
                                 alert("Excel файл үүсгэх үйлдэл"); // Excel файл үүсгэх
-                                closeAllDropdowns()
+                                closeMenu();
                               }}
                             >
                               <i className="ri-file-excel-line mr-2"></i>Excel
@@ -389,7 +420,7 @@ export default function MonitoringPage() {
                               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
                                 alert("Word файл үүсгэх үйлдэл"); // Word файл үүсгэх
-                                closeAllDropdowns()
+                                closeMenu();
                               }}
                             >
                               <i className="ri-file-word-line mr-2"></i>Word
@@ -399,27 +430,27 @@ export default function MonitoringPage() {
                         </div>
                       )}
                     </div>
-                      {/*print*/}
-                    <div className="pr-4 relative">
+
+                    <div className="pr-4">
                       <button
                         className="relative flex items-center justify-center w-[18vh] wx-auto border-1 border-slate-400 rounded-full my-1 py-1 hover:bg-slate-100 hover:border-2  duration-[.3s]"
-                        onClick={() => toggleDropdown("print")}
+                        onClick={toggleDropdown1}
                       >
                         <i className="ri-printer-line text-[14px] mr-2"></i>
                         Хэвлэх
                         <i className="ri-arrow-down-s-fill"></i>
                       </button>
-                      {dropdownStates.print && (
+                      {isDropdownOpen1 && (
                         <div
                           className="absolute  w-1/9 bg-white border border-gray-200 rounded-md shadow-lg z-10"
-                          
+                          onMouseLeave={closeMenu}
                         >
                           <ul className="py-1">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
                                 window.print(); // Хуудсыг хэвлэх
-                                closeAllDropdowns()
+                                closeMenu();
                               }}
                             >
                               <i className="ri-bar-chart-horizontal-line mr-2"></i>
@@ -429,7 +460,7 @@ export default function MonitoringPage() {
                               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
                                 window.print();
-                                closeAllDropdowns()
+                                closeMenu();
                               }}
                             >
                               <i className="ri-key-2-line mr-2"></i>Шалгалтын
@@ -439,27 +470,27 @@ export default function MonitoringPage() {
                         </div>
                       )}
                     </div>
-{/*send*/}
-                    <div className="relative">
+
+                    <div className="">
                       <button
                         className="relative flex items-center justify-center w-[18vh] wx-auto border-1 border-slate-400 rounded-full my-1 py-1 hover:bg-slate-100 hover:border-2  duration-[.3s]"
-                        onClick={()=> toggleDropdown('send')}
+                        onClick={toggleDropdown2}
                       >
                         <i className="ri-printer-line text-[14px] mr-2"></i>
                         Илгээх
                         <i className="ri-arrow-down-s-fill"></i>
                       </button>
-                      {dropdownStates.send && (
+                      {isDropdownOpen2 && (
                         <div
                           className="absolute w-1/9 bg-white border border-gray-200 rounded-md shadow-lg z-10"
-                          
+                          onMouseLeave={closeMenu}
                         >
                           <ul className="py-1">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
-                                alert("Шалгалтын дүн илгээх");
-                                closeAllDropdowns();
+                                window.print(); // Хуудсыг хэвлэх
+                                closeMenu();
                               }}
                             >
                               <i className="ri-bar-chart-horizontal-line mr-2"></i>
@@ -468,8 +499,8 @@ export default function MonitoringPage() {
                             <li
                               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
-                                alert("Шалгалтын хариу илгээх");
-                                closeAllDropdowns();
+                                window.print();
+                                closeMenu();
                               }}
                             >
                               <i className="ri-key-2-line mr-2"></i>Шалгалтын
@@ -485,24 +516,22 @@ export default function MonitoringPage() {
                     <table className="w-full w-4/5 bg-white border border-gray-300">
                       <thead>
                         <tr className="bg-gray-100 border-b">
-                          <th className="p-2 text-left">Шалгуулагчид</th>
-                          <th className="p-2 text-left">Оноо</th>
-                          <th className="p-2 text-left">Гүйцэтгэсэн хугацаа</th>
+                          <th className="p-2 text-left">Student</th>
+                          <th className="p-2 text-left">Points</th>
+                          <th className="p-2 text-left">Submission time</th>
                         </tr>
                       </thead>
                       <tbody>
                         {studentScoreData.map((student) => (
                           <tr
-                            key={student._id}
+                            key={student.id}
                             className="border-b hover:bg-gray-50"
                           >
                             <td className="p-2 text-blue-600 cursor-pointer">
-                              {student.studentId  && typeof student.studentId !== 'string' ? 
-                                `${student.studentId.lastName} ${student.studentId.firstName}` : 
-                                'Unknown Student'}
+                              {student.studentId}
                             </td>
                             <td className="p-2">{student.score}</td>
-                            <td className="p-2">{student.submittedAt ? new Date(student.submittedAt).toLocaleString() : "N/A"}</td>
+                            <td className="p-2">{student.submittedAt}</td>
                           </tr>
                         ))}
                       </tbody>
