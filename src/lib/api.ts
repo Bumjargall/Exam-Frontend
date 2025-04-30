@@ -1,10 +1,6 @@
 import { create } from "domain";
-<<<<<<< HEAD
 import {Types} from "mongoose";
 import { ExamInput } from "@/lib/types/interface";
-=======
-import { Types } from "mongoose";
->>>>>>> 7d5ec4cbd30d7baa9164a8710668c898987d4724
 
 export const fetchHelloMessage = async () => {
   try {
@@ -56,7 +52,6 @@ export const loginUser = async (email: string, password: string) => {
   }
 };
 
-<<<<<<< HEAD
 
 export const getByUserAllExams = async (userId: string) => {
   try {
@@ -84,7 +79,6 @@ export const getByUserAllExams = async (userId: string) => {
     throw err;
   }
 }
-=======
 type ExamInput = {
   title: string;
   description: string;
@@ -98,7 +92,6 @@ type ExamInput = {
   createdAt: Date;
 };
 export const getByUserAllExams = async () => {};
->>>>>>> 7d5ec4cbd30d7baa9164a8710668c898987d4724
 
 // Шалтгалт үүсгэх
 export const createExam = async (examData: ExamInput) => {
@@ -221,7 +214,6 @@ export const getStudentByResult = async (
     console.error("Шалгалт өгсөн оюутны мэдээллийг авахад алдаа гарлаа:", err);
     throw err;
   }
-<<<<<<< HEAD
 }
 
 //Result -ууд авах
@@ -249,6 +241,3 @@ export const getResults = async () => {
     throw err;
   }
 }
-=======
-};
->>>>>>> 7d5ec4cbd30d7baa9164a8710668c898987d4724
