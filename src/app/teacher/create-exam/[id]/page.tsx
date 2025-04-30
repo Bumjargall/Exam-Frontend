@@ -11,29 +11,35 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import NewMultipleChoice from "@/components/ExamComponents/NewMultipleChoice";
 import NewSimpleChoice from "@/components/ExamComponents/NewSimple-Choice";
-import { useExamStore } from "@/store/ExamStore";
 import NewFreeText from "@/components/ExamComponents/NewFreeText";
 import NewInformationBlock from "@/components/ExamComponents/NewInformation-block";
 import NewCode from "@/components/ExamComponents/NewCode";
 import { useRouter } from "next/navigation";
+import { set } from "mongoose";
+import { useEditStore } from "@/store/EditZustand";
 
 export default function Page() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [examTitle, setExamTitle] = useState("");
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [examData, setExamData] = useState<ExamQuestion[]>([]);
-  const { removeToExam } = useExamStore();
+  const questions = useEditStore((state) => state.questions);
+  const setQuestion = useEditStore((state) => state.setQuestions);
+  const removeToExam = useEditStore((state) => state.removeToExam);
   useEffect(() => {
-    const localExam = localStorage.getItem("exam-storage");
-    if (localExam) {
+    const loadExamFromLocalStorage = () => {
       try {
-        setExamData(JSON.parse(localExam).questions);
+        const localExam = localStorage.getItem("exam-storage");
+        if (localExam) {
+          const parsedData = JSON.parse(localExam).questions;
+          setQuestion(parsedData);
+        }
       } catch (error) {
-        console.log("Falied to parse local storage data", error);
-        setExamData([]);
+        console.log("LocalStorage error", error);
+        setQuestion([]);
       }
-    }
-  }, []);
+    };
+    loadExamFromLocalStorage();
+  }, [setQuestion]);
 
   interface ExamQuestion {
     id: string;
@@ -86,7 +92,7 @@ export default function Page() {
             </div>
           </div>
           <div className="max-w-2xl mx-auto mb-20">
-            {examData.length > 0 && (
+            {questions.length > 0 && (
               <div className="w-full text-gray-900 space-y-5 border p-4 rounded-lg mb-10">
                 <div className="flex items-center justify-between gap-3 bg-gray-100 p-3 rounded">
                   <span className="text-gray-800 font-semibold rounded-lg">
@@ -95,7 +101,7 @@ export default function Page() {
                 </div>
 
                 <div className="space-y-2">
-                  {examData.map((item, index) => (
+                  {questions.map((item, index) => (
                     <div
                       key={index}
                       className="border p-4 rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition"
@@ -120,7 +126,7 @@ export default function Page() {
                           <Button
                             onClick={() => {
                               setEditingIndex(index);
-                              setSelectedType(examData[index].type);
+                              setSelectedType(questions[index].type);
                             }}
                             variant={"outline"}
                             className="cursor-pointer"
