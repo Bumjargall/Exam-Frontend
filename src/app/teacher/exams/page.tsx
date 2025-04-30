@@ -1,33 +1,58 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Eye, Printer, Trash2,Pencil } from "lucide-react";
+import { Eye, Printer, Trash2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getExams } from "@/lib/api";
+import mongoose from "mongoose";
+import { useRouter } from "next/navigation";
 
 export default function Exams() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [exams, setExams] = useState<Exam[]>([]);
+  const router = useRouter();
+  interface Exam {
+    _id: mongoose.Types.ObjectId;
+    title: string;
+    description: string;
+    dateTime: Date;
+    duration: string;
+    totalScore: number;
+    status: string;
+    key: string;
+    questions: [];
+    createUserById: mongoose.Types.ObjectId;
+    createdAt: Date;
+    updatedAt: Date;
+  }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getExams();
+        if (data.data) {
+          setExams(data.data);
+          console.log("exams", data.data);
+        } else {
+          const defaultExams = [];
+        }
+      } catch (error) {}
+    };
+    fetchData();
+  }, []);
 
   const menuItems = [
     { title: "Шалгалтын мэдээлэл", link: "#" },
     { title: <i className="ri-user-line"></i>, link: "#" },
   ];
-  const exams = [
-    {
-      name: "Явцын шалгалт",
-      code: "uAdfs2",
-      date: "2023-10-11",
-      score: "10/20",
-    },
-    {
-      name: "Явцын шалгалт",
-      code: "bXyz12",
-      date: "2023-11-05",
-      score: "15/20",
-    },
-    { name: "Шалгалт 3", code: "cTest3", date: "2023-12-01", score: "18/20" },
-  ];
+
+  const clickSave = (index: number) => {
+    return () => {
+      localStorage.setItem("exam-storage", JSON.stringify(exams[index]));
+      router.push(`/teacher/create-exam/${exams[index]._id}`);
+    };
+  };
 
   return (
     <div>
@@ -50,18 +75,20 @@ export default function Exams() {
               <tbody>
                 {exams.map((exam, index) => (
                   <tr key={index} className="">
-                    <td className="px-4 py-1 rounded-2xl">{exam.name}</td>
+                    <td className="px-4 py-1 rounded-2xl">{exam.title}</td>
                     <td className="px-4 py-1 border bg-gray-100 rounded-lg text-center">
-                      {exam.code}
+                      {exam.key}
                     </td>
-                    <td className="px-4 py-1">{exam.date}</td>
-                    <td className="px-4 py-1">{exam.score}</td>
+                    <td className="px-4 py-1">
+                      {exam.dateTime.toLocaleString()}
+                    </td>
+                    <td className="px-4 py-1">{exam.totalScore}</td>
                     <td className="px-4 py-1">
                       <div className="flex justify-end space-x-3 text-gray-900">
                         <div className="flex items-center justify-center border p-2 rounded-lg border-gray-900 hover:bg-gray-200 border-gray-900">
-                          <Link href="">
+                          <div onClick={clickSave(index)}>
                             <Pencil size={16} />
-                          </Link>
+                          </div>
                         </div>
                         <div className="flex items-center justify-center border p-2 rounded-lg border-gray-900 hover:bg-gray-200 border-gray-900">
                           <Link href="">
