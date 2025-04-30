@@ -50,7 +50,7 @@ export default function Exams() {
   const clickSave = (index: number) => {
     return () => {
       localStorage.setItem("exam-storage", JSON.stringify(exams[index]));
-      router.push(`/teacher/create-exam/${exams[index]._id}`);
+      router.push(`/teacher/create-exam/${exams[index]._id} `);
     };
   };
 
