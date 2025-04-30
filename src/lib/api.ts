@@ -1,5 +1,5 @@
 import { create } from "domain";
-import {Types} from "mongoose";
+import { Types } from "mongoose";
 import { ExamInput } from "@/lib/types/interface";
 
 export const fetchHelloMessage = async () => {
@@ -52,11 +52,10 @@ export const loginUser = async (email: string, password: string) => {
   }
 };
 
-
 export const getByUserAllExams = async (userId: string) => {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    
+
     if (!backendUrl) {
       throw new Error("NEXT_PUBLIC_BACKEND_URL тодорхойлогдоогүй байна.");
     }
@@ -70,7 +69,9 @@ export const getByUserAllExams = async (userId: string) => {
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || "Хэрэглэгчийн шалгалтуудыг авахад алдаа гарлаа.");
+      throw new Error(
+        errorData.message || "Хэрэглэгчийн шалгалтуудыг авахад алдаа гарлаа."
+      );
     }
 
     return await response.json();
@@ -78,20 +79,20 @@ export const getByUserAllExams = async (userId: string) => {
     console.error("Хэрэглэгчийн шалгалтуудыг авахад алдаа гарлаа:", err);
     throw err;
   }
-}
-type ExamInput = {
-  title: string;
-  description: string;
-  questions: { question: string; options: string[]; answer: number }[];
-  dateTime: Date;
-  duration: number;
-  totalScore: number;
-  status: string;
-  key: string;
-  createUserById: string;
-  createdAt: Date;
 };
-export const getByUserAllExams = async () => {};
+// type ExamInput = {
+//   title: string;
+//   description: string;
+//   questions: { question: string; options: string[]; answer: number }[];
+//   dateTime: Date;
+//   duration: number;
+//   totalScore: number;
+//   status: string;
+//   key: string;
+//   createUserById: string;
+//   createdAt: Date;
+// };
+// export const getByUserAllExams = async () => {};
 
 // Шалтгалт үүсгэх
 export const createExam = async (examData: ExamInput) => {
@@ -214,7 +215,7 @@ export const getStudentByResult = async (
     console.error("Шалгалт өгсөн оюутны мэдээллийг авахад алдаа гарлаа:", err);
     throw err;
   }
-}
+};
 
 //Result -ууд авах
 export const getResults = async () => {
@@ -233,11 +234,13 @@ export const getResults = async () => {
     });
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || "Шалгалтын жагсаалтыг авахад алдаа гарлаа.");
+      throw new Error(
+        errorData.message || "Шалгалтын жагсаалтыг авахад алдаа гарлаа."
+      );
     }
     return await response.json();
   } catch (err) {
     console.error("Шалтгалтын жагсаалтыг авахад алдаа гарлаа:", err);
     throw err;
   }
-}
+};

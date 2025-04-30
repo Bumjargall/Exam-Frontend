@@ -13,6 +13,7 @@ type examStoreData = {
 };
 type ExamStore = {
   exams: examStoreData[];
+  setQuestions: (exams: examStoreData[]) => void;
   addToExam: (NewExam: examStoreData) => void;
   removeToExam: (id: string) => void;
   clearExam: () => void;
@@ -26,6 +27,7 @@ export const useExamStore = create<ExamStore>()(
         set((state) => ({
           exams: [...state.exams, NewExam],
         })),
+      setQuestions: (exams) => set({ exams }),
       removeToExam: (id) =>
         set((state) => ({
           exams: state.exams.filter((exam) => exam.id !== id),

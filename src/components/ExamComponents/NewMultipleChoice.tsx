@@ -4,7 +4,6 @@ import { X } from "lucide-react";
 import RichTextEditor from "@/components/TinyMce/RichTextEditor";
 import NewAnswerOption from "@/components/create-exam/NewAnswerOption";
 import { useExamStore } from "@/store/ExamStore";
-import { useEditStore } from "@/store/EditZustand";
 import {
   ListOrdered,
   Shuffle,
@@ -39,7 +38,6 @@ export default function NewMultipleChoice({
   const [score, setScore] = useState<number>(0);
   const addToExam = useExamStore((s) => s.addToExam);
   const { exams, updateExam } = useExamStore();
-  const { questions, updateQuestion } = useEditStore();
   const handleOptionsChange = (
     newOptions: { text: string; isCorrect: boolean }[]
   ) => {
