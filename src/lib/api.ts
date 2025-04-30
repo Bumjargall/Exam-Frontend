@@ -1,6 +1,10 @@
 import { create } from "domain";
+<<<<<<< HEAD
 import {Types} from "mongoose";
 import { ExamInput } from "@/lib/types/interface";
+=======
+import { Types } from "mongoose";
+>>>>>>> 7d5ec4cbd30d7baa9164a8710668c898987d4724
 
 export const fetchHelloMessage = async () => {
   try {
@@ -52,6 +56,7 @@ export const loginUser = async (email: string, password: string) => {
   }
 };
 
+<<<<<<< HEAD
 
 export const getByUserAllExams = async (userId: string) => {
   try {
@@ -79,19 +84,36 @@ export const getByUserAllExams = async (userId: string) => {
     throw err;
   }
 }
+=======
+type ExamInput = {
+  title: string;
+  description: string;
+  questions: { question: string; options: string[]; answer: number }[];
+  dateTime: Date;
+  duration: number;
+  totalScore: number;
+  status: string;
+  key: string;
+  createUserById: string;
+  createdAt: Date;
+};
+export const getByUserAllExams = async () => {};
+>>>>>>> 7d5ec4cbd30d7baa9164a8710668c898987d4724
 
 // Шалтгалт үүсгэх
-export const createExam = async (examData:ExamInput) => {
+export const createExam = async (examData: ExamInput) => {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     // URL-г шалгах
     if (!backendUrl) {
-      throw new Error(`${process.env.NEXT_PUBLIC_BACKEND_URL} тодорхойлогдоогүй байна.`);
+      throw new Error(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL} тодорхойлогдоогүй байна.`
+      );
     }
     const examDataWithObjectId = {
       ...examData,
       createUserById: new Types.ObjectId(examData.createUserById),
-    }
+    };
 
     const response = await fetch(`${backendUrl}/exams/`, {
       method: "POST",
@@ -132,14 +154,16 @@ export const getExams = async () => {
     });
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || "Шалтгалтын жагсаалтыг авахад алдаа гарлаа.");
+      throw new Error(
+        errorData.message || "Шалтгалтын жагсаалтыг авахад алдаа гарлаа."
+      );
     }
     return await response.json();
   } catch (err) {
     console.error("Шалтгалтын жагсаалтыг авахад алдаа гарлаа:", err);
     throw err;
   }
-}
+};
 
 // Шалгалт өгсөн оюутны мэдээллийг авах
 export const getResultByUser = async (examId: string) => {
@@ -158,21 +182,29 @@ export const getResultByUser = async (examId: string) => {
     });
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || "Шалгалт өгсөн оюутны мэдээллийг авахад алдаа гарлаа.");
+      throw new Error(
+        errorData.message ||
+          "Шалгалт өгсөн оюутны мэдээллийг авахад алдаа гарлаа."
+      );
     }
     return await response.json();
   } catch (err) {
     console.error("Шалгалт өгсөн оюутны мэдээллийг авахад алдаа гарлаа:", err);
     throw err;
   }
-}
+};
 
-{/*Student-ээс нэрээр нь дэлгэцэнд харуулах
+{
+  /*Student-ээс нэрээр нь дэлгэцэнд харуулах
   * @param examId
   * @param result буюу exam_id
   examId шалгалтыг өгсөн user_id-ын хэрэглэгчийн мэдээллийг user database-аас авах
-  */}
-export const getStudentByResult = async (examId: string, studentName: string) => {
+  */
+}
+export const getStudentByResult = async (
+  examId: string,
+  studentName: string
+) => {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -185,10 +217,11 @@ export const getStudentByResult = async (examId: string, studentName: string) =>
         "Content-Type": "application/json",
       },
     });
-  } catch(err) {
+  } catch (err) {
     console.error("Шалгалт өгсөн оюутны мэдээллийг авахад алдаа гарлаа:", err);
     throw err;
   }
+<<<<<<< HEAD
 }
 
 //Result -ууд авах
@@ -216,3 +249,6 @@ export const getResults = async () => {
     throw err;
   }
 }
+=======
+};
+>>>>>>> 7d5ec4cbd30d7baa9164a8710668c898987d4724

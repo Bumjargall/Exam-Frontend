@@ -27,9 +27,9 @@ import {
 import { useEffect, useState } from "react";
 import { TimePicker } from "@/components/time/time-picker";
 import { createExam } from "@/lib/api";
-import {generateExamKey} from "@/lib/utils";
+import { generateExamKey } from "@/lib/utils";
 import { useExamStore } from "@/store/ExamStore";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 
 type FormData = z.infer<typeof ConfigureSchema>;
 
@@ -39,13 +39,11 @@ export default function ConfigureForm() {
   const [userId, setUserId] = useState("");
   const [examKey, setExamKey] = useState("");
   const [totalScore, setTotalScore] = useState(0);
-  const { exams} = useExamStore();
+  const { exams } = useExamStore();
   const router = useRouter();
   useEffect(() => {
     console.log("exams-----------------", exams);
-    const questions = JSON.parse(
-      localStorage.getItem("exam-storage") || "[]"
-    );
+    const questions = JSON.parse(localStorage.getItem("exam-storage") || "[]");
     if (questions.state.exams.length > 0) {
       const total = questions.state.exams.reduce(
         (acc: number, question: { score: number }) => acc + question.score,
@@ -91,7 +89,7 @@ export default function ConfigureForm() {
         console.log("Шалгалт амжилттай үүсгэгдлээ!");
       }
       router.push("/teacher/exams");
-//      localStorage.removeItem("exam-storage");
+      //      localStorage.removeItem("exam-storage");
       setExamKey("");
       setTotalScore(0);
     } catch (error) {
