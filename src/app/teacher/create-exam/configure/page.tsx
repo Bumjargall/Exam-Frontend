@@ -59,7 +59,7 @@ export default function ConfigureForm() {
   }, []);
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
-    if (!user || !user.id) {
+    if (!user || !user.user._id) {
       console.error("Хэрэглэгчийн бүртгэл...");
     }
     setUserId(user.user._id);
@@ -91,7 +91,7 @@ export default function ConfigureForm() {
         console.log("Шалгалт амжилттай үүсгэгдлээ!");
       }
       router.push("/teacher/exams");
-      localStorage.removeItem("exam-storage");
+//      localStorage.removeItem("exam-storage");
       setExamKey("");
       setTotalScore(0);
     } catch (error) {
