@@ -100,6 +100,22 @@ export const getExams = async () => {
   }
 };
 
+// Шалгалтын мэдээллийг авах - examId
+export const getExamById = async (examId: string) => {
+  try {
+    const response = await fetch(`${getBackendUrl()}/exams/${examId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return await handleResponse(response);
+  } catch (err) {
+    console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", err);
+    throw err;
+  }
+}
+
 // Шалгалт өгсөн оюутны мэдээллийг авах
 export const getResultByUser = async (examId: string) => {
   try {
