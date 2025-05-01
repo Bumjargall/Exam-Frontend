@@ -1,4 +1,5 @@
 
+
 import {Types} from "mongoose";
 import { ExamInput as ImportedExamInput } from "@/lib/types/interface";
 
@@ -46,7 +47,6 @@ export const loginUser = async (email: string, password: string) => {
     throw err;
   }
 };
-
 
 export const getByUserAllExams = async (userId: string) => {
   try {
@@ -139,7 +139,7 @@ export const getStudentByResult = async (
     console.error("Шалгалт өгсөн оюутны мэдээллийг авахад алдаа гарлаа:", err);
     throw err;
   }
-}
+};
 
 //Result -ууд авах
 export const getResults = async () => {
@@ -155,4 +155,4 @@ export const getResults = async () => {
     console.error("Шалтгалтын жагсаалтыг авахад алдаа гарлаа:", err);
     throw err;
   }
-}
+};

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import SelectExamComponent from "@/app/teacher/monitoring/components/SelectExamComponent";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -9,6 +9,21 @@ import { Exam, Result, User } from "@/lib/types/interface";
 import { title } from "process";
 import { Description } from "@radix-ui/react-dialog";
 import { duration } from "html2canvas/dist/types/css/property-descriptors/duration";
+
+const defaultExam = {
+  _id: "",
+  title: "Шалгалтын гарчиг...",
+  key: "0",
+  status: "active",
+  description: "",
+  questions: [],
+  dateTime: new Date(),
+  duration: 0,
+  totalScore: 0,
+  createUserById: "",
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
 
 const downloadPDF = () => {
   const element = document.getElementById("pdf-content"); // PDF-д оруулах элемент
@@ -37,27 +52,11 @@ const downloadPDF = () => {
   });
 };
 
-const defaultExam = {
-  _id: "",
-  title: "Шалгалтын гарчиг...",
-  key: "0",
-  status: "active",
-  description: "",
-  questions: [],
-  dateTime: new Date(),
-  duration: 0,
-  totalScore: 0,
-  createUserById: "",
-  createdAt: new Date(),
-  updatedAt: new Date(),
-};
 export default function MonitoringPage() {
   const [examData, setExamData] = useState<Exam[]>([]);
   const [studentScoreData, setStudentScoreData] = useState<Result[]>([]);
-  const [lastExam, setLastExam] = useState<Exam>(defaultExam); 
+  const [lastExam, setLastExam] = useState<Exam>(defaultExam);
   const [userData, setUserData] = useState<User[]>([]);
-
-  //UI state
   const [isExamTitleVisible, setExamTitleVisible] = useState(false);
   const [dropdownStates, setDropdownStates] = useState({
     key: false,
@@ -67,6 +66,35 @@ export default function MonitoringPage() {
     send: false,
   });
 
+  const dropdownRefs = {
+    key: useRef<HTMLDivElement>(null),
+    status: useRef<HTMLDivElement>(null),
+    download: useRef<HTMLDivElement>(null),
+    print: useRef<HTMLDivElement>(null),
+    send: useRef<HTMLDivElement>(null),
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      Object.entries(dropdownRefs).forEach(([key, ref]) => {
+        if (ref.current && !ref.current.contains(event.target as Node)) {
+          setDropdownStates((prev) => ({
+            ...prev,
+            [key]: false,
+          }));
+        }
+      });
+      if (
+        !document.getElementById("menu-button")?.contains(event.target as Node)
+      ) {
+        setExamTitleVisible(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   //database дуудах
   useEffect(() => {
     const fetchData = async () => {
@@ -84,7 +112,9 @@ export default function MonitoringPage() {
           setStudentScoreData(resultResponse.data);
         }
         if (lastExam._id) {
-          const examUserResponse = await getResultByUser(lastExam._id);
+          const examUserResponse = await getResultByUser(
+            lastExam._id.toString()
+          );
           setUserData(examUserResponse.data || []);
         }
       } catch (error) {
@@ -97,7 +127,7 @@ export default function MonitoringPage() {
   // Toggle functions
   const toggleDropdown = (key: keyof typeof dropdownStates) => {
     setDropdownStates((prev) => ({
-      ...prev,
+      ...Object.fromEntries(Object.keys(prev).map((k) => [k, false])) as typeof dropdownStates,
       [key]: !prev[key],
     }));
   };
@@ -118,12 +148,6 @@ export default function MonitoringPage() {
     closeAllDropdowns();
   };
 
-  //шалгалтын гарчиг дээр дарах үед гарчигийг харуулах функц
-  const clickExam = (exam: { id: string; title: string }) => {
-    setLastExam(exam);
-    closeMenu();
-  };
-
   const handleCopy = async (text: string, message: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -132,6 +156,7 @@ export default function MonitoringPage() {
       console.error("Хуулахад алдаа гарлаа:", err);
     }
   };
+
   const renderStudentList = (status: "taking" | "submitted") => (
     <ul>
       {studentScoreData
@@ -153,17 +178,18 @@ export default function MonitoringPage() {
     </ul>
   );
 
+
+ 
+
   return (
     <div className="max-w-7xl mx-auto">
       <div className=" flex justify-between h-24">
         {/*Monitoring Left banner -> Exam title, student names*/}
         <div className="left_container w-1/5 px-2">
           <div
-            onClick={()=> setExamTitleVisible(!isExamTitleVisible)}
+            onClick={() => setExamTitleVisible(!isExamTitleVisible)}
             className="last_exam flex border-b-2 bg-sky-200 px-2 relative cursor-pointer"
             id="menu-button"
-            aria-expanded={isExamTitleVisible}
-            aria-haspopup="true"
           >
             <p className="text-[20px]">{lastExam.title}</p>
             <i className="ri-arrow-down-s-fill absolute right-2 text-2xl"></i>
@@ -202,7 +228,7 @@ export default function MonitoringPage() {
         {/*Main*/}
         <div className="w-3/5 mx-4 bg-gray-50 rounded-2xl border-2 border-gray-100">
           <Tabs defaultValue="account" className="w-full">
-            <TabsList className="flex justify-center py-4 w-full border-b-2 border-sky-400 bg-white text-sky-400 rounded-t-2xl cursor-pointer">
+            <TabsList className="flex justify-center py-4 w-full border-b-2 border-sky-400 bg-white text-sky-400 rounded-t-2xl   ">
               <TabsTrigger value="account" className="text-xl my-4">
                 Хянах
               </TabsTrigger>
@@ -215,34 +241,38 @@ export default function MonitoringPage() {
                 <p className=" text-[18px] mb-4">{lastExam.title}</p>
                 <div className="flex justify-around">
                   <div className="left w-1/2">
-                    <div className="flex justify-between pr-6 py-2">
+                    <div className="flex justify-between pr-6 py-2 relative" ref={dropdownRefs.key}>
                       <p className="mr-4">Exam key</p>
                       <button
-                        className="px-2 border-2  rounded-2xl cursor-pointer relative hover:text-yellow-500"
-                        onClick={()=> toggleDropdown('key')}
+                        className="px-2 border-2  rounded-2xl cursor-pointer hover:text-yellow-500"
+                        onClick={() => toggleDropdown('key')}
                         id="key"
                       >
                         {lastExam.key} <i className="ri-arrow-down-s-fill"></i>
                       </button>
                       {dropdownStates.key && (
-                        <div
-                          className="absolute mt-6 bg-white border-1 border-slate-500 m-6 rounded-2xl z-10"
-                          
-                        >
+                        <div className="absolute right-0 mt-8 bg-white border-1 border-gray-300 rounded-lg shadow-lg  z-50 w-48">
                           <ul className="">
                             <li
-                              className="px-1 py-1 hover:bg-gray-100 rounded-2xl cursor-pointer"
+                              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
-                                handleCopy(lastExam.key, "Түлхүүр хуулагдлаа...")
+                                handleCopy(
+                                  lastExam.key,
+                                  "Түлхүүр хуулагдлаа..."
+                                );
                               }}
                             >
                               <i className="ri-file-copy-line mr-2"></i>Түлхүүр
                               хуулах
                             </li>
                             <li
-                              className="px-1 py-1 hover:bg-gray-100 rounded-2xl cursor-pointer"
+                              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
-                                handleCopy(`https://exam.com/${lastExam.key}`, "Линк хуулагдлаа")}}
+                                handleCopy(
+                                  `https://exam.com/${lastExam.key}`,
+                                  "Линк хуулагдлаа"
+                                );
+                              }}
                             >
                               <i className="ri-link mr-2"></i>Шалгалтын линк
                               хуулах
@@ -252,11 +282,11 @@ export default function MonitoringPage() {
                       )}
                     </div>
                     {/*status*/}
-                    <div className="flex justify-between pr-6 py-2">
-                      <p className="mr-4">Төлөв</p>
+                    <div className="flex justify-between pr-6 py-2 relative" ref={dropdownRefs.status}>
+                      <p className="mr-4">Шалгалтын төлөв</p>
                       <button
                         className="px-2 border-2  rounded-2xl cursor-pointer relative hover:text-yellow-500"
-                        onClick={()=> toggleDropdown("status")}
+                        onClick={() => toggleDropdown('status')}
                       >
                         {lastExam.status == "active" ? (
                           <>
@@ -272,20 +302,17 @@ export default function MonitoringPage() {
                         <i className="ri-arrow-down-s-fill"></i>
                       </button>
                       {dropdownStates.status && (
-                        <div
-                          className="absolute left-2/6 mt-[28px] bg-white border-1 border-slate-500 m-6 rounded-2xl z-10"
-                        
-                        >
+                        <div className="absolute right-0 mt-8 bg-white border-1 border-gray-300 m-6 rounded-lg shadow-lg z-50 w-48">
                           <ul>
-                              <li className="px-4 py-2 hover:bg-gray-100 rounded-2xl cursor-pointer">
-                                <i className="ri-circle-fill text-[12px] text-lime-500 mr-2"></i>
-                                Нээлттэй
-                              </li>
-                              <li className="px-4 py-2 hover:bg-gray-100 rounded-2xl cursor-pointer">
-                                <i className="ri-close-circle-fill text-[12px] text-red-500 mr-2"></i>
-                                Хаалттай
-                              </li>
-                            </ul>
+                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                              <i className="ri-circle-fill text-[12px] text-lime-500 mr-2"></i>
+                              Нээлттэй
+                            </li>
+                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                              <i className="ri-close-circle-fill text-[12px] text-red-500 mr-2"></i>
+                              Хаалттай
+                            </li>
+                          </ul>
                         </div>
                       )}
                     </div>
@@ -319,15 +346,15 @@ export default function MonitoringPage() {
                     </div>
                   </div>
                   <div className="right w-1/2 flex flex-col items-center">
-                    <button className="flex items-center justify-center w-4/5 wx-auto bg-slate-200 rounded-full my-2 py-1 hover:bg-white hover:border-2 duration-[.3s]">
+                    <button className="flex items-center justify-center w-4/5 bg-slate-200 rounded-full my-2 py-1 hover:bg-white hover:border-2 transition duration-300">
                       <i className="ri-expand-right-line text-[14px] mr-2"></i>{" "}
                       Шалгалтаас хасах
                     </button>
-                    <button className="flex items-center justify-center w-4/5 wx-auto bg-slate-200 rounded-full my-2 py-1 hover:bg-white hover:border-2  duration-[.3s]">
+                    <button className="flex items-center justify-center w-4/5 bg-slate-200 rounded-full my-2 py-1 hover:bg-white hover:border-2  transition duration-300">
                       <i className="ri-eye-line text-[14px] mr-2"></i>Материал
                       харах
                     </button>
-                    <button className="flex items-center justify-center w-4/5 wx-auto bg-slate-200 rounded-full my-2 py-1 hover:bg-white hover:border-2  duration-[.3s]">
+                    <button className="flex items-center justify-center w-4/5 bg-slate-200 rounded-full my-2 py-1 hover:bg-white hover:border-2  transition duration-300">
                       <i className="ri-printer-line text-[14px] mr-2"></i>Хэвлэх
                       <i className="ri-arrow-down-s-fill"></i>
                     </button>
@@ -339,10 +366,10 @@ export default function MonitoringPage() {
               <div className="container my-4 mx-2">
                 <p className="text-[18px] mb-4">{lastExam.title}</p>
                 <div className="">
-                  <div className="share_link flex justify-start pr-6 py-2 align-center">
+                  <div className="share_link flex justify-start pr-6 py-2 items-center">
                     <p className="mr-4">Илгээх</p>
                     <i
-                      className="ri-share-fill px-1 border-2  rounded-full cursor-pointer relative hover:text-yellow-500"
+                      className="ri-share-fill px-1 border-2  rounded-full cursor-pointer hover:text-yellow-500"
                       onClick={() => {
                         alert("Илгээх мэйлээ оруулна уу?");
                       }}
@@ -352,24 +379,21 @@ export default function MonitoringPage() {
                   <div className="buttons flex">
                     <div className="pr-4 relative">
                       <button
-                        className="flex items-center justify-center w-[18vh] wx-auto border-1 border-slate-400 rounded-full my-1 py-1 hover:bg-slate-100 hover:border-2  duration-[.3s]"
-                        onClick={()=> toggleDropdown('download')}
+                        className="flex items-center justify-center w-[18vh] border border-slate-400 rounded-full my-1 py-1 hover:bg-slate-100 hover:border-2 transition duration-300"
+                        onClick={() => toggleDropdown("download")}
                       >
                         <i className="ri-download-line text-[14px] mr-2"></i>
                         Татах
                         <i className="ri-arrow-down-s-fill"></i>
                       </button>
                       {dropdownStates.download && (
-                        <div
-                          className="absolute mt-[0] w-1/9 bg-white border border-gray-200 rounded-md shadow-lg z-10"
-                        
-                        >
+                        <div className="absolute mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 w-48">
                           <ul className="py-1">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
                                 downloadPDF(); // Хуудсыг хэвлэх
-                                closeAllDropdowns()
+                                closeAllDropdowns();
                               }}
                             >
                               <i className="ri-printer-line mr-2"></i>PDF
@@ -379,7 +403,7 @@ export default function MonitoringPage() {
                               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
                                 alert("Excel файл үүсгэх үйлдэл"); // Excel файл үүсгэх
-                                closeAllDropdowns()
+                                closeAllDropdowns();
                               }}
                             >
                               <i className="ri-file-excel-line mr-2"></i>Excel
@@ -389,7 +413,7 @@ export default function MonitoringPage() {
                               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
                                 alert("Word файл үүсгэх үйлдэл"); // Word файл үүсгэх
-                                closeAllDropdowns()
+                                closeAllDropdowns();
                               }}
                             >
                               <i className="ri-file-word-line mr-2"></i>Word
@@ -399,10 +423,10 @@ export default function MonitoringPage() {
                         </div>
                       )}
                     </div>
-                      {/*print*/}
+                    {/*print*/}
                     <div className="pr-4 relative">
                       <button
-                        className="relative flex items-center justify-center w-[18vh] wx-auto border-1 border-slate-400 rounded-full my-1 py-1 hover:bg-slate-100 hover:border-2  duration-[.3s]"
+                        className="flex items-center justify-center w-[18vh] border border-slate-400 rounded-full my-1 py-1 hover:bg-slate-100 hover:border-2 transition duration-300"
                         onClick={() => toggleDropdown("print")}
                       >
                         <i className="ri-printer-line text-[14px] mr-2"></i>
@@ -410,16 +434,13 @@ export default function MonitoringPage() {
                         <i className="ri-arrow-down-s-fill"></i>
                       </button>
                       {dropdownStates.print && (
-                        <div
-                          className="absolute  w-1/9 bg-white border border-gray-200 rounded-md shadow-lg z-10"
-                          
-                        >
+                        <div className="absolute  mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 w-48">
                           <ul className="py-1">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
                                 window.print(); // Хуудсыг хэвлэх
-                                closeAllDropdowns()
+                                closeAllDropdowns();
                               }}
                             >
                               <i className="ri-bar-chart-horizontal-line mr-2"></i>
@@ -429,7 +450,7 @@ export default function MonitoringPage() {
                               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
                                 window.print();
-                                closeAllDropdowns()
+                                closeAllDropdowns();
                               }}
                             >
                               <i className="ri-key-2-line mr-2"></i>Шалгалтын
@@ -439,21 +460,18 @@ export default function MonitoringPage() {
                         </div>
                       )}
                     </div>
-{/*send*/}
-                    <div className="relative">
+                    {/*send*/}
+                    <div className="relative" ref={dropdownRefs.send}>
                       <button
-                        className="relative flex items-center justify-center w-[18vh] wx-auto border-1 border-slate-400 rounded-full my-1 py-1 hover:bg-slate-100 hover:border-2  duration-[.3s]"
-                        onClick={()=> toggleDropdown('send')}
+                        className="flex items-center justify-center w-[18vh] border border-slate-400 rounded-full my-1 py-1 hover:bg-slate-100 hover:border-2 transition duration-300"
+                        onClick={() => toggleDropdown("send")}
                       >
                         <i className="ri-printer-line text-[14px] mr-2"></i>
                         Илгээх
                         <i className="ri-arrow-down-s-fill"></i>
                       </button>
                       {dropdownStates.send && (
-                        <div
-                          className="absolute w-1/9 bg-white border border-gray-200 rounded-md shadow-lg z-10"
-                          
-                        >
+                        <div className="absolute mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 w-48">
                           <ul className="py-1">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
@@ -497,12 +515,17 @@ export default function MonitoringPage() {
                             className="border-b hover:bg-gray-50"
                           >
                             <td className="p-2 text-blue-600 cursor-pointer">
-                              {student.studentId  && typeof student.studentId !== 'string' ? 
-                                `${student.studentId.lastName} ${student.studentId.firstName}` : 
-                                'Unknown Student'}
+                              {student.studentId &&
+                              typeof student.studentId !== "string"
+                                ? `${student.studentId.lastName} ${student.studentId.firstName}`
+                                : "Unknown Student"}
                             </td>
                             <td className="p-2">{student.score}</td>
-                            <td className="p-2">{student.submittedAt ? new Date(student.submittedAt).toLocaleString() : "N/A"}</td>
+                            <td className="p-2">
+                              {student.submittedAt
+                                ? new Date(student.submittedAt).toLocaleString()
+                                : "N/A"}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -514,20 +537,20 @@ export default function MonitoringPage() {
           </Tabs>
         </div>
         {/*Right*/}
-        <div className="right_container  w-1/5 text-white px-2 ">
-          <div className="container bg-slate-100 rounded-2xl">
-            <div className="flex justify-center items-center text-slate-700 border-b-1">
+        <div className="right_container  w-1/5 px-2 ">
+          <div className="bg-slate-100 rounded-2xl">
+            <div className="flex justify-center items-center text-slate-700 border-b p-2">
               <i className="ri-question-answer-fill text-[14px] pr-2"></i>
               <p>Мессеж</p>
             </div>
             <div className="h-20 "></div>
             <div className="text-white bg-slate-400 rounded-b-2xl py-1 px-2">
               <input
-                className="text-slate-700"
+                className="text-slate-700 w-full p-1 rounded"
                 type="text"
                 placeholder="Энд бичнэ үү..."
               />
-              <i className="ri-send-plane-fill px-1"></i>
+              <i className="ri-send-plane-fill px-1 float-right mt-1 cursor-pointer"></i>
             </div>
           </div>
         </div>

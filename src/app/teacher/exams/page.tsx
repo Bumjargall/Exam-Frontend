@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { getExams } from "@/lib/api";
 import mongoose from "mongoose";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 
 export default function Exams() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -49,8 +50,16 @@ export default function Exams() {
 
   const clickSave = (index: number) => {
     return () => {
-      localStorage.setItem("exam-storage", JSON.stringify(exams[index]));
-      router.push(`/teacher/create-exam/${exams[index]._id} `);
+      const selectedExam = exams[index];
+      localStorage.setItem("exam", JSON.stringify(exams[index]));
+      router.push(`/teacher/create-exam/${exams[index]._id}`);
+    };
+  };
+  const click = (index: number) => {
+    return () => {
+      const selectedExam = exams[index];
+      localStorage.setItem("exam", JSON.stringify(exams[index]));
+      router.push(`/teacher/exams/${exams[index]._id}`);
     };
   };
 
@@ -58,7 +67,7 @@ export default function Exams() {
     <div>
       <div className="max-w-4xl mx-auto mt-20">
         <div className="">
-          <div className="text-center text-xl text-black font-medium py-4 border border-gray-900">
+          <div className="text-center text-xl text-black font-medium py-4 border-t border-l border-r border-gray-300 rounded-t-lg">
             <h1>Шалгалтын мэдээлэл</h1>
           </div>
           <div className="overflow-x-auto">
@@ -72,40 +81,63 @@ export default function Exams() {
                   <th className="px-4 py-1 text-left"></th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-100">
                 {exams.map((exam, index) => (
-                  <tr key={index} className="">
-                    <td className="px-4 py-1 rounded-2xl">{exam.title}</td>
-                    <td className="px-4 py-1 border bg-gray-100 rounded-lg text-center">
+                  <tr
+                    key={index}
+                    className="hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    <td className="px-4 py-2 font-medium">{exam.title}</td>
+                    <td className="px-4 py-2 text-center bg-gray-100 rounded-lg">
                       {exam.key}
                     </td>
-                    <td className="px-4 py-1">
-                      {exam.dateTime.toLocaleString()}
+                    <td className="px-4 py-2">
+                      {format(exam.dateTime, "yyyy-MM-dd HH:mm")}
                     </td>
-                    <td className="px-4 py-1">{exam.totalScore}</td>
-                    <td className="px-4 py-1">
-                      <div className="flex justify-end space-x-3 text-gray-900">
-                        <div className="flex items-center justify-center border p-2 rounded-lg border-gray-900 hover:bg-gray-200 border-gray-900">
-                          <div onClick={clickSave(index)}>
-                            <Pencil size={16} />
-                          </div>
+                    <td className="px-4 py-2 text-center">{exam.totalScore}</td>
+                    <td className="px-4 py-2">
+                      <div className="flex justify-end space-x-2 text-gray-700">
+                        {/* Засах */}
+                        <div
+                          onClick={clickSave(index)}
+                          className="group relative flex items-center justify-center border border-gray-300 p-2 rounded-md hover:bg-gray-100 cursor-pointer"
+                        >
+                          <Pencil size={16} />
+                          <span className="absolute bottom-full mb-1 hidden group-hover:block text-xs bg-black text-white px-2 py-0.5 rounded shadow-md">
+                            Засах
+                          </span>
                         </div>
-                        <div className="flex items-center justify-center border p-2 rounded-lg border-gray-900 hover:bg-gray-200 border-gray-900">
-                          <Link href="">
-                            <Eye size={16} />
-                          </Link>
-                        </div>
-                        <div className="flex items-center justify-center border p-2 rounded-lg border-gray-900 hover:bg-gray-200 border-gray-900">
-                          <Link href="">
-                            <Printer size={16} />
-                          </Link>
-                        </div>
-
-                        <div className="flex items-center justify-center border p-2 rounded-lg border-gray-900 hover:bg-gray-200 border-gray-900">
-                          <Link href="">
-                            <Trash2 size={16} />
-                          </Link>
-                        </div>
+                        {/* Харах */}
+                        <Link
+                          href=""
+                          onClick={click(index)}
+                          className="group relative flex items-center justify-center border border-gray-300 p-2 rounded-md hover:bg-gray-100"
+                        >
+                          <Eye size={16} />
+                          <span className="absolute bottom-full mb-1 hidden group-hover:block text-xs bg-black text-white px-2 py-0.5 rounded shadow-md">
+                            Харах
+                          </span>
+                        </Link>
+                        {/* Хэвлэх */}
+                        <Link
+                          href=""
+                          className="group relative flex items-center justify-center border border-gray-300 p-2 rounded-md hover:bg-gray-100"
+                        >
+                          <Printer size={16} />
+                          <span className="absolute bottom-full mb-1 hidden group-hover:block text-xs bg-black text-white px-2 py-0.5 rounded shadow-md">
+                            Хэвлэх
+                          </span>
+                        </Link>
+                        {/* Устгах */}
+                        <Link
+                          href=""
+                          className="group relative flex items-center justify-center border border-gray-300 p-2 rounded-md hover:bg-red-100 text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 size={16} />
+                          <span className="absolute bottom-full mb-1 hidden group-hover:block text-xs bg-red-600 text-white px-2 py-0.5 rounded shadow-md">
+                            Устгах
+                          </span>
+                        </Link>
                       </div>
                     </td>
                   </tr>

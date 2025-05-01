@@ -89,7 +89,7 @@ export default function ConfigureForm() {
         console.log("Шалгалт амжилттай үүсгэгдлээ!");
       }
       router.push("/teacher/exams");
-      //      localStorage.removeItem("exam-storage");
+      localStorage.removeItem("exam-storage");
       setExamKey("");
       setTotalScore(0);
     } catch (error) {
