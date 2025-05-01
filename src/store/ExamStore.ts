@@ -1,44 +1,106 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-type answerOption = {
+type AnswerOption = {
   text: string;
   isCorrect: boolean;
 };
-type examStoreData = {
+
+type Question = {
   id: string;
   type: string;
   question: string;
-  answers?: answerOption[];
+  answers?: AnswerOption[];
   score?: number;
 };
-type ExamStore = {
-  exams: examStoreData[];
-  setQuestions: (exams: examStoreData[]) => void;
-  addToExam: (NewExam: examStoreData) => void;
-  removeToExam: (id: string) => void;
-  clearExam: () => void;
-  updateExam: (index: number, newExam: examStoreData) => void;
+
+type Exam = {
+  _id?: string;
+  title?: string;
+  description?: string;
+  questions: Question[];
+  dateTime?: Date | string;
+  duration?: number;
+  totalScore?: number;
+  status?: "active" | "inactive";
+  key?: string;
+  createUserById?: string;
+  createdAt?: Date | string;
 };
+
+type ExamStore = {
+  exam: Exam | null;
+  setExam: (exam: Exam) => void;
+  addQuestion: (newQuestion: Question) => void;
+  removeQuestion: (questionId: string) => void;
+  updateQuestion: (index: number, updatedQuestion: Question) => void;
+  clearExam: () => void;
+};
+
 export const useExamStore = create<ExamStore>()(
   persist(
     (set) => ({
-      exams: [],
-      addToExam: (NewExam) =>
-        set((state) => ({
-          exams: [...state.exams, NewExam],
-        })),
-      setQuestions: (exams) => set({ exams }),
-      removeToExam: (id) =>
-        set((state) => ({
-          exams: state.exams.filter((exam) => exam.id !== id),
-        })),
-      updateExam: (index, newExam) =>
+      exam: null,
+
+      setExam: (exam) => set({ exam }),
+      addQuestion: (newQuestion) =>
         set((state) => {
-          const updatedExams = [...state.exams]; // 1. Хуучин exams массивын хуулбарыг авна.
-          updatedExams[index] = { ...updatedExams[index], ...newExam }; // 2. Тухайн index-тэй exam-ийн мэдээллийг шинэ `newExam`-оор update хийнэ.
-          return { exams: updatedExams }; // 3. Шинэчлэгдсэн exams массивыг буцааж state-д хадгална.
+          if (!state.exam) {
+            console.warn("Exam байхгүй байна. setExam() эхэлж дуудаарай.");
+            return state;
+          }
+
+          const updatedQuestions = [...state.exam.questions, newQuestion];
+          return {
+            exam: {
+              ...state.exam,
+              questions: updatedQuestions,
+            },
+          };
         }),
-      clearExam: () => set({ exams: [] }),
+
+      removeQuestion: (questionId) =>
+        set((state) => {
+          if (!state.exam) {
+            console.warn("Exam байхгүй байна. setExam() эхэлж дуудаарай.");
+            return state;
+          }
+
+          const updatedQuestions = state.exam.questions.filter(
+            (q) => q.id !== questionId
+          );
+
+          return {
+            exam: {
+              ...state.exam,
+              questions: updatedQuestions,
+            },
+          };
+        }),
+
+      updateQuestion: (index, updatedQuestion) =>
+        set((state) => {
+          if (!state.exam) {
+            console.warn("Exam байхгүй байна. setExam() эхэлж дуудаарай.");
+            return state;
+          }
+
+          const updatedQuestions = [...state.exam.questions];
+          if (index < 0 || index >= updatedQuestions.length) {
+            console.warn("Индекс буруу байна.");
+            return state;
+          }
+
+          updatedQuestions[index] = updatedQuestion;
+
+          return {
+            exam: {
+              ...state.exam,
+              questions: updatedQuestions,
+            },
+          };
+        }),
+
+      clearExam: () => set({ exam: null }),
     }),
     {
       name: "exam-storage",

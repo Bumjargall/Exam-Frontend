@@ -1,12 +1,17 @@
 import { Types } from "mongoose";
 
+export type AnswerOption = {
+  text: string;
+  isCorrect: boolean;
+};
+
 export interface Question {
   id?: string;
-  question: string;
-  options: string[];
-  answers?: { text: string; isCorrect: boolean }[];
+  question?: string;
+  options?: string[];
+  answers?: AnswerOption[];
   score?: number;
-  type:
+  type?:
     | "multiple-choice"
     | "simple-choice"
     | "fill-choice"
@@ -16,6 +21,7 @@ export interface Question {
 }
 
 export interface ExamInput {
+  _id?: Types.ObjectId | string;
   title: string;
   description: string;
   questions: Question[];
@@ -26,6 +32,7 @@ export interface ExamInput {
   key: string;
   createUserById: Types.ObjectId | string;
   createdAt?: Date | string;
+  updatedAt?: Date | string;
 }
 export interface User {
   _id: Types.ObjectId | string;

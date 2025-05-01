@@ -18,6 +18,8 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useEditor } from "@tiptap/react";
+import { Exam, Question } from "@/lib/types/interface";
+//import { ExamQuestion } from "@/store/ExamStore";
 
 type functionType = {
   handleSelect: (type: string | null) => void;
@@ -36,8 +38,32 @@ export default function NewMultipleChoice({
   >([]);
   const [currentQuestion, setCurrentQuestion] = useState("");
   const [score, setScore] = useState<number>(0);
-  const addToExam = useExamStore((s) => s.addToExam);
-  const { exams, updateExam } = useExamStore();
+  const addQuestion = useExamStore((s) => s.addQuestion);
+  const { exam, updateQuestion, setExam } = useExamStore();
+  type answerOption = {
+    text: string;
+    isCorrect: boolean;
+  };
+  type ExamQuestion = {
+    id: string;
+    type: string;
+    question: string;
+    answers: answerOption[];
+    score?: number;
+  };
+  useEffect(() => {
+    if (!exam) {
+      setExam({
+        title: "",
+        description: "",
+        questions: [],
+        dateTime: "",
+        duration: 0,
+        totalScore: 0,
+        status: "inactive",
+      });
+    }
+  }, []);
   const handleOptionsChange = (
     newOptions: { text: string; isCorrect: boolean }[]
   ) => {
@@ -45,12 +71,12 @@ export default function NewMultipleChoice({
   };
   useEffect(() => {
     if (editingIndex !== null) {
-      const current = exams[editingIndex];
+      const current: any = exam?.questions[editingIndex];
       setCurrentQuestion(current.question);
       setOptions(current.answers ? current.answers : []);
       setScore(current.score ? current.score : 0);
     }
-  }, [editingIndex, exams]);
+  }, [editingIndex, exam]);
   const addExam = () => {
     if (!currentQuestion || options.length === 0) {
       toast.error("Асуулт эсвэл хариулт оруулна уу.");
@@ -62,7 +88,7 @@ export default function NewMultipleChoice({
       });
       return;
     }
-    const examData = {
+    const examData: ExamQuestion = {
       type: "multiple-choice",
       id: Date.now().toString(),
       question: currentQuestion,
@@ -70,10 +96,10 @@ export default function NewMultipleChoice({
       score: score,
     };
     if (editingIndex !== null) {
-      updateExam(editingIndex, examData);
+      updateQuestion(editingIndex, examData);
       toast.success("Асуулт амжилттай засагдлаа");
     } else {
-      addToExam(examData);
+      addQuestion(examData);
       toast.success("Асуулт амжилттай нэмэгдлээ!");
     }
     setCurrentQuestion("");

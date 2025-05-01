@@ -18,15 +18,28 @@ export default function NewCode({
 }: functionType) {
   const [currentQuestion, setCurrentQuestion] = useState("");
   const [score, setScore] = useState<number>(0);
-  const addToExam = useExamStore((s) => s.addToExam);
-  const { exams, updateExam } = useExamStore();
+  const addQuestion = useExamStore((s) => s.addQuestion);
+  const { exam, updateQuestion, setExam } = useExamStore();
+  useEffect(() => {
+    if (!exam) {
+      setExam({
+        title: "",
+        description: "",
+        questions: [],
+        dateTime: "",
+        duration: 0,
+        totalScore: 0,
+        status: "inactive",
+      });
+    }
+  }, []);
   useEffect(() => {
     if (editingIndex !== null) {
-      const current = exams[editingIndex];
+      const current: any = exam?.questions[editingIndex];
       setCurrentQuestion(current.question);
       setScore(current.score ? current.score : 0);
     }
-  }, [editingIndex, exams]);
+  }, [editingIndex, exam]);
   const addExam = () => {
     if (!setCurrentQuestion) {
       toast("Асуултын текст хоосон байна!", {
@@ -47,10 +60,10 @@ export default function NewCode({
       score: score,
     };
     if (editingIndex !== null) {
-      updateExam(editingIndex, examData);
+      updateQuestion(editingIndex, examData);
       toast.success("Асуулт амжилттай засагдлаа");
     } else {
-      addToExam(examData);
+      addQuestion(examData);
       toast.success("Асуулт амжилттай нэмэгдлээ!");
     }
     setCurrentQuestion("");

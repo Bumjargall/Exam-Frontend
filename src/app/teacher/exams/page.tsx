@@ -39,7 +39,6 @@ export default function Exams() {
     return () => {
       const selectedExam = exams[index];
       localStorage.setItem("exam", JSON.stringify(exams[index]));
-      router.push(`/teacher/create-exam/${exams[index]._id}`);
     };
   };
   const clickDeleteExam = async (id: mongoose.Types.ObjectId) => {
@@ -101,7 +100,8 @@ export default function Exams() {
                     <td className="px-4 py-2">
                       <div className="flex justify-end space-x-2 text-gray-700">
                         {/* Засах */}
-                        <div
+                        <Link
+                          href={`/teacher/exams/edit/${exam._id}`}
                           onClick={clickSave(index)}
                           className="group relative flex items-center justify-center border border-gray-300 p-2 rounded-md hover:bg-gray-100 cursor-pointer"
                         >
@@ -109,7 +109,7 @@ export default function Exams() {
                           <span className="absolute bottom-full mb-1 hidden group-hover:block text-xs bg-black text-white px-2 py-0.5 rounded shadow-md">
                             Засах
                           </span>
-                        </div>
+                        </Link>
                         {/* Харах */}
                         <Link
                           href={`/teacher/exams/view/${exam._id}`}

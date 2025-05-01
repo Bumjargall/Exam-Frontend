@@ -18,14 +18,27 @@ export default function NewInformationBlock({
   setSelectedType,
 }: functionType) {
   const [currentQuestion, setCurrentQuestion] = useState("");
-  const addToExam = useExamStore((s) => s.addToExam);
-  const { exams, updateExam } = useExamStore();
+  const addQuestion = useExamStore((s) => s.addQuestion);
+  const { exam, updateQuestion, setExam } = useExamStore();
+  useEffect(() => {
+    if (!exam) {
+      setExam({
+        title: "",
+        description: "",
+        questions: [],
+        dateTime: "",
+        duration: 0,
+        totalScore: 0,
+        status: "inactive",
+      });
+    }
+  }, []);
   useEffect(() => {
     if (editingIndex !== null) {
-      const current = exams[editingIndex];
+      const current: any = exam?.questions[editingIndex];
       setCurrentQuestion(current.question);
     }
-  }, [editingIndex, exams]);
+  }, [editingIndex, exam]);
   const addExam = () => {
     if (!currentQuestion) {
       toast.error("Асуулт эсвэл хариулт оруулна уу.");
@@ -38,9 +51,9 @@ export default function NewInformationBlock({
     };
     if (editingIndex !== null) {
       toast.success("Асуулт амжилттай засагдлаа");
-      updateExam(editingIndex, examData);
+      updateQuestion(editingIndex, examData);
     } else {
-      addToExam(examData);
+      addQuestion(examData);
       toast.success("Асуулт амжилттай нэмэгдлээ!");
     }
     setCurrentQuestion("");

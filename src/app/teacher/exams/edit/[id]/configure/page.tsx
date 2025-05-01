@@ -26,71 +26,59 @@ import {
 } from "@/components/ui/popover";
 import { useEffect, useState } from "react";
 import { TimePicker } from "@/components/time/time-picker";
-import { createExam } from "@/lib/api";
+import { createExam, updateExam } from "@/lib/api";
 import { generateExamKey } from "@/lib/utils";
 import { useExamStore } from "@/store/ExamStore";
 import { useRouter } from "next/navigation";
-
+import { ExamInput as ImportedExamInput } from "@/lib/types/interface";
 type FormData = z.infer<typeof ConfigureSchema>;
 
 export default function ConfigureForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [userId, setUserId] = useState("");
-  const [examKey, setExamKey] = useState("");
-  const [totalScore, setTotalScore] = useState<number>(0);
   const { exam, setExam } = useExamStore();
+  const [totalScore, setTotalScore] = useState<number>(exam?.totalScore || 0);
   const router = useRouter();
+
   useEffect(() => {
-    console.log("exams-----------------", exam);
-    const questions = JSON.parse(localStorage.getItem("exam-storage") || "[]");
-    if (questions.state.exam.questions) {
-      const total = questions.state.exam.questions.reduce(
-        (acc: number, question: { score: number }) => acc + question.score,
+    const questions = exam?.questions ?? [];
+    if (questions && questions.length > 0) {
+      const total = questions.reduce(
+        (acc: number, question: { score?: number | undefined }) =>
+          acc + (question.score || 0),
         0
       );
       setTotalScore(total);
+    } else {
+      setTotalScore(exam?.totalScore || 0);
     }
-    if (questions.state.exam.questions.length === 0) {
-      setTotalScore(0);
-    }
-  }, []);
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    if (!user || !user.user._id) {
-      console.error("Хэрэглэгчийн бүртгэл...");
-    }
-    setUserId(user.user._id);
-    setExamKey(generateExamKey());
-  }, [userId]);
+  }, [exam?.questions]);
 
   const onSubmit = async (data: FormData) => {
     try {
       setLoading(true);
 
-      const questions = JSON.parse(
-        localStorage.getItem("exam-storage") || "[]"
-      );
-      const dateTime = form.getValues("dateTime").toString();
-      const examData = await createExam({
-        title: form.getValues("title"),
-        description: form.getValues("description") as string,
-        dateTime: new Date(dateTime),
+      const examData: ImportedExamInput = {
+        _id: exam?._id || "",
+        title: exam?.title || "",
+        description: exam?.description || "",
+        questions: exam?.questions || [],
+        dateTime: form.getValues("dateTime"),
         duration: form.getValues("time"),
         totalScore: totalScore,
         status: "active",
-        key: examKey,
-        questions: questions.state.exam.questions,
-        createUserById: userId as string,
-        createdAt: new Date(),
-      });
+        key: exam?.key || generateExamKey(),
+        createUserById: exam?.createUserById || "",
+        createdAt: exam?.createdAt || new Date(),
+        updatedAt: new Date(),
+      };
+      const updateData = await updateExam(exam?._id as string, examData);
 
-      if (examData) {
+      if (updateData) {
         console.log("Шалгалт амжилттай үүсгэгдлээ!");
       }
       router.push("/teacher/exams");
       localStorage.removeItem("exam-storage");
-      setExamKey("");
       setTotalScore(0);
     } catch (error) {
       console.error("Алдаа:", error);
