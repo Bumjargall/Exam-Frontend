@@ -14,6 +14,7 @@ const getBackendUrl = () : string => {
 }
 
 const handleResponse = async (response: Response) => {
+  console.log("response", response);
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(errorData.message || "Серверээс хариу ирсэнгүй");
@@ -32,6 +33,8 @@ export const fetchHelloMessage = async () => {
   }
 };
 
+{/*USER*/}
+
 export const loginUser = async (email: string, password: string) => {
   try {
     const response = await fetch(`${getBackendUrl()}/login`, {
@@ -47,6 +50,9 @@ export const loginUser = async (email: string, password: string) => {
     throw err;
   }
 };
+
+
+{/* EXAM */}
 
 export const getByUserAllExams = async (userId: string) => {
   try {
@@ -116,6 +122,25 @@ export const getExamById = async (examId: string) => {
   }
 }
 
+export const deleteExam = async (examId: string) => {
+  try {
+    const response = await fetch(`${getBackendUrl()}/exams/${examId}`, {
+      method:"DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const deleteExam = await handleResponse(response);
+    return deleteExam;
+  } catch (err) {
+    console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", err);
+    throw err;
+  }
+}
+
+{/* RESULT */}
+
+
 // Шалгалт өгсөн оюутны мэдээллийг авах
 export const getResultByUser = async (examId: string) => {
   try {
@@ -139,6 +164,9 @@ export const getResultByUser = async (examId: string) => {
   examId шалгалтыг өгсөн user_id-ын хэрэглэгчийн мэдээллийг user database-аас авах
   */
 }
+
+
+
 export const getStudentByResult = async (
   examId: string,
   studentId: string
