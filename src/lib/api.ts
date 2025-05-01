@@ -1,20 +1,30 @@
-import { create } from "domain";
-import {Types} from "mongoose";
-import { ExamInput } from "@/lib/types/interface";
 
+import {Types} from "mongoose";
+import { ExamInput as ImportedExamInput } from "@/lib/types/interface";
+
+
+// Сервертэй холбогдож байгаа эсэхийг шалгах
+const getBackendUrl = () : string => {
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+  if (!backendUrl) {
+    throw new Error("NEXT_PUBLIC_BACKEND_URL тодорхойлогдоогүй байна.");
+  }
+  return backendUrl;
+}
+
+const handleResponse = async (response: Response) => {
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Серверээс хариу ирсэнгүй");
+  }
+  return await response.json();
+}
+
+// API-тай холбогдох функц
 export const fetchHelloMessage = async () => {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-    // URL-г шалгах
-    if (!backendUrl) {
-      throw new Error("NEXT_PUBLIC_BACKEND_URL тодорхойлогдоогүй байна.");
-    }
-    const response = await fetch(backendUrl);
-    if (!response.ok) {
-      throw new Error("Серверээс хариу ирсэнгүй");
-    }
-    return await response.json();
+    const response = await fetch(getBackendUrl());
+    return await handleResponse(response);
   } catch (err) {
     console.log("Алдаа: ", err);
     throw err;
@@ -23,31 +33,16 @@ export const fetchHelloMessage = async () => {
 
 export const loginUser = async (email: string, password: string) => {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-    // URL-г шалгах
-    if (!backendUrl) {
-      throw new Error("NEXT_PUBLIC_BACKEND_URL тодорхойлогдоогүй байна.");
-    }
-
-    const response = await fetch(`${backendUrl}/login`, {
+    const response = await fetch(`${getBackendUrl()}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ email, password }),
     });
-
-    // Хариуг шалгах
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Нэвтрэхэд алдаа гарлаа.");
-    }
-
-    // JSON өгөгдлийг буцаах
-    return await response.json();
+    return await handleResponse(response);
   } catch (err) {
-    console.error("Нэвтрэхэд алдаа гарлаа:", err);
+    console.error("Нэвтрэх үед алдаа гарлаа:", err);
     throw err;
   }
 };
@@ -55,103 +50,50 @@ export const loginUser = async (email: string, password: string) => {
 
 export const getByUserAllExams = async (userId: string) => {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    
-    if (!backendUrl) {
-      throw new Error("NEXT_PUBLIC_BACKEND_URL тодорхойлогдоогүй байна.");
-    }
-
-    const response = await fetch(`${backendUrl}/exams/user/${userId}`, {
+    const response = await fetch(`${getBackendUrl()}/exams/user/${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Хэрэглэгчийн шалгалтуудыг авахад алдаа гарлаа.");
-    }
-
-    return await response.json();
+    return await handleResponse(response);
   } catch (err) {
     console.error("Хэрэглэгчийн шалгалтуудыг авахад алдаа гарлаа:", err);
     throw err;
   }
 }
-type ExamInput = {
-  title: string;
-  description: string;
-  questions: { question: string; options: string[]; answer: number }[];
-  dateTime: Date;
-  duration: number;
-  totalScore: number;
-  status: string;
-  key: string;
-  createUserById: string;
-  createdAt: Date;
-};
-export const getByUserAllExams = async () => {};
 
 // Шалтгалт үүсгэх
-export const createExam = async (examData: ExamInput) => {
+export const createExam = async (examData: ImportedExamInput) => {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    // URL-г шалгах
-    if (!backendUrl) {
-      throw new Error(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL} тодорхойлогдоогүй байна.`
-      );
-    }
     const examDataWithObjectId = {
       ...examData,
       createUserById: new Types.ObjectId(examData.createUserById),
     };
 
-    const response = await fetch(`${backendUrl}/exams/`, {
+    const response = await fetch(`${getBackendUrl()}/exams/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(examDataWithObjectId),
     });
-    console.log("Exam created successfully----> ", examDataWithObjectId);
-
-    // Хариуг шалгах
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Шалгалт үүсгэхэд алдаа гарлаа...");
-    }
-    console.log(response.body);
-    // JSON өгөгдлийг буцаах
-    return await response.json();
+    return await handleResponse(response);
   } catch (err) {
-    console.error("Шалтг үүсгэхэд алдаа гарлаа:", err);
+    console.error("Шалгалт үүсгэхэд алдаа гарлаа:", err);
     throw err;
   }
 };
 // Шалтгалтын жагсаалтыг авах
 export const getExams = async () => {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-    if (!backendUrl) {
-      throw new Error("NEXT_PUBLIC_BACKEND_URL тодорхойлогдоогүй байна.");
-    }
-
-    const response = await fetch(`${backendUrl}/exams`, {
+    const response = await fetch(`${getBackendUrl()}/exams`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(
-        errorData.message || "Шалтгалтын жагсаалтыг авахад алдаа гарлаа."
-      );
-    }
-    return await response.json();
+    return await handleResponse(response);
   } catch (err) {
     console.error("Шалтгалтын жагсаалтыг авахад алдаа гарлаа:", err);
     throw err;
@@ -161,26 +103,13 @@ export const getExams = async () => {
 // Шалгалт өгсөн оюутны мэдээллийг авах
 export const getResultByUser = async (examId: string) => {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-    if (!backendUrl) {
-      throw new Error("NEXT_PUBLIC_BACKEND_URL тодорхойлогдоогүй байна.");
-    }
-
-    const response = await fetch(`${backendUrl}/monitoring/${examId}`, {
+    const response = await fetch(`${getBackendUrl()}/monitoring/${examId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(
-        errorData.message ||
-          "Шалгалт өгсөн оюутны мэдээллийг авахад алдаа гарлаа."
-      );
-    }
-    return await response.json();
+    return await handleResponse(response);
   } catch (err) {
     console.error("Шалгалт өгсөн оюутны мэдээллийг авахад алдаа гарлаа:", err);
     throw err;
@@ -196,20 +125,16 @@ export const getResultByUser = async (examId: string) => {
 }
 export const getStudentByResult = async (
   examId: string,
-  studentName: string
+  studentId: string
 ) => {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-    if (!backendUrl) {
-      throw new Error("NEXT_PUBLIC_BACKEND_URL тодорхойлогдоогүй байна.");
-    }
-    const response = await fetch(`${backendUrl}/users/${examId}`, {
+    const response = await fetch(`${getBackendUrl()}/users/${examId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     });
+    return await handleResponse(response);
   } catch (err) {
     console.error("Шалгалт өгсөн оюутны мэдээллийг авахад алдаа гарлаа:", err);
     throw err;
@@ -219,23 +144,13 @@ export const getStudentByResult = async (
 //Result -ууд авах
 export const getResults = async () => {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-    if (!backendUrl) {
-      throw new Error("NEXT_PUBLIC_BACKEND_URL тодорхойлогдоогүй байна.");
-    }
-
-    const response = await fetch(`${backendUrl}/monitoring`, {
+    const response = await fetch(`${getBackendUrl()}/monitoring`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Шалгалтын жагсаалтыг авахад алдаа гарлаа.");
-    }
-    return await response.json();
+    return await handleResponse(response);
   } catch (err) {
     console.error("Шалтгалтын жагсаалтыг авахад алдаа гарлаа:", err);
     throw err;
