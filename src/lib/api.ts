@@ -141,6 +141,25 @@ export const deleteExam = async (examId: mongoose.Types.ObjectId) => {
 {
   /* RESULT */
 }
+// Шалгалтын мэдээллийг шинэчлэх
+export const updateExam = async (
+  examId: string,
+  examData: ImportedExamInput
+) => {
+  try {
+    const response = await fetch(`${getBackendUrl()}/exams/${examId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(examData),
+    });
+    return await handleResponse(response);
+  } catch (err) {
+    console.error("Шалгалтын мэдээллийг шинэчлэхэд алдаа гарлаа:", err);
+    throw err;
+  }
+};
 
 // Шалгалт өгсөн оюутны мэдээллийг авах
 export const getResultByUser = async (examId: string) => {
