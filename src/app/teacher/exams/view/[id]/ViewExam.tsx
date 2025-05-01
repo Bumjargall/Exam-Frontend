@@ -1,7 +1,7 @@
 "use client";
 import { getExamById } from "@/lib/api";
 import { format } from "date-fns";
-import { Exam, Question } from "@/lib/types/interface";
+import { Exam } from "@/lib/types/interface";
 import GapRenderer from "@/components/ExamComponents/GapRenderer";
 import { useEffect, useState } from "react";
 import { Label } from "@radix-ui/react-label";
@@ -11,26 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { use } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-interface ViewExamProps {
-  params: {
-    id: string;
-  };
-}
-
-const initialExamState: Exam = {
-  _id: "",
-  title: "Шалгалтын гарчиг...",
-  key: "0",
-  status: "active",
-  description: "",
-  questions: [],
-  dateTime: new Date(),
-  duration: 0,
-  totalScore: 0,
-  createUserById: "",
-  createdAt: new Date(),
-  updatedAt: new Date(),
-};
+import { initialExamState } from "./page";
 
 export default function ViewExam({
   params,
@@ -127,7 +108,7 @@ export default function ViewExam({
       ) : (
         exam.questions.map((question, index) => (
           <div
-            key={`${question.id || index}`}
+            key={`${question._id || index}`}
             className="border p-4 rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition"
           >
             <div className="flex flex-col justify-between">
@@ -140,19 +121,19 @@ export default function ViewExam({
               {question.type === "multiple-choice" && (
                 <div className="text-gray-700 my-3">
                   <RadioGroup disabled>
-                    {question.answers?.map((item, idx) => (
+                    {question.answer?.map((item, idx) => (
                       <div
                         key={idx}
                         className="flex items-center space-x-2 pl-6 font-semibold"
                       >
                         <RadioGroupItem
-                          value={item.text}
-                          id={`question-${question.id}-answer-${idx}`}
+                          value={item}
+                          id={`question-${question._id}-answer-${idx}`}
                         />
                         <Label
-                          htmlFor={`question-${question.id}-answer-${idx}`}
+                          htmlFor={`question-${question._id}-answer-${idx}`}
                         >
-                          {item.text}
+                          {item}
                         </Label>
                       </div>
                     ))}
