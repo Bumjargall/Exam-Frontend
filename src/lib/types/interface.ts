@@ -1,9 +1,10 @@
 import { Types } from "mongoose";
 
 export interface Question {
+  id?: string;
   question: string;
   options: string[];
-  answer: string[];
+  answers?: { text: string; isCorrect: boolean }[];
   score?: number;
   type:
     | "multiple-choice"
