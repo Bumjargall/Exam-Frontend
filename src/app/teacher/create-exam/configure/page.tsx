@@ -38,13 +38,13 @@ export default function ConfigureForm() {
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState("");
   const [examKey, setExamKey] = useState("");
-  const [totalScore, setTotalScore] = useState(0);
+  const [totalScore, setTotalScore] = useState<number>(0);
   const { exams } = useExamStore();
   const router = useRouter();
   useEffect(() => {
     console.log("exams-----------------", exams);
     const questions = JSON.parse(localStorage.getItem("exam-storage") || "[]");
-    if (questions.state.exams.length > 0) {
+    if (questions.state.exams) {
       const total = questions.state.exams.reduce(
         (acc: number, question: { score: number }) => acc + question.score,
         0

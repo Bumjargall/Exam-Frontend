@@ -6,10 +6,10 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Eye, Printer, Trash2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getExams } from "@/lib/api";
-import mongoose from "mongoose";
-import { useRouter } from "next/navigation";
+import mongoose, { ObjectId } from "mongoose";
+import { redirect } from "next/navigation";
 import { format } from "date-fns";
-
+import { useRouter } from "next/navigation";
 export default function Exams() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [exams, setExams] = useState<Exam[]>([]);
@@ -53,13 +53,6 @@ export default function Exams() {
       const selectedExam = exams[index];
       localStorage.setItem("exam", JSON.stringify(exams[index]));
       router.push(`/teacher/create-exam/${exams[index]._id}`);
-    };
-  };
-  const click = (index: number) => {
-    return () => {
-      const selectedExam = exams[index];
-      localStorage.setItem("exam", JSON.stringify(exams[index]));
-      router.push(`/teacher/exams/${exams[index]._id}`);
     };
   };
 
@@ -109,8 +102,7 @@ export default function Exams() {
                         </div>
                         {/* Харах */}
                         <Link
-                          href=""
-                          onClick={click(index)}
+                          href={`/teacher/exams/view/${exam._id}`}
                           className="group relative flex items-center justify-center border border-gray-300 p-2 rounded-md hover:bg-gray-100"
                         >
                           <Eye size={16} />

@@ -54,6 +54,7 @@ export default function Page() {
   };
   const createExamHandleSave = async () => {
     try {
+      localStorage.removeItem("exam");
     } catch (error) {
       console.error("Error creating exam:", error);
     }
