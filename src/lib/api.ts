@@ -1,17 +1,14 @@
-
-
-import {Types} from "mongoose";
+import mongoose, { ObjectId, Types } from "mongoose";
 import { ExamInput as ImportedExamInput } from "@/lib/types/interface";
 
-
 // Сервертэй холбогдож байгаа эсэхийг шалгах
-const getBackendUrl = () : string => {
+const getBackendUrl = (): string => {
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
   if (!backendUrl) {
     throw new Error("NEXT_PUBLIC_BACKEND_URL тодорхойлогдоогүй байна.");
   }
   return backendUrl;
-}
+};
 
 const handleResponse = async (response: Response) => {
   console.log("response", response);
@@ -20,7 +17,7 @@ const handleResponse = async (response: Response) => {
     throw new Error(errorData.message || "Серверээс хариу ирсэнгүй");
   }
   return await response.json();
-}
+};
 
 // API-тай холбогдох функц
 export const fetchHelloMessage = async () => {
@@ -33,7 +30,9 @@ export const fetchHelloMessage = async () => {
   }
 };
 
-{/*USER*/}
+{
+  /*USER*/
+}
 
 export const loginUser = async (email: string, password: string) => {
   try {
@@ -51,8 +50,9 @@ export const loginUser = async (email: string, password: string) => {
   }
 };
 
-
-{/* EXAM */}
+{
+  /* EXAM */
+}
 
 export const getByUserAllExams = async (userId: string) => {
   try {
@@ -67,7 +67,7 @@ export const getByUserAllExams = async (userId: string) => {
     console.error("Хэрэглэгчийн шалгалтуудыг авахад алдаа гарлаа:", err);
     throw err;
   }
-}
+};
 
 // Шалтгалт үүсгэх
 export const createExam = async (examData: ImportedExamInput) => {
@@ -120,12 +120,12 @@ export const getExamById = async (examId: string) => {
     console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", err);
     throw err;
   }
-}
+};
 
-export const deleteExam = async (examId: string) => {
+export const deleteExam = async (examId: mongoose.Types.ObjectId) => {
   try {
     const response = await fetch(`${getBackendUrl()}/exams/${examId}`, {
-      method:"DELETE",
+      method: "DELETE",
       headers: {
         "Content-Type": "application/json",
       },
@@ -136,10 +136,11 @@ export const deleteExam = async (examId: string) => {
     console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", err);
     throw err;
   }
+};
+
+{
+  /* RESULT */
 }
-
-{/* RESULT */}
-
 
 // Шалгалт өгсөн оюутны мэдээллийг авах
 export const getResultByUser = async (examId: string) => {
@@ -165,12 +166,7 @@ export const getResultByUser = async (examId: string) => {
   */
 }
 
-
-
-export const getStudentByResult = async (
-  examId: string,
-  studentId: string
-) => {
+export const getStudentByResult = async (examId: string, studentId: string) => {
   try {
     const response = await fetch(`${getBackendUrl()}/users/${examId}`, {
       method: "GET",
