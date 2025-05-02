@@ -1,7 +1,7 @@
 "use client";
 import { getExamById } from "@/lib/api";
 import { format } from "date-fns";
-import { Exam } from "@/lib/types/interface";
+import { Exam, Question } from "@/lib/types/interface";
 import GapRenderer from "@/components/ExamComponents/GapRenderer";
 import { useEffect, useState } from "react";
 import { Label } from "@radix-ui/react-label";
@@ -11,22 +11,50 @@ import { Textarea } from "@/components/ui/textarea";
 import { use } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { initialExamState } from "./page";
-
-export default function ViewExam({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
-  const [exam, setExam] = useState<Exam>(initialExamState);
+import { ExamInput } from "@/lib/types/interface";
+import React, { useRef } from "react";
+import { useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { useReactToPrint } from "react-to-print";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
+const initialExamState: Exam = {
+  _id: "",
+  title: "Шалгалтын гарчиг...",
+  key: "0",
+  status: "active",
+  description: "",
+  questions: [],
+  dateTime: new Date(),
+  duration: 0,
+  totalScore: 0,
+  createUserById: "",
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+function ExamPrintPage({ params }: { params: Promise<{ id: string }> }) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [exam, setExam] = useState<ExamInput>(initialExamState);
+  const { id } = useParams();
   const [isLoading, setIsLoading] = useState(true);
+  // const handlePrint = useReactToPrint({
+  //   content: () => contentRef.current,
+  //   onBeforeGetContent: () => {
+  //     // Хэвлэхээс өмнө бэлтгэх
+  //     console.log("Хэвлэхэд бэлдэж байна...");
+  //     return new Promise((resolve) => resolve(undefined));
+  //   },
+  //   onAfterPrint: () => {
+  //     // Хэвлэгдсэний дараа
+  //     console.log("Амжилттай хэвлэгдлээ");
+  //   },
+  // });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await getExamById(id);
+        const response = await getExamById(id as string);
         setExam(response.data);
       } catch (error) {
         console.error("Error fetching exam data:", error);
@@ -37,7 +65,6 @@ export default function ViewExam({
         setIsLoading(false);
       }
     };
-
     fetchData();
   }, [id, toast]);
 
@@ -62,7 +89,10 @@ export default function ViewExam({
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-2xl border border-gray-200 space-y-4 mt-10">
-      <div className="flex justify-between items-center">
+      {/* <Button onClick={handlePrint} className="mb-4">
+        PDF хэвлэх
+      </Button> */}
+      <div ref={contentRef} className="flex justify-between items-center">
         <h2 className="text-xl font-semibold text-gray-800">{exam.title}</h2>
         <span
           className={`px-3 py-1 text-sm rounded-full ${
@@ -108,7 +138,7 @@ export default function ViewExam({
       ) : (
         exam.questions.map((question, index) => (
           <div
-            key={`${question._id || index}`}
+            key={`${question.id || index}`}
             className="border p-4 rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition"
           >
             <div className="flex flex-col justify-between">
@@ -121,19 +151,19 @@ export default function ViewExam({
               {question.type === "multiple-choice" && (
                 <div className="text-gray-700 my-3">
                   <RadioGroup disabled>
-                    {question.answer?.map((item, idx) => (
+                    {question.answers?.map((item, idx) => (
                       <div
                         key={idx}
                         className="flex items-center space-x-2 pl-6 font-semibold"
                       >
                         <RadioGroupItem
-                          value={item}
-                          id={`question-${question._id}-answer-${idx}`}
+                          value={item.text}
+                          id={`question-${question.id}-answer-${idx}`}
                         />
                         <Label
-                          htmlFor={`question-${question._id}-answer-${idx}`}
+                          htmlFor={`question-${question.id}-answer-${idx}`}
                         >
-                          {item}
+                          {item.text}
                         </Label>
                       </div>
                     ))}
@@ -178,3 +208,5 @@ export default function ViewExam({
     </div>
   );
 }
+
+export default ExamPrintPage;

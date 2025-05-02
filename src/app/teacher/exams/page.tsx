@@ -45,7 +45,7 @@ export default function Exams() {
       alert("Устгах явцад алдаа гарлаа.");
     }
   };
-  const clickSave = (index: number) => {
+  const clickEditExam = (index: number) => {
     return () => {
       const selectedExam = exams[index];
       localStorage.setItem("exam", JSON.stringify(exams[index]));
@@ -92,7 +92,7 @@ export default function Exams() {
                         {/* Засах */}
                         <Link
                           href={`/teacher/exams/edit/${exam._id}`}
-                          onClick={clickSave(index)}
+                          onClick={clickEditExam(index)}
                           className="group relative flex items-center justify-center border border-gray-300 p-2 rounded-md hover:bg-gray-100 cursor-pointer"
                         >
                           <Pencil size={16} />
@@ -112,12 +112,12 @@ export default function Exams() {
                         </Link>
                         {/* Хэвлэх */}
                         <Link
-                          href=""
+                          href={`/teacher/exams/print/${exam._id}`}
                           className="group relative flex items-center justify-center border border-gray-300 p-2 rounded-md hover:bg-gray-100"
                         >
                           <Printer size={16} />
                           <span className="absolute bottom-full mb-1 hidden group-hover:block text-xs bg-black text-white px-2 py-0.5 rounded shadow-md">
-                            Хэвлэх
+                            Татах
                           </span>
                         </Link>
                         {/* Устгах */}

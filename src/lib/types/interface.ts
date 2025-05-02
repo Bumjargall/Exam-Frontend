@@ -31,7 +31,7 @@ export interface ExamInput {
   status: "active" | "inactive";
   key: string;
   createUserById: Types.ObjectId | string;
-  createdAt?: Date | string;
+  createdAt: Date | string;
   updatedAt?: Date | string;
 }
 export interface User {
