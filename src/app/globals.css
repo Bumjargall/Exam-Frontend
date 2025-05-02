@@ -140,11 +140,8 @@
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
 }
 @media print {
-  .text-oklch {
-    color: #4a86e8 !important; /* oklch-ийн оронд RGB өнгө */
-  }
-
-  .bg-oklch {
-    background-color: #ffffff !important;
+  .print-pdf * {
+    color: #000 !important;
+    background: #fff !important;
   }
 }

@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Eye, Printer, Trash2, Pencil } from "lucide-react";
+import { Eye, Printer, Trash2, Pencil, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { deleteExam, getExams } from "@/lib/api";
 import { Exam } from "@/lib/types/interface";
@@ -115,7 +115,7 @@ export default function Exams() {
                           href={`/teacher/exams/print/${exam._id}`}
                           className="group relative flex items-center justify-center border border-gray-300 p-2 rounded-md hover:bg-gray-100"
                         >
-                          <Printer size={16} />
+                          <Download size={16} />
                           <span className="absolute bottom-full mb-1 hidden group-hover:block text-xs bg-black text-white px-2 py-0.5 rounded shadow-md">
                             Татах
                           </span>
