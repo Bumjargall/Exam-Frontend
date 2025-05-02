@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, set } from "date-fns";
 import { cn } from "@/lib/utils";
-import { ConfigureSchema } from "@/lib/validation"; // таны schema файл
+import { ConfigureSchema } from "@/lib/validation";
 import { number, z } from "zod";
 import {
   Form,
@@ -24,12 +24,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { TimePicker } from "@/components/time/time-picker";
 import { createExam } from "@/lib/api";
 import { generateExamKey } from "@/lib/utils";
 import { useExamStore } from "@/store/ExamStore";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type FormData = z.infer<typeof ConfigureSchema>;
 
@@ -41,20 +42,15 @@ export default function ConfigureForm() {
   const [totalScore, setTotalScore] = useState<number>(0);
   const { exam, setExam } = useExamStore();
   const router = useRouter();
+
   useEffect(() => {
-    console.log("exams-----------------", exam);
-    const questions = JSON.parse(localStorage.getItem("exam-storage") || "[]");
-    if (questions.state.exam.questions) {
-      const total = questions.state.exam.questions.reduce(
-        (acc: number, question: { score: number }) => acc + question.score,
-        0
-      );
-      setTotalScore(total);
-    }
-    if (questions.state.exam.questions.length === 0) {
-      setTotalScore(0);
-    }
-  }, []);
+    const questions = exam?.questions ?? [];
+    const calculatedTotal = questions.reduce(
+      (acc, question) => acc + (question.score || 0),
+      0
+    );
+    setTotalScore(calculatedTotal || exam?.totalScore || 0);
+  }, [exam?.questions, exam?.totalScore]);
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     if (!user || !user.user._id) {
@@ -62,39 +58,50 @@ export default function ConfigureForm() {
     }
     setUserId(user.user._id);
     setExamKey(generateExamKey());
-  }, [userId]);
+  }, []);
+  const resetExamForm = useCallback(() => {
+    router.push("/teacher/exams");
+    useExamStore.persist.clearStorage();
+    setExamKey("");
+    setTotalScore(0);
+  }, [router]);
 
   const onSubmit = async (data: FormData) => {
     try {
       setLoading(true);
 
-      const questions = JSON.parse(
-        localStorage.getItem("exam-storage") || "[]"
-      );
-      const dateTime = form.getValues("dateTime").toString();
+      const {
+        title,
+        description,
+        dateTime: dateTimeString,
+        time: duration,
+      } = data;
+      const dateTime = new Date(dateTimeString.toString());
       const examData = await createExam({
-        title: form.getValues("title"),
-        description: form.getValues("description") as string,
-        dateTime: new Date(dateTime),
-        duration: form.getValues("time"),
-        totalScore: totalScore,
+        title,
+        description: description as string,
+        dateTime,
+        duration,
+        totalScore,
         status: "active",
         key: examKey,
-        questions: questions.state.exam.questions,
+        questions: exam?.questions || [],
         createUserById: userId as string,
         createdAt: new Date(),
       });
-
-      if (examData) {
-        console.log("Шалгалт амжилттай үүсгэгдлээ!");
+      if (!examData) {
+        throw new Error("Шалгалт үүсгэхэд алдаа гарлаа.");
       }
-      router.push("/teacher/exams");
-      localStorage.removeItem("exam-storage");
-      setExamKey("");
-      setTotalScore(0);
+
+      toast.success("Шалгалт амжилттай үүсгэгдлээ!");
+
+      resetExamForm();
     } catch (error) {
       console.error("Алдаа:", error);
       setError("Шалгалт үүсгэхэд алдаа гарлаа.");
+      toast.error("Шалгалт үүсгэхэд алдаа гарлаа.", {
+        description: "Таны бүх өгөгдөл хадгалагдсан байна. Дахин оролдоно уу.",
+      });
     } finally {
       setLoading(false);
     }
@@ -110,7 +117,7 @@ export default function ConfigureForm() {
   });
 
   return (
-    <div className="max-w-4xl flex content-center mx-auto border rounded-2xl p-5 items-center mt-[10vh]">
+    <div className="max-w-4xl mx-auto border rounded-2xl p-5 mt-[10vh]">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="space-y-8">

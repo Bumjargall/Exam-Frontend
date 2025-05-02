@@ -4,7 +4,6 @@ import Link from "next/link";
 import QuestionList from "@/components/create-exam/QuestionList";
 import { Button } from "@/components/ui/button";
 import GapRenderer from "@/components/ExamComponents/GapRenderer";
-import Code from "@/components/ExamComponents/Code";
 import { Label } from "@radix-ui/react-label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
@@ -14,7 +13,6 @@ import NewSimpleChoice from "@/components/ExamComponents/NewSimple-Choice";
 import NewFreeText from "@/components/ExamComponents/NewFreeText";
 import NewInformationBlock from "@/components/ExamComponents/NewInformation-block";
 import NewCode from "@/components/ExamComponents/NewCode";
-import { useRouter } from "next/navigation";
 import { useExamStore } from "@/store/ExamStore";
 import { updateExam } from "@/lib/api";
 
@@ -31,35 +29,18 @@ export default function Page() {
     if (localExam) {
       try {
         const parsed = JSON.parse(localExam);
-        console.log("Parsed exam data:", parsed);
-        const parsedQuestions = parsed;
-        setExam(parsedQuestions);
+        setExam(parsed);
       } catch (error) {
         setEditingIndex(null);
         console.log("LocalStorage error", error);
       }
     }
   }, []);
-
-  interface ExamQuestion {
-    id: string;
-    type: string;
-    question: string;
-    answers: {
-      text: string;
-      isCorrect?: boolean;
-    }[];
-    score: number;
-  }
   const handleSelectType = (type: string | null) => {
     setSelectedType(type);
   };
-  const createExamHandleSave = async () => {
-    try {
-      localStorage.removeItem("exam");
-    } catch (error) {
-      console.error("Error creating exam:", error);
-    }
+  const createExamHandleSave = () => {
+    localStorage.removeItem("exam");
   };
 
   return (

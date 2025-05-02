@@ -6,12 +6,12 @@ export type AnswerOption = {
 };
 
 export interface Question {
-  id?: string;
-  question?: string;
+  id: string;
+  question: string;
   options?: string[];
   answers?: AnswerOption[];
-  score?: number;
-  type?:
+  score: number;
+  type:
     | "multiple-choice"
     | "simple-choice"
     | "fill-choice"

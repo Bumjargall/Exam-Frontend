@@ -6,64 +6,54 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Eye, Printer, Trash2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { deleteExam, getExams } from "@/lib/api";
+import { Exam } from "@/lib/types/interface";
 import mongoose, { ObjectId } from "mongoose";
 import { redirect } from "next/navigation";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 export default function Exams() {
-  const [activeIndex, setActiveIndex] = useState(0);
   const [exams, setExams] = useState<Exam[]>([]);
-  const [deleteExams, setDeleteExams] = useState<Exam>();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  interface Exam {
-    _id: mongoose.Types.ObjectId;
-    title: string;
-    description: string;
-    dateTime: Date;
-    duration: string;
-    totalScore: number;
-    status: string;
-    key: string;
-    questions: [];
-    createUserById: mongoose.Types.ObjectId;
-    createdAt: Date;
-    updatedAt: Date;
-  }
 
   const menuItems = [
     { title: "Шалгалтын мэдээлэл", link: "#" },
     { title: <i className="ri-user-line"></i>, link: "#" },
   ];
+  const fetchExams = async () => {
+    setLoading(true);
+    try {
+      const res = await getExams();
+      if (res?.data) {
+        setExams(res.data);
+      } else {
+        setExams([]);
+      }
+    } catch (err) {
+      setError("Шалгалтын жагсаалтыг авч чадсангүй.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const clickDeleteExam = async (id: mongoose.Types.ObjectId) => {
+    try {
+      await deleteExam(id);
+      setExams((prev) => prev.filter((e) => e._id !== id));
+    } catch (err) {
+      alert("Устгах явцад алдаа гарлаа.");
+    }
+  };
   const clickSave = (index: number) => {
     return () => {
       const selectedExam = exams[index];
       localStorage.setItem("exam", JSON.stringify(exams[index]));
     };
   };
-  const clickDeleteExam = async (id: mongoose.Types.ObjectId) => {
-    if (id) {
-      const response = await deleteExam(id);
-      console.log("200---> ", response);
-      console.log("exam id: ", response.deleteExam);
-      setDeleteExams(response.deleteExam);
-    }
-  };
-
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getExams();
-        if (data.data) {
-          setExams(data.data);
-          //console.log("exams", data.data);
-        } else {
-          const defaultExams = [];
-        }
-      } catch (error) {}
-    };
-    fetchData();
-  }, [deleteExams]);
+    fetchExams();
+  }, []);
 
   return (
     <div>
@@ -132,7 +122,9 @@ export default function Exams() {
                         </Link>
                         {/* Устгах */}
                         <div
-                          onClick={() => clickDeleteExam(exam._id)}
+                          onClick={() =>
+                            clickDeleteExam(exam._id as mongoose.Types.ObjectId)
+                          }
                           className="group relative flex items-center justify-center border border-gray-300 p-2 rounded-md hover:bg-red-100 text-red-500 hover:text-red-700"
                         >
                           <Trash2 size={16} />

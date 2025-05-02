@@ -2,84 +2,90 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format, set } from "date-fns";
+import { format } from "date-fns";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { z } from "zod";
+
 import { cn } from "@/lib/utils";
-import { ConfigureSchema } from "@/lib/validation"; // таны schema файл
-import { number, z } from "zod";
+import { ConfigureSchema } from "@/lib/validation";
+import { useExamStore } from "@/store/ExamStore";
+import { createExam, updateExam } from "@/lib/api";
+import { generateExamKey } from "@/lib/utils";
+import { ExamInput } from "@/lib/types/interface";
+
 import {
   Form,
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
+  FormControl,
   FormMessage,
   FormDescription,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useEffect, useState } from "react";
+import { CalendarIcon } from "lucide-react";
 import { TimePicker } from "@/components/time/time-picker";
-import { createExam, updateExam } from "@/lib/api";
-import { generateExamKey } from "@/lib/utils";
-import { useExamStore } from "@/store/ExamStore";
-import { useRouter } from "next/navigation";
-import { ExamInput as ImportedExamInput } from "@/lib/types/interface";
+import { toast } from "sonner";
+
 type FormData = z.infer<typeof ConfigureSchema>;
 
 export default function ConfigureForm() {
-  const [error, setError] = useState<string | null>(null);
+  const { exam } = useExamStore();
   const [loading, setLoading] = useState(false);
-  const { exam, setExam } = useExamStore();
+  const [error, setError] = useState<string | null>(null);
   const [totalScore, setTotalScore] = useState<number>(exam?.totalScore || 0);
   const router = useRouter();
 
+  const form = useForm<FormData>({
+    resolver: zodResolver(ConfigureSchema),
+    defaultValues: {
+      title: exam?.title || "",
+      description: exam?.description || "",
+      dateTime: exam?.dateTime ? new Date(exam.dateTime) : undefined,
+      time: exam?.duration || 0,
+    },
+  });
+
   useEffect(() => {
     const questions = exam?.questions ?? [];
-    if (questions && questions.length > 0) {
-      const total = questions.reduce(
-        (acc: number, question: { score?: number | undefined }) =>
-          acc + (question.score || 0),
-        0
-      );
-      setTotalScore(total);
-    } else {
-      setTotalScore(exam?.totalScore || 0);
-    }
-  }, [exam?.questions]);
+    const total = questions.reduce((acc, q) => acc + (q.score || 0), 0);
+    setTotalScore(total || exam?.totalScore || 0);
+  }, [exam]);
 
   const onSubmit = async (data: FormData) => {
     try {
       setLoading(true);
-
-      const examData: ImportedExamInput = {
-        _id: exam?._id || "",
-        title: exam?.title || "",
-        description: exam?.description || "",
-        questions: exam?.questions || [],
-        dateTime: form.getValues("dateTime"),
-        duration: form.getValues("time"),
-        totalScore: totalScore,
+      setError(null);
+      const dateTime = new Date(data.dateTime.toString());
+      const examData: ExamInput = {
+        title: data.title,
+        description: data.description || "",
+        dateTime,
+        duration: data.time,
+        totalScore,
         status: "active",
         key: exam?.key || generateExamKey(),
         createUserById: exam?.createUserById || "",
         createdAt: exam?.createdAt || new Date(),
         updatedAt: new Date(),
+        questions: exam?.questions || [],
       };
-      const updateData = await updateExam(exam?._id as string, examData);
+      const res = await updateExam(exam?._id as string, examData);
 
-      if (updateData) {
-        console.log("Шалгалт амжилттай үүсгэгдлээ!");
+      if (res) {
+        router.push("/teacher/exams");
+        useExamStore.persist.clearStorage();
+        setTotalScore(0);
+        toast.success("Шалгалт амжилттай шинэчлэгдлээ.");
       }
-      router.push("/teacher/exams");
-      localStorage.removeItem("exam-storage");
-      setTotalScore(0);
     } catch (error) {
       console.error("Алдаа:", error);
       setError("Шалгалт үүсгэхэд алдаа гарлаа.");
@@ -87,15 +93,6 @@ export default function ConfigureForm() {
       setLoading(false);
     }
   };
-
-  const form = useForm<FormData>({
-    resolver: zodResolver(ConfigureSchema),
-    defaultValues: {
-      description: "",
-      dateTime: undefined,
-      time: 0,
-    },
-  });
 
   return (
     <div className="max-w-4xl flex content-center mx-auto border rounded-2xl p-5 items-center mt-[10vh]">
@@ -201,9 +198,10 @@ export default function ConfigureForm() {
                 </FormItem>
               )}
             />
+            {error && <p className="text-red-500 font-medium">{error}</p>}
           </div>
           <Button type="submit" disabled={loading}>
-            {loading ? "Ачааллаж байна..." : "Шалгалт үүсгэх"}
+            {loading ? "Ачааллаж байна..." : "Шалгалт хадгалах"}
           </Button>
         </form>
       </Form>

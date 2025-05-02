@@ -1,35 +1,42 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-type AnswerOption = {
-  text: string;
-  isCorrect: boolean;
-};
+import { ExamInput, Question, AnswerOption } from "@/lib/types/interface";
+// type AnswerOption = {
+//   text: string;
+//   isCorrect: boolean;
+// };
 
-type Question = {
-  id: string;
-  type: string;
-  question: string;
-  answers?: AnswerOption[];
-  score?: number;
-};
+// type Question = {
+//   id: string;
+//   question: string;
+//   answers?: AnswerOption[];
+//   score?: number;
+//   type?:
+//     | "multiple-choice"
+//     | "simple-choice"
+//     | "fill-choice"
+//     | "free-text"
+//     | "information-block"
+//     | "code";
+// };
 
-type Exam = {
-  _id?: string;
-  title?: string;
-  description?: string;
-  questions: Question[];
-  dateTime?: Date | string;
-  duration?: number;
-  totalScore?: number;
-  status?: "active" | "inactive";
-  key?: string;
-  createUserById?: string;
-  createdAt?: Date | string;
-};
+// type Exam = {
+//   _id?: string;
+//   title?: string;
+//   description?: string;
+//   questions: Question[];
+//   dateTime?: Date | string;
+//   duration?: number;
+//   totalScore?: number;
+//   status?: "active" | "inactive";
+//   key?: string;
+//   createUserById?: string;
+//   createdAt?: Date | string;
+// };
 
 type ExamStore = {
-  exam: Exam | null;
-  setExam: (exam: Exam) => void;
+  exam: ExamInput | null;
+  setExam: (exam: ExamInput) => void;
   addQuestion: (newQuestion: Question) => void;
   removeQuestion: (questionId: string) => void;
   updateQuestion: (index: number, updatedQuestion: Question) => void;
