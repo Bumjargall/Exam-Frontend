@@ -59,61 +59,48 @@ function ExamPrintPage() {
     try {
       toast.info("Хэвлэх цонх нээгдэж байна...");
 
-      // Хэвлэх хуудасны өнгүүдийг CSS-ээр тохируулах
+      // Хэвлэх стилийг бэлтгэх
       const style = document.createElement("style");
       style.innerHTML = `
         @media print {
           body { 
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            font-family: Arial, sans-serif !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
           }
           @page {
             size: A4;
-            margin: 10mm;
+            margin: 0;
           }
-            .no-print {
-              display: none !important;
-            }
-            
-            table, img {
-              page-break-inside: avoid;
-            }
-            
-            .page-break {
-              page-break-after: always;
-            }
+          .question-item {
+            margin-bottom: 24px !important;
+            page-break-inside: avoid !important;
+          }
+          .no-print {
+            display: none !important;
+          }
         }
       `;
       document.head.appendChild(style);
 
-      // Хэвлэх товч дарахад харагдахгүй байх
-      const printContents = contentRef.current?.innerHTML || "";
       const originalContents = document.body.innerHTML;
 
+      const printContents = contentRef.current?.innerHTML || "";
       document.body.innerHTML = `
-        <div style="font-family: system-ui, sans-serif; padding: 20px;">
+        <div style="width: 100%; padding: 20px; font-family: Arial, sans-serif;">
           ${printContents}
         </div>
       `;
 
-      // Хэвлэх цонх нээх
       window.print();
-
-      // Хэвлэсний дараа хуудсыг сэргээх
       setTimeout(() => {
         document.body.innerHTML = originalContents;
         document.head.removeChild(style);
-
-        // Хэрэглэгчийн интерфэйсийг сэргээх
-        const [isPending, startTransition] = useTransition();
-        startTransition(() => {
-          getExamById(id as string)
-            .then((res) => setExam(res.data))
-            .catch((err) => console.error(err));
-        });
-
         toast.success("Хэвлэх үйл явц дууслаа");
-      }, 10);
+      }, 500);
     } catch (error) {
       console.error("Хэвлэх үед алдаа гарлаа:", error);
       toast.error("Хэвлэх үед алдаа гарлаа!");
@@ -142,14 +129,13 @@ function ExamPrintPage() {
   return (
     <div className="max-w-3xl mx-auto mt-10">
       {/* Товчны хэсэг */}
-      <div className="flex justify-end gap-2 mb-4">
+      <div className="flex justify-end gap-2 mb-4 no-print">
         <Button onClick={handleDownloadPDF} className="flex items-center gap-2">
           <Download size={16} />
           PDF татах
         </Button>
       </div>
 
-      {/* Хэвлэх/PDF татах агуулгын хэсэг */}
       <div
         ref={contentRef}
         className="p-6 bg-white shadow-md rounded-2xl border border-gray-200 space-y-4"
@@ -203,7 +189,7 @@ function ExamPrintPage() {
           exam.questions.map((question, index) => (
             <div
               key={`${question.id || index}`}
-              className="border p-4 rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition"
+              className="border p-4 rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition question-item"
             >
               <div className="flex flex-col justify-between">
                 <div>
@@ -241,7 +227,7 @@ function ExamPrintPage() {
                       type="text"
                       disabled
                       placeholder="Хариулт..."
-                      className="w-1/5 border-gray-900 rounded-lg pl-4 placeholder-gray-900"
+                      className="w-1/5 border-gray-900 pl-4 placeholder-gray-900"
                     />
                   </div>
                 )}
