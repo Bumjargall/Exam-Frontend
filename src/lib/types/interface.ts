@@ -65,3 +65,30 @@ export interface Result {
   submittedAt: Date;
   status: "taking" | "submitted";
 }
+
+export interface ExamWithStudentInfo {
+  _id: string;
+  examId: string;
+  submittedAt: Date | string;
+  score: number;
+  status: "taking" | "submitted";
+  questions: {
+    score: number;
+  }[];
+  duration?: number;
+  studentInfo: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  examInfo: {
+    title: string;
+  };
+}
+//handleExamSelect calls onClickExam
+export type GetResultByUsersResponse = {
+  success: boolean;
+  count: number;
+  data: ExamWithStudentInfo[];
+};
