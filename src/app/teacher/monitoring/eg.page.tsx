@@ -10,8 +10,6 @@ import { title } from "process";
 import { Description } from "@radix-ui/react-dialog";
 import { duration } from "html2canvas/dist/types/css/property-descriptors/duration";
 
-
-
 const downloadPDF = () => {
   const element = document.getElementById("pdf-content"); // PDF-д оруулах элемент
   if (!element) return;
@@ -40,19 +38,19 @@ const downloadPDF = () => {
 };
 
 const defaultExam = {
-  _id:"",
-  title:"Шалгалтын гарчиг...", 
-  key:"0",
-  status:"active",
-  description:"",
-  questions:[],
+  _id: "",
+  title: "Шалгалтын гарчиг...",
+  key: "0",
+  status: "active",
+  description: "",
+  questions: [],
   dateTime: new Date(),
-  duration:0,
-  totalScore:0,
-  createUserById:"",
+  duration: 0,
+  totalScore: 0,
+  createUserById: "",
   createdAt: new Date(),
   updateAt: new Date(),
-}
+};
 export default function MonitoringPage() {
   const [examData, setExamData] = useState<Exam[]>([]);
   const [studentScoreData, setStudentScoreData] = useState<Result[]>([]);
@@ -86,13 +84,12 @@ export default function MonitoringPage() {
 
         const examUserData = await getResultByUser(lastExam.id);
         const result = await getResults();
-        const resultData = result.data 
+        const resultData = result.data;
         setExamData(data.data);
         console.log("Exams: ", examData);
         setUserData(examUserData.data);
         console.log("Result data data: ", resultData);
         setStudentScoreData(resultData);
-
       } catch (error) {
         console.error("Сервертэй холбогдох үед алдаа гарлаа:", error);
       }
@@ -179,7 +176,10 @@ export default function MonitoringPage() {
                       key={index}
                       className="flex justify-between items-center pl-2 cursor-pointer"
                     >
-                      <p>{data?.studentId.lastName.charAt[0]}.{data?.studentId.firstName}</p>
+                      <p>
+                        {data?.studentId.lastName.charAt[0]}.
+                        {data?.studentId.firstName}
+                      </p>
                     </li>
                   ))}
               </ul>
@@ -194,7 +194,10 @@ export default function MonitoringPage() {
                       key={index}
                       className="flex justify-between items-center pl-2 cursor-pointer"
                     >
-                      <p>{s?.studentId.lastName.charAt[0]}.{s?.studentId.firstName}</p>
+                      <p>
+                        {s?.studentId.lastName.charAt[0]}.
+                        {s?.studentId.firstName}
+                      </p>
                     </li>
                   ))}
               </ul>

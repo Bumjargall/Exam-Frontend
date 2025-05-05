@@ -67,8 +67,8 @@ const downloadPDF = () => {
 
 export default function MonitoringPage() {
   const [examData, setExamData] = useState<ExamInput[]>([]);
-  const [lastExam, setLastExam] = useState<ExamInput>(defaultExam);
   const [studentScoreData, setStudentScoreData] = useState<Result[]>([]);
+  const [lastExam, setLastExam] = useState<ExamInput>(defaultExam);
   const [userData, setUserData] = useState<User[]>([]);
   const [isExamTitleVisible, setExamTitleVisible] = useState(false);
   const [dropdownStates, setDropdownStates] = useState({
@@ -178,7 +178,7 @@ export default function MonitoringPage() {
         .map((data, index) => (
           <li
             key={index}
-            className="flex justify-between items-center pl-2 cursor-pointer m-3"
+            className="flex justify-between items-center pl-2 cursor-pointer"
           >
             <p>
               {data.studentId && typeof data.studentId !== "string"
@@ -208,7 +208,7 @@ export default function MonitoringPage() {
           {/*Гарчиг*/}
           {isExamTitleVisible && (
             <SelectExamComponent
-              exams={examData}
+              exam={examData}
               onMouseLeave={closeAllDropdowns}
               onClickExam={handleExamSelect}
             />
@@ -227,11 +227,11 @@ export default function MonitoringPage() {
           <div className="pt-4">
             {/*Starting*/}
             <div className="starting">
-              <p className="font-medium w-full border-b-1 pb-3">Starting</p>
+              <p className="font-medium w-full border-b-1">Starting</p>
               {renderStudentList("taking")}
             </div>
             <div className="submitted">
-              <p className="font-medium w-full border-b-1 pb-3">Submitted</p>
+              <p className="font-medium w-full border-b-1">Submitted</p>
               {renderStudentList("submitted")}
             </div>
           </div>
@@ -529,8 +529,8 @@ export default function MonitoringPage() {
                         {userData.map((student, index) => (
                           <tr key={index} className="border-b hover:bg-gray-50">
                             <td className="p-2 text-blue-600 cursor-pointer">
-                              {student.studentInfo.id &&
-                              typeof student.studentInfo.lastName !== "string"
+                              {student.studentInfo._id &&
+                              typeof student.studentInfo !== "string"
                                 ? `${student.studentInfo.lastName} ${student.studentInfo.firstName}`
                                 : "Unknown Student"}
                             </td>
