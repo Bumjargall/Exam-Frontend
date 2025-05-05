@@ -12,7 +12,6 @@ const getBackendUrl = (): string => {
 };
 
 const handleResponse = async (response: Response) => {
-  
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(errorData.message || "Серверээс хариу ирсэнгүй");
@@ -67,10 +66,10 @@ export const forgotPassword = async (email: string) => {
     console.error("Нууц үг мартсан үед алдаа гарлаа:", err);
     throw err;
   }
-}
+};
 //Нууц үг шинэчлэх
 //await resetPassword(tokenFromEmail, "newStrongPassword123");
-export const resetPassword = async (token:string, password: string) => {
+export const resetPassword = async (token: string, password: string) => {
   try {
     const response = await fetch(`${getBackendUrl()}/users/reset-password`, {
       method: "POST",
@@ -84,7 +83,7 @@ export const resetPassword = async (token:string, password: string) => {
     console.error("Нууц үг шинэчлэх үед алдаа гарлаа:", err);
     throw err;
   }
-}
+};
 
 {
   /* EXAM */
@@ -176,7 +175,7 @@ export const deleteExam = async (examId: mongoose.Types.ObjectId) => {
 //Шалгалтаас key авах
 ///exams/by-key/:key
 export const getExamByKey = async (key: string) => {
-  try{
+  try {
     const response = await fetch(`${getBackendUrl()}/exams/by-key/${key}`, {
       method: "GET",
       headers: {
@@ -188,7 +187,7 @@ export const getExamByKey = async (key: string) => {
     console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", err);
     throw err;
   }
-}
+};
 {
   /* RESULT */
 }
@@ -215,13 +214,16 @@ export const updateExam = async (
 // Шалгалт өгсөн оюутны мэдээллийг авах
 export const getResultByUsers = async (examId: string) => {
   try {
-    const response = await fetch(`${getBackendUrl()}/monitoring/by-exam/${examId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    
+    const response = await fetch(
+      `${getBackendUrl()}/monitoring/by-exam/${examId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
     const json = await response.json();
     console.log("✅ getResultByUsers response:", json);
     return json;
@@ -232,12 +234,15 @@ export const getResultByUsers = async (examId: string) => {
 };
 export const getSubmittedExams = async () => {
   try {
-    const response = await fetch(`${getBackendUrl()}/monitoring/submitted/exams`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `${getBackendUrl()}/monitoring/submitted/exams`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return await handleResponse(response);
   } catch (err) {
     console.error("Шалгалт өгсөн шалгалтуудыг авахад алдаа гарлаа:", err);
@@ -245,8 +250,8 @@ export const getSubmittedExams = async () => {
   }
 };
 
-
-{  /* 
+{
+  /* 
   export const getStudentByResult = async (examId: string, studentId: string) => {
   try {
     const response = await fetch(`${getBackendUrl()}/users/${examId}`, {
@@ -261,7 +266,8 @@ export const getSubmittedExams = async () => {
     throw err;
   }
 };
-  */}
+  */
+}
 
 //Result -ууд авах
 export const getResults = async () => {
@@ -278,4 +284,3 @@ export const getResults = async () => {
     throw err;
   }
 };
-
