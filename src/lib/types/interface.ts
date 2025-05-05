@@ -34,6 +34,20 @@ export interface ExamInput {
   createdAt: Date | string;
   updatedAt?: Date | string;
 }
+export interface StudentExam {
+  _id?: Types.ObjectId | string;
+  title: string;
+  description: string;
+  questions: Question[];
+  dateTime: Date | string;
+  duration: number;
+  totalScore: number;
+  status: "active" | "inactive";
+  key: string;
+  createUserById: Types.ObjectId | string;
+  createdAt: Date | string;
+}
+
 export interface User {
   _id: Types.ObjectId | string;
   firstName: string;
