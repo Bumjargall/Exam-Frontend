@@ -51,6 +51,41 @@ export const loginUser = async (email: string, password: string) => {
   }
 };
 
+//Нууц үг мартсан тохиолдолд
+//await forgotPassword("example@email.com");
+export const forgotPassword = async (email: string) => {
+  try {
+    const response = await fetch(`${getBackendUrl()}/users/forgot-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+    return await handleResponse(response);
+  } catch (err) {
+    console.error("Нууц үг мартсан үед алдаа гарлаа:", err);
+    throw err;
+  }
+}
+//Нууц үг шинэчлэх
+//await resetPassword(tokenFromEmail, "newStrongPassword123");
+export const resetPassword = async (token:string, password: string) => {
+  try {
+    const response = await fetch(`${getBackendUrl()}/users/reset-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ token, password }),
+    });
+    return await handleResponse(response);
+  } catch (err) {
+    console.error("Нууц үг шинэчлэх үед алдаа гарлаа:", err);
+    throw err;
+  }
+}
+
 {
   /* EXAM */
 }
@@ -180,10 +215,24 @@ export const getResultByUsers = async (examId: string) => {
     throw err;
   }
 };
+export const getSubmittedExams = async () => {
+  try {
+    const response = await fetch(`${getBackendUrl()}/monitoring/submitted/exams`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return await handleResponse(response);
+  } catch (err) {
+    console.error("Шалгалт өгсөн шалгалтуудыг авахад алдаа гарлаа:", err);
+    throw err;
+  }
+};
 
 
-
-export const getStudentByResult = async (examId: string, studentId: string) => {
+{  /* 
+  export const getStudentByResult = async (examId: string, studentId: string) => {
   try {
     const response = await fetch(`${getBackendUrl()}/users/${examId}`, {
       method: "GET",
@@ -197,6 +246,7 @@ export const getStudentByResult = async (examId: string, studentId: string) => {
     throw err;
   }
 };
+  */}
 
 //Result -ууд авах
 export const getResults = async () => {
@@ -213,3 +263,4 @@ export const getResults = async () => {
     throw err;
   }
 };
+

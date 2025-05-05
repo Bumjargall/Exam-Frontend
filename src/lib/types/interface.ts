@@ -83,6 +83,7 @@ export interface ExamWithStudentInfo {
     email: string;
   };
   examInfo: {
+    _id: string;
     title: string;
   };
 }

@@ -4,8 +4,9 @@ import SelectExamComponent from "@/app/teacher/monitoring/components/SelectExamC
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getExams, getResultByUsers } from "@/lib/api";
-import { Exam, ExamWithStudentInfo } from "@/lib/types/interface";
+import { getExams, getResultByUsers, getSubmittedExams } from "@/lib/api";
+import { Exam, ExamWithStudentInfo, GetResultByUsersResponse } from "@/lib/types/interface";
+import { toast } from "sonner";
 
 const defaultExam: Exam = {
   _id: "",
@@ -86,7 +87,6 @@ export default function MonitoringPage() {
   };
 
   useEffect(() => {
-    console.log("📌 useEffect ажиллаж байна уу?1");
     const handleClickOutside = (event: MouseEvent) => {
       Object.entries(dropdownRefs).forEach(([key, ref]) => {
         if (ref.current && !ref.current.contains(event.target as Node)) {
@@ -102,38 +102,26 @@ export default function MonitoringPage() {
         setExamTitleVisible(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
-  //test
-  useEffect(() => {
-    const test = async () => {
-      const testId = "661f34e09c83b109f9c26abc"; // 👈 таны DB дээр байгаа ID-г ашигла
-      const result = await getResultByUsers(testId);
-      console.log("📥 test data:", result);
-    };
-    test();
-  }, []);
   //database дуудах
   useEffect(() => {
-    console.log("📌 useEffect ажиллаж байна уу?");
     const fetchData = async () => {
       try {
-        const examsResponse = await getExams();
-        console.log("✅ Exams loaded:", examsResponse.data.exams);
-        if (examsResponse.data?.exams?.length > 0) {
-          const latestExam =
-            examsResponse.data?.exams[examsResponse.data.exams.length - 1];
-          setExamData(examsResponse.data.exams);
+        const examsResponse = await getSubmittedExams();
+        if (examsResponse.data?.length > 0) {
+          const latestExam = examsResponse.data[examsResponse.data.length - 1];
+          setExamData(examsResponse.data);
           setLastExam(latestExam);
 
           const resultResponse = await getResultByUsers(
             latestExam._id as string
           );
-          console.log("🎯 getResultByUsers (from useEffect):", resultResponse);
+          //console.log("🎯 getResultByUsers----", resultResponse);
           setStudentResults(resultResponse.data);
         }
       } catch (error) {
@@ -170,16 +158,12 @@ export default function MonitoringPage() {
       return;
     }
     console.log("🟡 handleExamSelect:", exam._id);
-    setLastExam(exam);
     closeAllDropdowns();
     try {
-      const resultResponse: GetResultByUsersResponse = await getResultByUsers(
-        exam._id
-      );
-      console.log("🎯 resultResponse:", resultResponse);
+      const resultResponse= await getResultByUsers(exam._id.toString());
       if (resultResponse.success) {
         setStudentResults(resultResponse.data);
-        console.log("✅ Шалгалтын мэдээлэл:", resultResponse.data);
+        setLastExam(exam);
       } else {
         console.warn(
           "⚠️ resultResponse data буруу форматтай байна:",
@@ -210,7 +194,7 @@ export default function MonitoringPage() {
             className="flex justify-between items-center pl-2 cursor-pointer m-3"
           >
             <p>
-              {data.studentInfo && typeof data.studentInfo._id !== "string"
+              {data.studentInfo 
                 ? `${data.studentInfo.lastName?.charAt(0)}.${
                     data.studentInfo.firstName
                   }`
@@ -572,8 +556,7 @@ export default function MonitoringPage() {
                             className="border-b hover:bg-gray-50"
                           >
                             <td className="p-2 text-blue-600 cursor-pointer">
-                              {student.studentInfo._id &&
-                              typeof student.studentInfo._id !== "string"
+                              {student.studentInfo._id
                                 ? `${student.studentInfo.lastName} ${student.studentInfo.firstName}`
                                 : "Unknown Student"}
                             </td>
