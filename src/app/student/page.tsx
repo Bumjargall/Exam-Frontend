@@ -6,6 +6,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Eye, Printer, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { late } from "zod";
+import { ExamInput } from "@/lib/types/interface";
 
 export default function Home() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -17,11 +18,14 @@ export default function Home() {
   const [isEmail, setIseEmail] = useState(false);
   const [studentCode, setStudentCode] = useState("B434343");
   const [isStudentCode, setIsStudentCode] = useState(false);
+  const [exams, setExams] = useState<ExamInput[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const menuItems = [
     { title: "Шалгалтын мэдээлэл", link: "#" },
     { title: <i className="ri-user-line"></i>, link: "#" },
   ];
-  const exams = [
+
+  const exam = [
     {
       name: "Явцын шалгалт",
       code: "uAdfs2",
@@ -209,7 +213,7 @@ export default function Home() {
                     </tr>
                   </thead>
                   <tbody>
-                    {exams.map((exam, index) => (
+                    {exam.map((exam, index) => (
                       <tr key={index} className="">
                         <td className="px-4 py-1 rounded-2xl">{exam.name}</td>
                         <td className="px-4 py-1 border bg-gray-100 rounded-lg text-center hover:bg-gray-200">

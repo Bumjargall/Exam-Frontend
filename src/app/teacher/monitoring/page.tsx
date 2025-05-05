@@ -5,7 +5,11 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getExams, getResultByUsers, getSubmittedExams } from "@/lib/api";
-import { Exam, ExamWithStudentInfo, GetResultByUsersResponse } from "@/lib/types/interface";
+import {
+  Exam,
+  ExamWithStudentInfo,
+  GetResultByUsersResponse,
+} from "@/lib/types/interface";
 import { toast } from "sonner";
 
 const defaultExam: Exam = {
@@ -160,7 +164,7 @@ export default function MonitoringPage() {
     console.log("🟡 handleExamSelect:", exam._id);
     closeAllDropdowns();
     try {
-      const resultResponse= await getResultByUsers(exam._id.toString());
+      const resultResponse = await getResultByUsers(exam._id.toString());
       if (resultResponse.success) {
         setStudentResults(resultResponse.data);
         setLastExam(exam);
@@ -194,7 +198,7 @@ export default function MonitoringPage() {
             className="flex justify-between items-center pl-2 cursor-pointer m-3"
           >
             <p>
-              {data.studentInfo 
+              {data.studentInfo
                 ? `${data.studentInfo.lastName?.charAt(0)}.${
                     data.studentInfo.firstName
                   }`
