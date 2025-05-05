@@ -173,7 +173,22 @@ export const deleteExam = async (examId: mongoose.Types.ObjectId) => {
     throw err;
   }
 };
-
+//Шалгалтаас key авах
+///exams/by-key/:key
+export const getExamByKey = async (key: string) => {
+  try{
+    const response = await fetch(`${getBackendUrl()}/exams/by-key/${key}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return await handleResponse(response);
+  } catch (err) {
+    console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", err);
+    throw err;
+  }
+}
 {
   /* RESULT */
 }
