@@ -70,9 +70,11 @@ export const forgotPassword = async (email: string) => {
 }
 //Нууц үг шинэчлэх
 //await resetPassword(tokenFromEmail, "newStrongPassword123");
+//http://localhost:8000/users/reset-password/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZWEzMWEwMzkzZGZiZjRkNThlNWMyMSIsImlhdCI6MTc0NjQxODQ4NCwiZXhwIjoxNzQ2NDE5Mzg0fQ.ecIyu9xCzdu7_x6lLNCoEpboDoFOQ63cRsiDIOuY2rE
+
 export const resetPassword = async (token:string, password: string) => {
   try {
-    const response = await fetch(`${getBackendUrl()}/users/reset-password`, {
+    const response = await fetch(`${getBackendUrl()}/users/reset-password/${token}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
