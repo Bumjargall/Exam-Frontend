@@ -213,6 +213,21 @@ export const updateExam = async (
   }
 };
 
+export const getExamByStudent = async (studentId: string) => {
+  try {
+    const response = await fetch(`${getBackendUrl()}/exams/user/${studentId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return await handleResponse(response);
+  } catch (err) {
+    console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", err);
+    throw err;
+  }
+};
+
 // Шалгалт өгсөн оюутны мэдээллийг авах
 export const getResultByUsers = async (examId: string) => {
   try {

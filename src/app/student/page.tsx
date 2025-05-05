@@ -1,12 +1,14 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Eye, Printer, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { late } from "zod";
-import { ExamInput } from "@/lib/types/interface";
+import { StudentWithExamInfo } from "@/lib/types/interface";
+import { getExamByStudent } from "@/lib/api";
+import { User } from "@/lib/types/interface";
 
 export default function Home() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -18,12 +20,39 @@ export default function Home() {
   const [isEmail, setIseEmail] = useState(false);
   const [studentCode, setStudentCode] = useState("B434343");
   const [isStudentCode, setIsStudentCode] = useState(false);
-  const [exams, setExams] = useState<ExamInput[]>([]);
+  const [exams, setExams] = useState<StudentWithExamInfo[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [studentId, setStudentId] = useState<string | null>(null);
   const menuItems = [
     { title: "Шалгалтын мэдээлэл", link: "#" },
     { title: <i className="ri-user-line"></i>, link: "#" },
   ];
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    if (!userData || !userData.user._id) {
+      console.error("Хэрэглэгчийн бүртгэл олдсонгүй");
+      return;
+    }
+    setStudentId(userData.user._id);
+  }, []);
+
+  useEffect(() => {
+    if (!studentId) return;
+
+    const fetchExams = async () => {
+      try {
+        const data = await getExamByStudent(studentId); // шууд data ирнэ
+        setExams(data.data); // backend 200 OK → { data: [...] }
+        console.log("Шалгалт:", data.data);
+      } catch (error) {
+        console.error("Алдаа:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchExams();
+  }, [studentId]);
 
   const exam = [
     {
@@ -213,14 +242,18 @@ export default function Home() {
                     </tr>
                   </thead>
                   <tbody>
-                    {exam.map((exam, index) => (
+                    {exams.map((exam, index) => (
                       <tr key={index} className="">
-                        <td className="px-4 py-1 rounded-2xl">{exam.name}</td>
-                        <td className="px-4 py-1 border bg-gray-100 rounded-lg text-center hover:bg-gray-200">
-                          {exam.code}
+                        <td className="px-4 py-1 rounded-2xl">
+                          {exam.examInfo.title}
                         </td>
-                        <td className="px-4 py-1">{exam.date}</td>
-                        <td className="px-4 py-1">{exam.score}</td>
+                        <td className="px-4 py-1 border bg-gray-100 rounded-lg text-center hover:bg-gray-200">
+                          {exam.examInfo.key}
+                        </td>
+                        <td className="px-4 py-1">{exam.examInfo.createdAt}</td>
+                        <td className="px-4 py-1">
+                          {exam.score}/{exam.examInfo.totalScore}
+                        </td>
                         <td className="px-4 py-1">
                           <div className="flex space-x-3 text-gray-900">
                             <div className="flex items-center justify-center border p-2 rounded-lg border-gray-900 hover:bg-white border-gray-900">

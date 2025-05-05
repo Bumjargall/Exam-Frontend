@@ -19,7 +19,17 @@ export interface Question {
     | "information-block"
     | "code";
 }
-
+export interface StudentWithExamInfo {
+  _id: string;
+  score: number;
+  examInfo: {
+    _id: string;
+    title: string;
+    createdAt: string;
+    totalScore: number;
+    key: string;
+  };
+}
 export interface ExamInput {
   _id?: Types.ObjectId | string;
   title: string;

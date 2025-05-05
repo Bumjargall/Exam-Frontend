@@ -11,7 +11,9 @@ import {
   GetResultByUsersResponse,
 } from "@/lib/types/interface";
 import { toast } from "sonner";
-
+import { updateExam } from "@/lib/api";
+import { ExamInput } from "@/lib/types/interface";
+import { useRouter } from "next/navigation";
 const defaultExam: Exam = {
   _id: "",
   title: "",
@@ -67,6 +69,7 @@ const downloadPDF = () => {
 };
 
 export default function MonitoringPage() {
+  const router = useRouter();
   const [examData, setExamData] = useState<Exam[]>([]);
   const [lastExam, setLastExam] = useState<Exam>(defaultExam);
   const [studentResults, setStudentResults] = useState<ExamWithStudentInfo[]>(
@@ -145,6 +148,9 @@ export default function MonitoringPage() {
     }));
   };
 
+  const examView = (examId: string) => {
+    router.push(`monitoring/exam/${examId}`);
+  };
   //гарчигийг хаах функц
   const closeAllDropdowns = () => {
     setDropdownStates({
@@ -176,6 +182,24 @@ export default function MonitoringPage() {
       }
     } catch (error) {
       console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", error);
+    }
+  };
+  const handleStatusChange = async (newStatus: "active" | "inactive") => {
+    try {
+      const cleanedData: ExamInput = {
+        ...lastExam,
+        status: newStatus,
+      };
+      const res = await updateExam(lastExam._id as string, cleanedData);
+      if (res) {
+        setLastExam((prev) => ({ ...prev, status: newStatus }));
+        toast.success("Төлөв амжилттай шинэчлэгдлээ!");
+      }
+    } catch (error) {
+      console.error("Шинэчлэх үед алдаа гарлаа:", error);
+      toast.error("Төлөв шинэчлэхэд алдаа гарлаа");
+    } finally {
+      closeAllDropdowns();
     }
   };
 
@@ -349,11 +373,17 @@ export default function MonitoringPage() {
                       {dropdownStates.status && (
                         <div className="absolute right-0 mt-8 bg-white border-1 border-gray-300 m-6 rounded-lg shadow-lg z-50 w-48">
                           <ul>
-                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                              onClick={() => handleStatusChange("active")}
+                            >
                               <i className="ri-circle-fill text-[12px] text-lime-500 mr-2"></i>
                               Нээлттэй
                             </li>
-                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                              onClick={() => handleStatusChange("inactive")}
+                            >
                               <i className="ri-close-circle-fill text-[12px] text-red-500 mr-2"></i>
                               Хаалттай
                             </li>
@@ -395,7 +425,10 @@ export default function MonitoringPage() {
                       <i className="ri-expand-right-line text-[14px] mr-2"></i>{" "}
                       Шалгалтаас хасах
                     </button>
-                    <button className="flex items-center justify-center w-4/5 bg-slate-200 rounded-full my-2 py-1 hover:bg-white hover:border-2  transition duration-300">
+                    <button
+                      className="flex items-center justify-center w-4/5 bg-slate-200 rounded-full my-2 py-1 hover:bg-white hover:border-2  transition duration-300"
+                      onClick={() => examView(lastExam._id as string)}
+                    >
                       <i className="ri-eye-line text-[14px] mr-2"></i>Материал
                       харах
                     </button>

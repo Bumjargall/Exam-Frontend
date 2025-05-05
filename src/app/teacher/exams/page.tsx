@@ -1,26 +1,19 @@
 "use client";
-import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
 import { Eye, Printer, Trash2, Pencil, Download } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { deleteExam, getExams } from "@/lib/api";
-import { Exam } from "@/lib/types/interface";
-import mongoose, { ObjectId } from "mongoose";
-import { redirect } from "next/navigation";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
+import { deleteExam, getExams } from "@/lib/api";
+import { Exam } from "@/lib/types/interface";
+import mongoose from "mongoose";
+
 export default function Exams() {
   const [exams, setExams] = useState<Exam[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const menuItems = [
-    { title: "Шалгалтын мэдээлэл", link: "#" },
-    { title: <i className="ri-user-line"></i>, link: "#" },
-  ];
   const fetchExams = async () => {
     setLoading(true);
     try {
@@ -45,37 +38,62 @@ export default function Exams() {
       alert("Устгах явцад алдаа гарлаа.");
     }
   };
+
   const clickEditExam = (index: number) => {
     return () => {
-      const selectedExam = exams[index];
       localStorage.setItem("exam", JSON.stringify(exams[index]));
     };
   };
+
   useEffect(() => {
     fetchExams();
   }, []);
 
   return (
-    <div>
-      <div className="max-w-4xl mx-auto mt-20">
-        <div className="">
-          <div className="text-center text-xl text-black font-medium py-4 border-t border-l border-r border-gray-300 rounded-t-lg">
-            <h1>Шалгалтын мэдээлэл</h1>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full table-fixed border-separate border-spacing-x-1 border-spacing-y-2 bg-white shadow-md border rounded-b-lg">
-              <thead>
-                <tr className="text-gray-700 text-sm">
-                  <th className="px-4 py-1 text-left">Шалгалтын нэр</th>
-                  <th className="px-4 py-1 text-left">Шалгалтын код</th>
-                  <th className="px-4 py-1 text-left">Үүсгэсэн хугацаа</th>
-                  <th className="px-4 py-1 text-left">Оноо</th>
-                  <th className="px-4 py-1 text-left"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {
-  exams.map((exam, index) => (
+    <div className="max-w-4xl mx-auto mt-20">
+      <div className="text-center text-xl text-black font-medium py-4 border-t border-l border-r border-gray-300 rounded-t-lg">
+        <h1>Шалгалтын мэдээлэл</h1>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full table-fixed border-separate border-spacing-x-1 border-spacing-y-2 bg-white shadow-md border rounded-b-lg">
+          <thead>
+            <tr className="text-gray-700 text-sm">
+              <th className="px-4 py-1 text-left">Шалгалтын нэр</th>
+              <th className="px-4 py-1 text-left">Шалгалтын код</th>
+              <th className="px-4 py-1 text-left">Үүсгэсэн хугацаа</th>
+              <th className="px-4 py-1 text-left">Оноо</th>
+              <th className="px-4 py-1 text-left"></th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {loading
+              ? [...Array(5)].map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td className="px-4 py-2">
+                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    </td>
+                    <td className="px-4 py-2">
+                      <div className="h-4 bg-gray-100 rounded w-1/2"></div>
+                    </td>
+                    <td className="px-4 py-2">
+                      <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                    </td>
+                    <td className="px-4 py-2">
+                      <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                    </td>
+                    <td className="px-4 py-2">
+                      <div className="flex space-x-2">
+                        {[...Array(4)].map((_, j) => (
+                          <div
+                            key={j}
+                            className="w-8 h-8 bg-gray-200 rounded-md"
+                          ></div>
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              : exams.map((exam, index) => (
                   <tr
                     key={index}
                     className="hover:bg-gray-50 transition-colors duration-200"
@@ -90,7 +108,6 @@ export default function Exams() {
                     <td className="px-4 py-2 text-center">{exam.totalScore}</td>
                     <td className="px-4 py-2">
                       <div className="flex justify-end space-x-2 text-gray-700">
-                        {/* Засах */}
                         <Link
                           href={`/teacher/exams/edit/${exam._id}`}
                           onClick={clickEditExam(index)}
@@ -101,7 +118,6 @@ export default function Exams() {
                             Засах
                           </span>
                         </Link>
-                        {/* Харах */}
                         <Link
                           href={`/teacher/exams/view/${exam._id}`}
                           className="group relative flex items-center justify-center border border-gray-300 p-2 rounded-md hover:bg-gray-100"
@@ -111,7 +127,6 @@ export default function Exams() {
                             Харах
                           </span>
                         </Link>
-                        {/* Хэвлэх */}
                         <Link
                           href={`/teacher/exams/print/${exam._id}`}
                           className="group relative flex items-center justify-center border border-gray-300 p-2 rounded-md hover:bg-gray-100"
@@ -121,7 +136,6 @@ export default function Exams() {
                             Татах
                           </span>
                         </Link>
-                        {/* Устгах */}
                         <div
                           onClick={() =>
                             clickDeleteExam(exam._id as mongoose.Types.ObjectId)
@@ -137,10 +151,11 @@ export default function Exams() {
                     </td>
                   </tr>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+          </tbody>
+        </table>
+        {error && (
+          <div className="text-red-500 text-sm text-center mt-4">{error}</div>
+        )}
       </div>
     </div>
   );
