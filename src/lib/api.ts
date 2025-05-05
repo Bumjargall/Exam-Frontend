@@ -7,11 +7,12 @@ const getBackendUrl = (): string => {
   if (!backendUrl) {
     throw new Error("NEXT_PUBLIC_BACKEND_URL тодорхойлогдоогүй байна.");
   }
+  console.log("Backend URL: ", backendUrl);
   return backendUrl;
 };
 
 const handleResponse = async (response: Response) => {
-  console.log("response", response);
+  
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(errorData.message || "Серверээс хариу ирсэнгүй");
@@ -162,28 +163,25 @@ export const updateExam = async (
 };
 
 // Шалгалт өгсөн оюутны мэдээллийг авах
-export const getResultByUser = async (examId: string) => {
+export const getResultByUsers = async (examId: string) => {
   try {
-    const response = await fetch(`${getBackendUrl()}/monitoring/${examId}`, {
+    const response = await fetch(`${getBackendUrl()}/monitoring/by-exam/${examId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     });
-    return await handleResponse(response);
+    
+    const json = await response.json();
+    console.log("✅ getResultByUsers response:", json);
+    return json;
   } catch (err) {
     console.error("Шалгалт өгсөн оюутны мэдээллийг авахад алдаа гарлаа:", err);
     throw err;
   }
 };
 
-{
-  /*Student-ээс нэрээр нь дэлгэцэнд харуулах
-  * @param examId
-  * @param result буюу exam_id
-  examId шалгалтыг өгсөн user_id-ын хэрэглэгчийн мэдээллийг user database-аас авах
-  */
-}
+
 
 export const getStudentByResult = async (examId: string, studentId: string) => {
   try {

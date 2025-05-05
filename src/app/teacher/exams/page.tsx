@@ -26,7 +26,7 @@ export default function Exams() {
     try {
       const res = await getExams();
       if (res?.data) {
-        setExams(res.data);
+        setExams(res.data.exams);
       } else {
         setExams([]);
       }
@@ -74,7 +74,8 @@ export default function Exams() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {exams.map((exam, index) => (
+                {
+  exams.map((exam, index) => (
                   <tr
                     key={index}
                     className="hover:bg-gray-50 transition-colors duration-200"

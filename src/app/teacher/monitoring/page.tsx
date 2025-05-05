@@ -4,6 +4,7 @@ import SelectExamComponent from "@/app/teacher/monitoring/components/SelectExamC
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+<<<<<<< HEAD
 import { getExams, getResultByUser, getResults } from "@/lib/api";
 import { ExamInput, Result } from "@/lib/types/interface";
 import { title } from "process";
@@ -12,6 +13,12 @@ import { duration } from "html2canvas/dist/types/css/property-descriptors/durati
 import { toast } from "sonner";
 
 const defaultExam: ExamInput = {
+=======
+import { getExams, getResultByUsers } from "@/lib/api";
+import { Exam, ExamWithStudentInfo} from "@/lib/types/interface";
+
+const defaultExam:Exam = {
+>>>>>>> ac7bd430f357628a618d242fb84e5b19bcd53dfb
   _id: "",
   title: "",
   description: "",
@@ -66,11 +73,18 @@ const downloadPDF = () => {
 };
 
 export default function MonitoringPage() {
+<<<<<<< HEAD
   const [examData, setExamData] = useState<ExamInput[]>([]);
   const [lastExam, setLastExam] = useState<ExamInput>(defaultExam);
   const [studentScoreData, setStudentScoreData] = useState<Result[]>([]);
   const [userData, setUserData] = useState<User[]>([]);
+=======
+  const [examData, setExamData] = useState<Exam[]>([]);
+  const [lastExam, setLastExam] = useState<Exam>(defaultExam);
+  const [studentResults, setStudentResults] = useState<ExamWithStudentInfo[]>([]);
+>>>>>>> ac7bd430f357628a618d242fb84e5b19bcd53dfb
   const [isExamTitleVisible, setExamTitleVisible] = useState(false);
+
   const [dropdownStates, setDropdownStates] = useState({
     key: false,
     status: false,
@@ -88,6 +102,7 @@ export default function MonitoringPage() {
   };
 
   useEffect(() => {
+    console.log("📌 useEffect ажиллаж байна уу?1");
     const handleClickOutside = (event: MouseEvent) => {
       Object.entries(dropdownRefs).forEach(([key, ref]) => {
         if (ref.current && !ref.current.contains(event.target as Node)) {
@@ -108,10 +123,22 @@ export default function MonitoringPage() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  //test
+  useEffect(() => {
+    const test = async () => {
+      const testId = "661f34e09c83b109f9c26abc"; // 👈 таны DB дээр байгаа ID-г ашигла
+      const result = await getResultByUsers(testId);
+      console.log("📥 test data:", result);
+    };
+    test();
+  }, []);
   //database дуудах
   useEffect(() => {
+    console.log("📌 useEffect ажиллаж байна уу?");
     const fetchData = async () => {
       try {
+<<<<<<< HEAD
         const [examsResponse, resultResponse] = await Promise.all([
           getExams(),
           getResults(),
@@ -128,13 +155,26 @@ export default function MonitoringPage() {
             lastExam._id.toString()
           );
           setUserData(examUserResponse.data || []);
+=======
+        const examsResponse = await getExams();
+        console.log("✅ Exams loaded:", examsResponse.data.exams);
+        if(examsResponse.data?.exams?.length > 0) {
+          const latestExam = examsResponse.data?.exams[examsResponse.data.exams.length - 1];
+          setExamData(examsResponse.data.exams);
+          setLastExam(latestExam);
+
+          const resultResponse = await getResultByUsers(latestExam._id as string);
+          console.log("🎯 getResultByUsers (from useEffect):", resultResponse);
+          setStudentResults(resultResponse.data);
+>>>>>>> ac7bd430f357628a618d242fb84e5b19bcd53dfb
         }
+        
       } catch (error) {
         console.error("Сервертэй холбогдох үед алдаа гарлаа:", error);
       }
     };
     fetchData();
-  }, [lastExam._id]);
+  }, []);
 
   // Toggle functions
   const toggleDropdown = (key: keyof typeof dropdownStates) => {
@@ -157,9 +197,30 @@ export default function MonitoringPage() {
     });
     setExamTitleVisible(false);
   };
+<<<<<<< HEAD
   const handleExamSelect = (exam: ExamInput) => {
+=======
+  const handleExamSelect = async (exam: Exam) => {
+    if (!exam._id) {
+      console.error("❌ exam._id байхгүй байна");
+      return;
+    }
+    console.log("🟡 handleExamSelect:", exam._id);
+>>>>>>> ac7bd430f357628a618d242fb84e5b19bcd53dfb
     setLastExam(exam);
     closeAllDropdowns();
+    try {
+      const resultResponse: GetResultByUsersResponse = await getResultByUsers(exam._id);
+      console.log("🎯 resultResponse:", resultResponse);
+      if (resultResponse.success) {
+        setStudentResults(resultResponse.data);
+        console.log("✅ Шалгалтын мэдээлэл:", resultResponse.data);
+      } else {
+        console.warn("⚠️ resultResponse data буруу форматтай байна:", resultResponse);
+      }
+    } catch (error) {
+      console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", error);
+    }
   };
 
   const handleCopy = async (text: string, message: string) => {
@@ -173,7 +234,7 @@ export default function MonitoringPage() {
 
   const renderStudentList = (status: "taking" | "submitted") => (
     <ul>
-      {studentScoreData
+      {studentResults
         .filter((data) => data.status === status)
         .map((data, index) => (
           <li
@@ -181,9 +242,9 @@ export default function MonitoringPage() {
             className="flex justify-between items-center pl-2 cursor-pointer m-3"
           >
             <p>
-              {data.studentId && typeof data.studentId !== "string"
-                ? `${data.studentId.lastName?.charAt(0)}.${
-                    data.studentId.firstName
+              {data.studentInfo && typeof data.studentInfo._id !== "string"
+                ? `${data.studentInfo.lastName?.charAt(0)}.${
+                    data.studentInfo.firstName
                   }`
                 : "Unknown Student"}
             </p>
@@ -208,9 +269,21 @@ export default function MonitoringPage() {
           {/*Гарчиг*/}
           {isExamTitleVisible && (
             <SelectExamComponent
+<<<<<<< HEAD
               exams={examData}
               onMouseLeave={closeAllDropdowns}
               onClickExam={handleExamSelect}
+=======
+            exams={examData.map(e => ({ id: e._id.toString(), title: e.title }))}
+            onClickExam={(e) => {
+              const foundExam = examData.find(ex => ex._id.toString() === e.id);
+              if (foundExam) {
+                handleExamSelect(foundExam);
+                setExamTitleVisible(false);
+              };
+            }}
+            onMouseLeave={closeAllDropdowns}
+>>>>>>> ac7bd430f357628a618d242fb84e5b19bcd53dfb
             />
           )}
 
@@ -526,11 +599,22 @@ export default function MonitoringPage() {
                         </tr>
                       </thead>
                       <tbody>
+<<<<<<< HEAD
                         {userData.map((student, index) => (
                           <tr key={index} className="border-b hover:bg-gray-50">
                             <td className="p-2 text-blue-600 cursor-pointer">
                               {student.studentInfo.id &&
                               typeof student.studentInfo.lastName !== "string"
+=======
+                        {studentResults.map((student) => (
+                          <tr
+                            key={student._id.toString()}
+                            className="border-b hover:bg-gray-50"
+                          >
+                            <td className="p-2 text-blue-600 cursor-pointer">
+                              {student.studentInfo._id &&
+                              typeof student.studentInfo._id !== "string"
+>>>>>>> ac7bd430f357628a618d242fb84e5b19bcd53dfb
                                 ? `${student.studentInfo.lastName} ${student.studentInfo.firstName}`
                                 : "Unknown Student"}
                             </td>
