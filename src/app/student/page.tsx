@@ -4,7 +4,7 @@ import { Eye, Printer, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { StudentWithExamInfo, User } from "@/lib/types/interface";
-import { updateUser } from "@/lib/api";
+import { updateUser, getResultByUserId } from "@/lib/api";
 import { toast } from "sonner";
 
 export default function Home() {
@@ -31,6 +31,19 @@ export default function Home() {
     setStudentCode(user.studentCode || "");
     setStudentId(user._id);
   }, []);
+  useEffect(() => {
+    const fetchExams = async () => {
+      if (!studentId) return;
+      try {
+        const response = await getResultByUserId(studentId);
+        console.log("--------", response.data);
+        setExams(response.data);
+      } catch (err) {
+        console.error("Алдаа:", err);
+      }
+    };
+    fetchExams();
+  }, [studentId]);
 
   const validateFields = () => {
     const newErrors: { [key: string]: string } = {};

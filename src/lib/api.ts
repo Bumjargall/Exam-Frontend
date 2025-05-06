@@ -268,6 +268,23 @@ export const getResultByUsers = async (examId: string) => {
     throw err;
   }
 };
+
+export const updateUser = async (userId: string, userData: any) => {
+  try {
+    const response = await fetch(`${getBackendUrl()}/users/${userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    });
+    return await handleResponse(response);
+  } catch (err) {
+    console.error("Хэрэглэгчийн мэдээллийг шинэчлэхэд алдаа гарлаа:", err);
+    throw err;
+  }
+};
+
 export const getSubmittedExams = async () => {
   try {
     const response = await fetch(

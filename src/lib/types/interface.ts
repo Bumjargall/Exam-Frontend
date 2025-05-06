@@ -19,9 +19,11 @@ export interface Question {
     | "information-block"
     | "code";
 }
+
 export interface StudentWithExamInfo {
   _id: string;
   score: number;
+  submittedAt: Date | string;
   examInfo: {
     _id: string;
     title: string;
