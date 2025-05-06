@@ -41,13 +41,6 @@ export default function ViewExam({
   const [exam, setExam] = useState<Exam>(initialExamState);
   const [isLoading, setIsLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    if (!user || !user.user) {
-      console.error("Хэрэглэгчийн бүртгэл...");
-    }
-    setUserId(user.user);
-  }, []);
 
   useEffect(() => {
     const fetchData = async () => {

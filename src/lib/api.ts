@@ -231,7 +231,7 @@ export const updateExamStatus = async (examId: string, status: string) => {
     console.error("Шалгалтын төлвийг шинэчлэхэд алдаа гарлаа:", err);
     throw err;
   }
-}
+};
 export const getExamByStudent = async (studentId: string) => {
   try {
     const response = await fetch(`${getBackendUrl()}/exams/user/${studentId}`, {
@@ -247,27 +247,7 @@ export const getExamByStudent = async (studentId: string) => {
   }
 };
 
-<<<<<<< HEAD
 // Шалгалт өгсөн оюутнуудын мэдээлэл, шалгалтыг авах
-=======
-export const updateUser = async (userId: string, userData: any) => {
-  try {
-    const response = await fetch(`${getBackendUrl()}/users/${userId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(userData),
-    });
-    return await handleResponse(response);
-  } catch (err) {
-    console.error("Хэрэглэгчийн мэдээллийг шинэчлэхэд алдаа гарлаа:", err);
-    throw err;
-  }
-};
-
-// Шалгалт өгсөн оюутны мэдээллийг авах
->>>>>>> ee92b36 (Exam)
 export const getResultByUsers = async (examId: string) => {
   try {
     const response = await fetch(
@@ -308,7 +288,7 @@ export const getSubmittedExams = async () => {
 
 //UserId-аар нь result авах
 export const getResultByUserId = async (userId: string) => {
-  try{
+  try {
     const response = await fetch(
       `${getBackendUrl()}/monitoring/by-user/${userId}`,
       {
@@ -323,7 +303,7 @@ export const getResultByUserId = async (userId: string) => {
     console.error("Шалгалт өгсөн оюутны мэдээллийг авахад алдаа гарлаа:", err);
     throw err;
   }
-}
+};
 
 //Result -ууд авах
 export const getResults = async () => {
