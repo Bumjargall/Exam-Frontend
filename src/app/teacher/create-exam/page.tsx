@@ -38,7 +38,7 @@ export default function Page() {
           <div className="flex justify-between items-center p-3 bg-gray-50 rounded-t-lg border-b">
             <div></div>
             <div>
-              <ul className="flex space-x-4">
+              <ul className="flex space-x-4 my-2">
                 <li></li>
                 <li>
                   <Link

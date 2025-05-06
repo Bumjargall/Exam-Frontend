@@ -58,7 +58,7 @@ export default function Page() {
                     className="p-2.5 border border-gray-900 rounded-lg text-black hover:bg-gray-200"
                     onClick={() => createExamHandleSave()}
                   >
-                    Баталгаажуулах
+                    Баталгаажуулахx
                   </Link>
                 </li>
               </ul>
