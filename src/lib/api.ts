@@ -72,15 +72,18 @@ export const forgotPassword = async (email: string) => {
 //await resetPassword(tokenFromEmail, "newStrongPassword123");
 //http://localhost:8000/users/reset-password/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZWEzMWEwMzkzZGZiZjRkNThlNWMyMSIsImlhdCI6MTc0NjQxODQ4NCwiZXhwIjoxNzQ2NDE5Mzg0fQ.ecIyu9xCzdu7_x6lLNCoEpboDoFOQ63cRsiDIOuY2rE
 
-export const resetPassword = async (token:string, password: string) => {
+export const resetPassword = async (token: string, password: string) => {
   try {
-    const response = await fetch(`${getBackendUrl()}/users/reset-password/${token}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ token, password }),
-    });
+    const response = await fetch(
+      `${getBackendUrl()}/users/reset-password/${token}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token, password }),
+      }
+    );
     return await handleResponse(response);
   } catch (err) {
     console.error("Нууц үг шинэчлэх үед алдаа гарлаа:", err);
@@ -244,7 +247,27 @@ export const getExamByStudent = async (studentId: string) => {
   }
 };
 
+<<<<<<< HEAD
 // Шалгалт өгсөн оюутнуудын мэдээлэл, шалгалтыг авах
+=======
+export const updateUser = async (userId: string, userData: any) => {
+  try {
+    const response = await fetch(`${getBackendUrl()}/users/${userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    });
+    return await handleResponse(response);
+  } catch (err) {
+    console.error("Хэрэглэгчийн мэдээллийг шинэчлэхэд алдаа гарлаа:", err);
+    throw err;
+  }
+};
+
+// Шалгалт өгсөн оюутны мэдээллийг авах
+>>>>>>> ee92b36 (Exam)
 export const getResultByUsers = async (examId: string) => {
   try {
     const response = await fetch(
