@@ -4,7 +4,7 @@ import SelectExamComponent from "@/app/teacher/monitoring/components/SelectExamC
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getExams, getResultByUsers, getSubmittedExams } from "@/lib/api";
+import { getExams, getResultByUsers, getSubmittedExams, updateExamStatus } from "@/lib/api";
 import {
   Exam,
   ExamWithStudentInfo,
@@ -186,11 +186,7 @@ export default function MonitoringPage() {
   };
   const handleStatusChange = async (newStatus: "active" | "inactive") => {
     try {
-      const cleanedData: ExamInput = {
-        ...lastExam,
-        status: newStatus,
-      };
-      const res = await updateExam(lastExam._id as string, cleanedData);
+      const res = await  updateExamStatus(lastExam._id as string, newStatus);
       if (res) {
         setLastExam((prev) => ({ ...prev, status: newStatus }));
         toast.success("Төлөв амжилттай шинэчлэгдлээ!");
@@ -202,7 +198,6 @@ export default function MonitoringPage() {
       closeAllDropdowns();
     }
   };
-
   const handleCopy = async (text: string, message: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -211,7 +206,6 @@ export default function MonitoringPage() {
       console.error("Хуулахад алдаа гарлаа:", err);
     }
   };
-
   const renderStudentList = (status: "taking" | "submitted") => (
     <ul>
       {studentResults

@@ -1,5 +1,6 @@
 import mongoose, { ObjectId, Types } from "mongoose";
 import { ExamInput as ImportedExamInput } from "@/lib/types/interface";
+import { Carter_One } from "next/font/google";
 
 // Сервертэй холбогдож байгаа эсэхийг шалгах
 const getBackendUrl = (): string => {
@@ -212,7 +213,22 @@ export const updateExam = async (
     throw err;
   }
 };
-
+//зөвхөн шалгалтын төлөв өөрчлөх
+export const updateExamStatus = async (examId: string, status: string) => {
+  try {
+    const response = await fetch(`${getBackendUrl()}/exams/${examId}/status`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status }),
+    });
+    return await handleResponse(response);
+  } catch (err) {
+    console.error("Шалгалтын төлвийг шинэчлэхэд алдаа гарлаа:", err);
+    throw err;
+  }
+}
 export const getExamByStudent = async (studentId: string) => {
   try {
     const response = await fetch(`${getBackendUrl()}/exams/user/${studentId}`, {
@@ -228,7 +244,7 @@ export const getExamByStudent = async (studentId: string) => {
   }
 };
 
-// Шалгалт өгсөн оюутны мэдээллийг авах
+// Шалгалт өгсөн оюутнуудын мэдээлэл, шалгалтыг авах
 export const getResultByUsers = async (examId: string) => {
   try {
     const response = await fetch(
@@ -267,23 +283,23 @@ export const getSubmittedExams = async () => {
   }
 };
 
-{
-  /* 
-  export const getStudentByResult = async (examId: string, studentId: string) => {
-  try {
-    const response = await fetch(`${getBackendUrl()}/users/${examId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+//UserId-аар нь result авах
+export const getResultByUserId = async (userId: string) => {
+  try{
+    const response = await fetch(
+      `${getBackendUrl()}/monitoring/by-user/${userId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return await handleResponse(response);
   } catch (err) {
     console.error("Шалгалт өгсөн оюутны мэдээллийг авахад алдаа гарлаа:", err);
     throw err;
   }
-};
-  */
 }
 
 //Result -ууд авах

@@ -53,6 +53,35 @@ export default function ConfigureForm() {
       time: exam?.duration || 0,
     },
   });
+  const convertedQuestions = (exam?.questions || []).map((q) => {
+    const base = {
+      questionType: q.type,
+      text: q.question,
+      points: q.score,
+    };
+  
+    // Simple or multiple choice бол `correctAnswer` + `options` нэмнэ
+    if (q.type === "simple-choice" || q.type === "multiple-choice") {
+      const correctAnswer = q.answers?.find((a) => a.isCorrect)?.text || "";
+      const options = q.answers?.map((a) => a.text) || [];
+  
+      return {
+        ...base,
+        correctAnswer,
+        options,
+      };
+    }
+  
+    return base;
+  });
+
+  const parseDuration = (input: string): number => {
+    const hourMatch = input.match(/(\d+)\s*h/);
+    const minuteMatch = input.match(/(\d+)\s*m/);
+    const hours = hourMatch ? parseInt(hourMatch[1]) : 0;
+    const minutes = minuteMatch ? parseInt(minuteMatch[1]) : 0;
+    return hours * 60 + minutes;
+  };
 
   useEffect(() => {
     const questions = exam?.questions ?? [];
@@ -69,15 +98,20 @@ export default function ConfigureForm() {
         title: data.title,
         description: data.description || "",
         dateTime,
-        duration: data.time,
+        duration: typeof data.time === "string" ? parseDuration(data.time) : data.time,
         totalScore,
-        status: "active",
+        status: exam?.status || "active",
         key: exam?.key || generateExamKey(),
-        createUserById: exam?.createUserById || "",
-        createdAt: exam?.createdAt || new Date(),
+        createUserById: exam?.createUserById ?? "",
+        createdAt: exam?.createdAt ?? new Date(),
         updatedAt: new Date(),
-        questions: exam?.questions || [],
+        questions: convertedQuestions as any,
       };
+      if (!exam?._id) {
+        setError("Шалгалтын ID байхгүй байна.");
+        return;
+      }
+      console.log("Шалгалтын мэдээлэл:----", examData);
       const res = await updateExam(exam?._id as string, examData);
 
       if (res) {
