@@ -36,7 +36,6 @@ export default function Home() {
       if (!studentId) return;
       try {
         const response = await getResultByUserId(studentId);
-        console.log("--------", response.data);
         setExams(response.data);
       } catch (err) {
         console.error("Алдаа:", err);
@@ -184,7 +183,7 @@ export default function Home() {
                       {exam.examInfo.key}
                     </td>
                     <td className="px-4 py-1">
-                      {new Date(exam.examInfo.createdAt).toLocaleDateString()}
+                      {new Date(exam.submittedAt).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-1">
                       {exam.score}/{exam.examInfo.totalScore}
@@ -192,7 +191,7 @@ export default function Home() {
                     <td className="px-4 py-1">
                       <div className="flex space-x-3 text-gray-900">
                         <Link
-                          href={`/student/view/${exam._id}`}
+                          href={`/student/view/${exam.examId}`}
                           className="border p-2 rounded-lg hover:bg-white"
                         >
                           <Eye size={16} />

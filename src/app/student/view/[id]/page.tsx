@@ -47,6 +47,7 @@ export default function ViewExam({
       try {
         setIsLoading(true);
         const response = await getExamById(id);
+        console.log("===================>", response.data);
         setExam(response.data);
       } catch (error) {
         console.error("Error fetching exam data:", error);

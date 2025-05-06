@@ -59,19 +59,19 @@ export default function ConfigureForm() {
       text: q.question,
       points: q.score,
     };
-  
+
     // Simple or multiple choice бол `correctAnswer` + `options` нэмнэ
     if (q.type === "simple-choice" || q.type === "multiple-choice") {
       const correctAnswer = q.answers?.find((a) => a.isCorrect)?.text || "";
       const options = q.answers?.map((a) => a.text) || [];
-  
+
       return {
         ...base,
         correctAnswer,
         options,
       };
     }
-  
+
     return base;
   });
 
@@ -98,7 +98,8 @@ export default function ConfigureForm() {
         title: data.title,
         description: data.description || "",
         dateTime,
-        duration: typeof data.time === "string" ? parseDuration(data.time) : data.time,
+        duration:
+          typeof data.time === "string" ? parseDuration(data.time) : data.time,
         totalScore,
         status: exam?.status || "active",
         key: exam?.key || generateExamKey(),

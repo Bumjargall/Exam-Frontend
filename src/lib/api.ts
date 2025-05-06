@@ -1,5 +1,5 @@
 import mongoose, { ObjectId, Types } from "mongoose";
-import { ExamInput as ImportedExamInput } from "@/lib/types/interface";
+import { ExamInput } from "@/lib/types/interface";
 import { Carter_One } from "next/font/google";
 
 // Сервертэй холбогдож байгаа эсэхийг шалгах
@@ -111,7 +111,7 @@ export const getByUserAllExams = async (userId: string) => {
 };
 
 // Шалтгалт үүсгэх
-export const createExam = async (examData: ImportedExamInput) => {
+export const createExam = async (examData: ExamInput) => {
   try {
     const examDataWithObjectId = {
       ...examData,
@@ -198,10 +198,7 @@ export const getExamByKey = async (key: string) => {
   /* RESULT */
 }
 // Шалгалтын мэдээллийг шинэчлэх
-export const updateExam = async (
-  examId: string,
-  examData: ImportedExamInput
-) => {
+export const updateExam = async (examId: string, examData: ExamInput) => {
   try {
     const response = await fetch(`${getBackendUrl()}/exams/${examId}`, {
       method: "PUT",

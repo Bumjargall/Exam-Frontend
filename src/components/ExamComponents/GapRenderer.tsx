@@ -7,12 +7,15 @@ type GapRendererProps = {
   onChange?: (answers: string[]) => void;
 };
 
-const GapRenderer: React.FC<GapRendererProps> = ({ text, onChange }) => {
+const GapRenderer: React.FC<GapRendererProps> = ({ text = "", onChange }) => {
   const parts = text.split(/(\{gap(?:-\d+)?\})/g);
+
+  const hasGap = parts.some((p) => /\{gap(?:-\d+)?\}/.test(p));
 
   const initialAnswers = parts
     .filter((p) => /\{gap(?:-\d+)?\}/.test(p))
     .map(() => "");
+
   const [answers, setAnswers] = useState<string[]>(initialAnswers);
 
   useEffect(() => {
@@ -21,21 +24,30 @@ const GapRenderer: React.FC<GapRendererProps> = ({ text, onChange }) => {
     }
   }, [answers, onChange]);
 
-  let gapIndex = 0;
-
   const handleInputChange = (index: number, value: string) => {
+    if (index < 0 || index >= answers.length) return;
     const newAnswers = [...answers];
     newAnswers[index] = value;
     setAnswers(newAnswers);
   };
-  function stripHtml(html: string) {
+
+  const stripHtml = (html: string) => {
     if (typeof document !== "undefined") {
       const doc = new DOMParser().parseFromString(html, "text/html");
       return doc.body.textContent || "";
     }
     return html;
+  };
+
+  if (!hasGap) {
+    return (
+      <span className="text-gray-900 whitespace-pre-wrap">
+        {stripHtml(text)}
+      </span>
+    );
   }
-  const cleanText = stripHtml(text);
+
+  let gapIndex = 0;
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -47,7 +59,7 @@ const GapRenderer: React.FC<GapRendererProps> = ({ text, onChange }) => {
               key={index}
               type="text"
               className="border border-gray-300 w-28 px-3 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all"
-              placeholder={``}
+              placeholder={`...`}
               value={answers[currentIndex]}
               onChange={(e) => handleInputChange(currentIndex, e.target.value)}
             />
@@ -55,7 +67,7 @@ const GapRenderer: React.FC<GapRendererProps> = ({ text, onChange }) => {
         } else {
           return (
             <span key={index} className="text-gray-900 whitespace-pre-wrap">
-              {cleanText}
+              {stripHtml(part)}
             </span>
           );
         }

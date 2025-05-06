@@ -21,6 +21,7 @@ export interface Question {
 }
 
 export interface StudentWithExamInfo {
+  examId: string;
   _id: string;
   score: number;
   submittedAt: Date | string;
