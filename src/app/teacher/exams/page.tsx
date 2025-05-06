@@ -41,7 +41,7 @@ export default function Exams() {
 
   const clickEditExam = (index: number) => {
     return () => {
-      localStorage.setItem("exam", JSON.stringify(exams[index]));
+      localStorage.setItem("exams-edit-storage", JSON.stringify(exams[index]));
     };
   };
 
@@ -103,7 +103,7 @@ export default function Exams() {
                       {exam.key}
                     </td>
                     <td className="px-4 py-2">
-                      {format(exam.dateTime, "yyyy-MM-dd HH:mm")}
+                      {format(exam.createdAt, "yyyy-MM-dd HH:mm")}
                     </td>
                     <td className="px-4 py-2 text-center">{exam.totalScore}</td>
                     <td className="px-4 py-2">

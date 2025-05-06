@@ -113,17 +113,18 @@ export const getByUserAllExams = async (userId: string) => {
 // Шалтгалт үүсгэх
 export const createExam = async (examData: ExamInput) => {
   try {
-    const examDataWithObjectId = {
+    const examDataWithUserId = {
       ...examData,
-      createUserById: new Types.ObjectId(examData.createUserById),
+      createUserById: examData.createUserById, // Энд зүгээр string хэлбэрээр үлдээнэ
     };
+    console.log("examDataWithUserId", examDataWithUserId);
 
     const response = await fetch(`${getBackendUrl()}/exams/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(examDataWithObjectId),
+      body: JSON.stringify(examDataWithUserId),
     });
     return await handleResponse(response);
   } catch (err) {

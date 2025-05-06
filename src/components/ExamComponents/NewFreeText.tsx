@@ -8,6 +8,7 @@ import { X } from "lucide-react";
 import { toast } from "sonner";
 import RichTextEditor from "@/components/TinyMce/RichTextEditor";
 import { useExamStore } from "@/store/ExamStore";
+import { Question } from "@/lib/types/interface";
 type functionType = {
   handleSelect: (type: string | null) => void;
   editingIndex: number | null;
@@ -55,7 +56,7 @@ export default function NewFreeText({
       });
       return;
     }
-    const examData = {
+    const examData: Question = {
       type: "free-text",
       id: Date.now().toString(),
       question: currentQuestion,

@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import { toast } from "sonner";
 import RichTextEditor from "@/components/TinyMce/RichTextEditor";
 import { useExamStore } from "@/store/ExamStore";
+import { Question } from "@/lib/types/interface";
 type functionType = {
   handleSelect: (type: string | null) => void;
   editingIndex: number | null;
@@ -44,8 +45,8 @@ export default function NewInformationBlock({
       toast.error("Асуулт эсвэл хариулт оруулна уу.");
       return;
     }
-    const examData = {
-      type: "information-block",
+    const examData: Question = {
+      type: "information-block" as const,
       id: Date.now().toString(),
       question: currentQuestion,
     };

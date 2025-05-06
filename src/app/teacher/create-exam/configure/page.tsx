@@ -52,16 +52,22 @@ export default function ConfigureForm() {
     setTotalScore(calculatedTotal || exam?.totalScore || 0);
   }, [exam?.questions, exam?.totalScore]);
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    if (!user || !user.user._id) {
-      console.error("Хэрэглэгчийн бүртгэл...");
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      const id = user?.user?._id;
+      if (id) {
+        setUserId(id);
+      } else {
+        console.warn("Хэрэглэгчийн ID олдсонгүй");
+      }
+    } catch (err) {
+      console.error("localStorage-с хэрэглэгчийн мэдээлэл авахад алдаа:", err);
     }
-    setUserId(user.user._id);
     setExamKey(generateExamKey());
   }, []);
   const resetExamForm = useCallback(() => {
     router.push("/teacher/exams");
-    useExamStore.persist.clearStorage();
+    localStorage.removeItem("exam-storage");
     setExamKey("");
     setTotalScore(0);
   }, [router]);
@@ -70,13 +76,12 @@ export default function ConfigureForm() {
     try {
       setLoading(true);
 
-      const {
-        title,
-        description,
-        dateTime: dateTimeString,
-        time: duration,
-      } = data;
-      const dateTime = new Date(dateTimeString.toString());
+      const { title, description } = data;
+
+      const duration =
+        typeof data.time === "string" ? parseInt(data.time) : Number(data.time);
+      const dateTime =
+        data.dateTime instanceof Date ? data.dateTime : new Date(data.dateTime);
       const examData = await createExam({
         title,
         description: description as string,
@@ -94,11 +99,10 @@ export default function ConfigureForm() {
       }
 
       toast.success("Шалгалт амжилттай үүсгэгдлээ!");
-
-      resetExamForm();
+      setTimeout(() => {
+        resetExamForm();
+      }, 1000);
     } catch (error) {
-      console.error("Алдаа:", error);
-      setError("Шалгалт үүсгэхэд алдаа гарлаа.");
       toast.error("Шалгалт үүсгэхэд алдаа гарлаа.", {
         description: "Таны бүх өгөгдөл хадгалагдсан байна. Дахин оролдоно уу.",
       });
@@ -109,7 +113,9 @@ export default function ConfigureForm() {
 
   const form = useForm<FormData>({
     resolver: zodResolver(ConfigureSchema),
+    mode: "onChange",
     defaultValues: {
+      title: "",
       description: "",
       dateTime: undefined,
       time: 0,

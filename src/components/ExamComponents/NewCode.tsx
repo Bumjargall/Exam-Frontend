@@ -4,6 +4,7 @@ import RichTextEditor from "@/components/TinyMce/RichTextEditor";
 import { useExamStore } from "@/store/ExamStore";
 import { X } from "lucide-react";
 import { toast } from "sonner";
+import { Question } from "@/lib/types/interface";
 type functionType = {
   handleSelect: (type: string | null) => void;
   editingIndex: number | null;
@@ -53,7 +54,7 @@ export default function NewCode({
       });
       return;
     }
-    const examData = {
+    const examData: Question = {
       type: "code",
       id: Date.now().toString(),
       question: currentQuestion,

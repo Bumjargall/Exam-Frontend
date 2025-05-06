@@ -34,6 +34,8 @@ import {
 import { CalendarIcon } from "lucide-react";
 import { TimePicker } from "@/components/time/time-picker";
 import { toast } from "sonner";
+import { v4 as uuidv4 } from "uuid";
+import { Question } from "@/lib/types/interface";
 
 type FormData = z.infer<typeof ConfigureSchema>;
 
@@ -53,27 +55,13 @@ export default function ConfigureForm() {
       time: exam?.duration || 0,
     },
   });
-  const convertedQuestions = (exam?.questions || []).map((q) => {
-    const base = {
-      questionType: q.type,
-      text: q.question,
-      points: q.score,
-    };
-
-    // Simple or multiple choice бол `correctAnswer` + `options` нэмнэ
-    if (q.type === "simple-choice" || q.type === "multiple-choice") {
-      const correctAnswer = q.answers?.find((a) => a.isCorrect)?.text || "";
-      const options = q.answers?.map((a) => a.text) || [];
-
-      return {
-        ...base,
-        correctAnswer,
-        options,
-      };
-    }
-
-    return base;
-  });
+  const convertedQuestions: Question[] = (exam?.questions || []).map((q) => ({
+    id: q.id || uuidv4(),
+    question: q.question,
+    score: q.score,
+    type: q.type,
+    answers: q.answers || [],
+  }));
 
   const parseDuration = (input: string): number => {
     const hourMatch = input.match(/(\d+)\s*h/);
@@ -99,7 +87,9 @@ export default function ConfigureForm() {
         description: data.description || "",
         dateTime,
         duration:
-          typeof data.time === "string" ? parseDuration(data.time) : data.time,
+          typeof data.time === "string"
+            ? parseDuration(data.time)
+            : Number(data.time),
         totalScore,
         status: exam?.status || "active",
         key: exam?.key || generateExamKey(),

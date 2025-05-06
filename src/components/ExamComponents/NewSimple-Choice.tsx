@@ -89,7 +89,7 @@ export default function NewSimpleChoice({
       return;
     }
     const examData = {
-      type: "simple-choice",
+      type: "simple-choice" as const,
       id: Date.now().toString(),
       question: currentQuestion,
       answers: options,

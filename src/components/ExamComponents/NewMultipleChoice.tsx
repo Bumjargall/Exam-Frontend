@@ -40,17 +40,6 @@ export default function NewMultipleChoice({
   const [score, setScore] = useState<number>(0);
   const addQuestion = useExamStore((s) => s.addQuestion);
   const { exam, updateQuestion, setExam } = useExamStore();
-  type answerOption = {
-    text: string;
-    isCorrect: boolean;
-  };
-  type ExamQuestion = {
-    id: string;
-    type: string;
-    question: string;
-    answers: answerOption[];
-    score?: number;
-  };
   useEffect(() => {
     if (!exam) {
       setExam({
@@ -88,7 +77,7 @@ export default function NewMultipleChoice({
       });
       return;
     }
-    const examData: ExamQuestion = {
+    const examData: Question = {
       type: "multiple-choice",
       id: Date.now().toString(),
       question: currentQuestion,

@@ -24,6 +24,8 @@ export default function Page() {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const exam = useExamStore((s) => s.exam);
   const addQuestion = useExamStore((s) => s.addQuestion);
+  const clearExam = useExamStore((s) => s.clearExam);
+
   const removeQuestion = useExamStore((s) => s.removeQuestion);
   const handleSelectType = (type: string | null) => {
     setSelectedType(type);
@@ -34,16 +36,7 @@ export default function Page() {
       <div className="max-w-4xl mx-auto flex">
         <div className="bg-white w-full space-y-20 border border-gray-200 rounded-t-lg">
           <div className="flex justify-between items-center p-3 bg-gray-50 rounded-t-lg border-b">
-            <div>
-              <input
-                value={examTitle}
-                type="text"
-                id="text"
-                className="w-[500px] py-2 bg-white border border-gray-300 rounded-lg pl-4 placeholder-gray-500"
-                placeholder="Шалгалтын нэр"
-                onChange={(e) => setExamTitle(e.target.value)}
-              />
-            </div>
+            <div></div>
             <div>
               <ul className="flex space-x-4">
                 <li></li>

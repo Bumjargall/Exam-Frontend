@@ -14,13 +14,15 @@ export default function MarkingRules({
   const [open, setOpen] = useState(false);
 
   const scoreUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newScore = Number(e.target.value);
+    const newScore = e.target.valueAsNumber;
     if (!isNaN(newScore)) {
       setScore(newScore);
     }
   };
   useEffect(() => {
-    setScore(initialScore);
+    if (typeof initialScore !== "number") {
+      setScore(initialScore);
+    }
   }, [initialScore, setScore]);
 
   return (
@@ -59,7 +61,6 @@ export default function MarkingRules({
             type="number"
             value={score}
             className="rounded-md bg-white px-3 py-1.5 text-gray-900 border border-gray-800 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500"
-            defaultValue={0}
             onChange={scoreUpdate}
           />
         </div>

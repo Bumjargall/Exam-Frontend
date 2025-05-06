@@ -8,9 +8,8 @@ export type AnswerOption = {
 export interface Question {
   id: string;
   question: string;
-  options?: string[];
   answers?: AnswerOption[];
-  score: number;
+  score?: number;
   type:
     | "multiple-choice"
     | "simple-choice"
@@ -38,14 +37,14 @@ export interface ExamInput {
   title: string;
   description: string;
   questions: Question[];
-  dateTime: Date | string;
-  duration: number;
-  totalScore: number;
-  status: "active" | "inactive";
-  key: string;
-  createUserById: Types.ObjectId | string;
-  createdAt: Date | string;
-  updatedAt?: Date | string;
+  dateTime?: Date | string;
+  duration?: number;
+  totalScore?: number;
+  key?: string;
+  createUserById?: string;
+  createdAt?: Date | string;
+  status?: "active" | "inactive";
+  updatedAt?: Date;
 }
 export interface StudentExam {
   _id?: Types.ObjectId | string;

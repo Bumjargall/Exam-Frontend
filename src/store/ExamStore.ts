@@ -1,38 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { ExamInput, Question, AnswerOption } from "@/lib/types/interface";
-// type AnswerOption = {
-//   text: string;
-//   isCorrect: boolean;
-// };
-
-// type Question = {
-//   id: string;
-//   question: string;
-//   answers?: AnswerOption[];
-//   score?: number;
-//   type?:
-//     | "multiple-choice"
-//     | "simple-choice"
-//     | "fill-choice"
-//     | "free-text"
-//     | "information-block"
-//     | "code";
-// };
-
-// type Exam = {
-//   _id?: string;
-//   title?: string;
-//   description?: string;
-//   questions: Question[];
-//   dateTime?: Date | string;
-//   duration?: number;
-//   totalScore?: number;
-//   status?: "active" | "inactive";
-//   key?: string;
-//   createUserById?: string;
-//   createdAt?: Date | string;
-// };
 
 type ExamStore = {
   exam: ExamInput | null;
