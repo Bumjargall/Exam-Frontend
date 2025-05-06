@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { ExamInput, Question, AnswerOption } from "@/lib/types/interface";
-
 type ExamStore = {
   exam: ExamInput | null;
   setExam: (exam: ExamInput) => void;

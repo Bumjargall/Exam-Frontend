@@ -59,6 +59,8 @@ export default function NewSimpleChoice({
         duration: 0,
         totalScore: 0,
         status: "inactive",
+        key: "",
+        createUserById: "",
       });
     }
   }, []);

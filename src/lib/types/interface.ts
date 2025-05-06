@@ -37,14 +37,14 @@ export interface ExamInput {
   title: string;
   description: string;
   questions: Question[];
-  dateTime?: Date | string;
-  duration?: number;
-  totalScore?: number;
-  key?: string;
-  createUserById?: string;
+  dateTime: Date | string;
+  duration: number;
+  totalScore: number;
+  status: "active" | "inactive";
+  key: string;
+  createUserById: Types.ObjectId | string;
   createdAt?: Date | string;
-  status?: "active" | "inactive";
-  updatedAt?: Date;
+  updatedAt?: Date | string;
 }
 export interface StudentExam {
   _id?: Types.ObjectId | string;

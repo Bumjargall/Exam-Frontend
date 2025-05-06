@@ -31,6 +31,8 @@ export default function NewCode({
         duration: 0,
         totalScore: 0,
         status: "inactive",
+        key: "",
+        createUserById: "",
       });
     }
   }, []);

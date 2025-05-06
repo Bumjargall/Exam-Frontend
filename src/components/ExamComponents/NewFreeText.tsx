@@ -35,6 +35,8 @@ export default function NewFreeText({
         duration: 0,
         totalScore: 0,
         status: "inactive",
+        key: "",
+        createUserById: "",
       });
     }
   }, []);

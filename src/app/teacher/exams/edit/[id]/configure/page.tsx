@@ -56,7 +56,7 @@ export default function ConfigureForm() {
     },
   });
   const convertedQuestions: Question[] = (exam?.questions || []).map((q) => ({
-    id: q.id || uuidv4(),
+    id: q.id || uuidv4(), // ← id шаардлагатай бол үүсгэнэ
     question: q.question,
     score: q.score,
     type: q.type,

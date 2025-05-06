@@ -50,6 +50,8 @@ export default function NewMultipleChoice({
         duration: 0,
         totalScore: 0,
         status: "inactive",
+        key: "",
+        createUserById: "",
       });
     }
   }, []);
