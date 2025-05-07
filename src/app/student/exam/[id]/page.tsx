@@ -13,7 +13,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { use } from "react";
 import { useRouter } from "next/navigation";
-
+import { v4 as uuidv4 } from "uuid";
+import { SubmitExam } from "@/lib/types/interface";
 const initialExamState: StudentExam = {
   _id: "",
   title: "Шалгалтын гарчиг...",
@@ -41,6 +42,7 @@ export default function ViewExam({
   const [timeLeft, setTimeLeft] = useState(0); // seconds
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [scoreResult, setScoreResult] = useState<number | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   // Load saved state from localStorage
   useEffect(() => {
@@ -52,6 +54,30 @@ export default function ViewExam({
     if (storedTime) setTimeLeft(parseInt(storedTime));
     if (storedAnswers) setAnswers(JSON.parse(storedAnswers));
   }, [id]);
+  useEffect(() => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      const id = user?.user?._id;
+      if (id) {
+        setUserId(id);
+      } else {
+        console.warn("Хэрэглэгчийн ID олдсонгүй");
+      }
+    } catch (err) {
+      console.error("localStorage-с хэрэглэгчийн мэдээлэл авахад алдаа:", err);
+    }
+  }, []);
+
+  // export const submitExam = async (payload: SubmitExamPayload) => {
+  //   return await fetch(
+  //     `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/exam/submit`,
+  //     {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(payload),
+  //     }
+  //   ).then((res) => res.json());
+  // };
 
   // Save timeLeft to localStorage
   useEffect(() => {
@@ -80,7 +106,14 @@ export default function ViewExam({
       try {
         setIsLoading(true);
         const response = await getExamById(id);
-        setExam(response.data);
+        const examWithIds = {
+          ...response.data,
+          questions: response.data.questions.map((q: any) => ({
+            ...q,
+            id: q.id || uuidv4(), // id байхгүй бол UUID онооно
+          })),
+        };
+        setExam(examWithIds);
 
         // If no saved time, initialize
         const hasSaved = localStorage.getItem(`timeLeft-${id}`);
@@ -125,33 +158,59 @@ export default function ViewExam({
     }));
   };
 
-  const handleSubmit = () => {
-    let totalScore = 0;
-    exam.questions.forEach((question) => {
-      const studentAnswer = answers[question.id];
-      if (!studentAnswer) return;
-      if (question.type === "multiple-choice") {
-        const correct = question.answers?.find((a) => a.isCorrect)?.text;
-        if (studentAnswer === correct) {
-          totalScore += question.score;
-        }
-      }
-      if (question.type === "simple-choice") {
-        const correct = question.answers
-          ?.find((a) => a.isCorrect)
-          ?.text.toLowerCase();
-        if (studentAnswer.toLowerCase() === correct) {
-          totalScore += question.score;
-        }
-      }
-    });
-    setScoreResult(totalScore);
-    console.log("📝 Хариултууд:", answers);
-    toast("Шалгалт амжилттай илгээгдлээ!");
+  const handleSubmit = async () => {
+    const submittedAt = new Date().toISOString();
+    const durationTaken = exam.duration * 60 - timeLeft;
 
+    const structuredAnswers = Object.entries(answers).map(
+      ([questionId, answer]) => ({
+        questionId,
+        answer,
+      })
+    );
+
+    const score = exam.questions.reduce((total, question) => {
+      const studentAnswer = answers[question.id];
+      if (!studentAnswer) return total;
+
+      const correct = question.answers?.find((a) => a.isCorrect)?.text;
+
+      if (question.type === "multiple-choice" && studentAnswer === correct) {
+        return total + (question.score || 0);
+      }
+
+      if (
+        question.type === "simple-choice" &&
+        studentAnswer.toLowerCase() === correct?.toLowerCase()
+      ) {
+        return total + (question.score || 0);
+      }
+
+      return total;
+    }, 0);
+
+    const payload: SubmitExam = {
+      examId: exam._id.toString(),
+      userId: userId as string,
+      answers: structuredAnswers,
+      score,
+      submittedAt,
+      durationTaken,
+    };
+
+    try {
+      setScoreResult(score);
+      toast.success("Шалгалт амжилттай илгээгдлээ!");
+    } catch (error) {
+      console.error("Илгээхэд алдаа гарлаа:", error);
+      toast.error("Илгээхэд алдаа гарлаа.");
+    }
+
+    // LocalStorage цэвэрлэх
     localStorage.removeItem(`started-${id}`);
     localStorage.removeItem(`timeLeft-${id}`);
     localStorage.removeItem(`answers-${id}`);
+
     setIsStarted(false);
   };
 

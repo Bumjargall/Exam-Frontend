@@ -18,8 +18,12 @@ export default function Exams() {
     setLoading(true);
     try {
       const res = await getExams();
-      if (res?.data) {
-        setExams(res.data.exams);
+      if (res?.data?.exams) {
+        const sortedExams = res.data.exams.sort(
+          (a: Exam, b: Exam) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        setExams(sortedExams);
       } else {
         setExams([]);
       }

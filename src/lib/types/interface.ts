@@ -32,6 +32,17 @@ export interface StudentWithExamInfo {
     key: string;
   };
 }
+export interface SubmitExam {
+  examId: string;
+  userId: string;
+  answers: {
+    questionId: string;
+    answer: number | number[] | string;
+  }[];
+  score: number;
+  submittedAt: Date | string;
+  durationTaken: number;
+}
 export interface ExamInput {
   _id?: Types.ObjectId | string;
   title: string;
@@ -47,7 +58,7 @@ export interface ExamInput {
   updatedAt?: Date | string;
 }
 export interface StudentExam {
-  _id?: Types.ObjectId | string;
+  _id: Types.ObjectId | string;
   title: string;
   description: string;
   questions: Question[];
