@@ -335,3 +335,21 @@ export const getResults = async () => {
     throw err;
   }
 };
+//examId, studentId хоёр байх юм бол тухайн шалгалтаас хэрэглэгчийн хасах
+export const deleteResultByExamUser = async (examId: string, studentId:string) => {
+  try{
+    const response = await fetch(`${getBackendUrl()}/monitoring/by-exam-user/${examId}/${studentId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const deleteExam = await handleResponse(response);
+    return deleteExam;
+
+  } catch (err) {
+    console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", err);
+    throw err;
+
+  }
+}
