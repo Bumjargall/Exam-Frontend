@@ -357,7 +357,7 @@ export const deleteResultByExamUser = async (examId: string, studentId:string) =
 //submit дарах үед database руу илгээсэн мэдээллийг шинэчлэх
 export const updateResult = async (resultId: string, examData: any)=> {
   try{
-    const response = await fetch(`${getBackendUrl}/monitoring/${resultId}`, {
+    const response = await fetch(`${getBackendUrl()}/monitoring/${resultId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -372,3 +372,25 @@ export const updateResult = async (resultId: string, examData: any)=> {
     throw err;
   }
 }
+
+//examID, studentId 2-ыг match хийж байвал true, байхгүй бол false илгээх, шалгах функц
+export const checkedResultByExamUser = async (examId:string, studentId:string) => {
+  try{
+    const response = await fetch(`${getBackendUrl()}/monitoring/checkedResult/${examId}/${studentId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return await handleResponse(response);
+  } catch(err) {
+    console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", err);
+    throw err;
+  }
+}
+{/*
+  
+  {
+    "exists": true    //false
+}
+  */}
