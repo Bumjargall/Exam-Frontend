@@ -353,3 +353,22 @@ export const deleteResultByExamUser = async (examId: string, studentId:string) =
 
   }
 }
+
+//submit дарах үед database руу илгээсэн мэдээллийг шинэчлэх
+export const updateResult = async (resultId: string, examData: any)=> {
+  try{
+    const response = await fetch(`${getBackendUrl}/monitoring/${resultId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ examData }),
+    })
+    const updateExam = await handleResponse(response)
+    return updateExam
+  }
+  catch(err) {
+    console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", err);
+    throw err;
+  }
+}
