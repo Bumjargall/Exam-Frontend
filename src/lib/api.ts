@@ -198,6 +198,21 @@ export const getExamByKey = async (key: string) => {
 {
   /* RESULT */
 }
+//All Result => createrUserId === login userId
+export const getResultByCreateUser = async (userId: string) => {
+  try{
+    const response = await fetch(`${getBackendUrl()}/monitoring/by-creator/${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return await handleResponse(response);
+  } catch(err) {
+    console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", err);
+    throw err;
+  }
+}
 // Шалгалтын мэдээллийг шинэчлэх
 export const updateExam = async (examId: string, examData: ExamInput) => {
   try {
