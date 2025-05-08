@@ -49,7 +49,7 @@ export default function NewInformationBlock({
     }
     const examData: Question = {
       type: "information-block" as const,
-      id: Date.now().toString(),
+      _id: Date.now().toString(),
       question: currentQuestion,
     };
     if (editingIndex !== null) {

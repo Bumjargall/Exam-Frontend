@@ -60,7 +60,7 @@ export default function NewFreeText({
     }
     const examData: Question = {
       type: "free-text",
-      id: Date.now().toString(),
+      _id: Date.now().toString(),
       question: currentQuestion,
       score: score,
     };

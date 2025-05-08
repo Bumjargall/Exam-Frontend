@@ -15,6 +15,8 @@ import { use } from "react";
 import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import { SubmitExam } from "@/lib/types/interface";
+import { updateResult } from "@/lib/api";
+import { CodeSquare } from "lucide-react";
 const initialExamState: StudentExam = {
   _id: "",
   title: "Шалгалтын гарчиг...",
@@ -36,6 +38,7 @@ export default function ViewExam({
 }) {
   const router = useRouter();
   const { id } = use(params);
+  const [examId, resultId] = id.split("-");
   const [exam, setExam] = useState<StudentExam>(initialExamState);
   const [isLoading, setIsLoading] = useState(true);
   const [isStarted, setIsStarted] = useState(false);
@@ -67,17 +70,6 @@ export default function ViewExam({
     }
   }, []);
 
-  // export const submitExam = async (payload: SubmitExamPayload) => {
-  //   return await fetch(
-  //     `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/exam/submit`,
-  //     {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(payload),
-  //     }
-  //   ).then((res) => res.json());
-  // };
-
   // Save timeLeft to localStorage
   useEffect(() => {
     if (isStarted) {
@@ -104,7 +96,7 @@ export default function ViewExam({
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await getExamById(id);
+        const response = await getExamById(examId);
 
         setExam(response.data);
         const hasSavedTime = localStorage.getItem(`timeLeft-${id}`);
@@ -165,10 +157,12 @@ export default function ViewExam({
     const submittedAt = new Date().toISOString();
     const durationTaken = exam.duration * 60 - timeLeft;
 
-    const structuredAnswers = Object.entries(answers).map(
+    const structuredQuestions = Object.entries(answers).map(
       ([questionId, answer]) => ({
         questionId,
-        answer: answer.length === 1 ? answer[0] : answer, // ✅ string | string[]
+        answer: answer.length === 1 ? answer[0] : answer,
+        score: 0,
+        isCorrect: false,
       })
     );
 
@@ -214,19 +208,24 @@ export default function ViewExam({
 
     const payload: SubmitExam = {
       examId: exam._id.toString(),
-      studentId: userId as string,
-      answers: structuredAnswers,
+      studentId: studentId as string,
+      questions: structuredQuestions,
       score,
       submittedAt,
       durationTaken,
+      status: "submitted",
     };
 
     try {
       setScoreResult(score);
+      console.log(payload);
+      const examData = await updateResult(resultId, payload);
+      if (!examData) {
+        toast.error("Илгээхэд алдаа гарлаа.");
+      }
       toast.success("Шалгалт амжилттай илгээгдлээ!");
     } catch (error) {
       console.error("Илгээхэд алдаа гарлаа:", error);
-      toast.error("Илгээхэд алдаа гарлаа.");
     }
 
     // LocalStorage цэвэрлэх

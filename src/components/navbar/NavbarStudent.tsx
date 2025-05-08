@@ -14,6 +14,7 @@ import { getExamByKey } from "@/lib/api";
 import { set } from "mongoose";
 import { createResult } from "@/lib/api";
 import { checkedResultByExamUser } from "@/lib/api";
+import { channel } from "diagnostics_channel";
 export default function NavbarStudent() {
   const router = useRouter();
   const [exams, setExams] = useState<StudentExam>();
@@ -34,27 +35,31 @@ export default function NavbarStudent() {
 
     try {
       const response = await getExamByKey(inputValue.trim());
-      if (!response && response.status !== 200) {
+      if (!response) {
         toast.error("Ийм түлхүүртэй шалгалт олдсонгүй.");
         return;
       }
       const data = response.data;
-      if (!data || !userId) {
+      if (!data._id || !userId) {
         return;
       }
       const checked = await checkedResultByExamUser(data._id, userId);
-      if (!checked) {
+      console.log("checked", checked);
+      if (checked === true) {
+        toast.error("Хэрэглэгч энэ шалгалтыг өгсөн байна...");
+      } else {
         const examResult = {
           status: "taking",
           userId,
-          examId: response.data._id,
+          examId: data._id,
           score: 0,
+          pending: "off",
         };
         const createResultUser = await createResult(examResult);
-        router.push(`/student/exam/${response.data._id}`);
-      } else {
-        toast.error("Хэрэглэгч энэ шалгалтыг өгсөн байна...");
-        console.error("Хэрэглэгч энэ шалгалтыг өгсөн байна...");
+        console.log("data", createResultUser.data._id);
+        router.push(
+          `/student/exam/${response.data._id}-${createResultUser.data._id}`
+        );
       }
     } catch (error) {
       toast.error("Шалгалтын мэдээлэл авч чадсангүй.");

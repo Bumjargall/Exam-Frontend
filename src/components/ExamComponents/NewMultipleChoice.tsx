@@ -81,7 +81,7 @@ export default function NewMultipleChoice({
     }
     const examData: Question = {
       type: "multiple-choice",
-      id: Date.now().toString(),
+      _id: Date.now().toString(),
       question: currentQuestion,
       answers: options,
       score: score,

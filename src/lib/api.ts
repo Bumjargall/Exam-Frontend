@@ -394,11 +394,11 @@ export const createResult = async (createResult: any) => {
 export const updateResult = async (resultId: string, examData: any) => {
   try {
     const response = await fetch(`${getBackendUrl()}/monitoring/${resultId}`, {
-      method: "PATCH",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ examData }),
+      body: JSON.stringify(examData),
     });
     const updateExam = await handleResponse(response);
     return updateExam;

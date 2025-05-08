@@ -35,13 +35,15 @@ export interface StudentWithExamInfo {
 export interface SubmitExam {
   examId: string;
   studentId: string;
-  answers: {
+  questions: {
     questionId: string;
     answer: string | number | string[] | number[];
   }[];
   score: number;
   submittedAt: Date | string;
   durationTaken: number;
+  status: string;
+  pending: string;
 }
 export interface ExamInput {
   _id?: Types.ObjectId | string;
