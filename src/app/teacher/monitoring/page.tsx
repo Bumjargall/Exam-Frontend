@@ -4,19 +4,67 @@ import SelectExamComponent from "@/app/teacher/monitoring/components/SelectExamC
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getExams, getResultByUsers, getSubmittedExams, updateExamStatus } from "@/lib/api";
+import {
+  getExams,
+  getResultByUsers,
+  getSubmittedExams,
+  updateExamStatus,
+} from "@/lib/api";
 import {
   Exam,
   ExamWithStudentInfo,
   GetResultByUsersResponse,
 } from "@/lib/types/interface";
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+
+import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { updateExam } from "@/lib/api";
 import { ExamInput } from "@/lib/types/interface";
 import { useRouter } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { deleteResultByExamUser } from "@/lib/api";
 const defaultExam: Exam = {
   _id: "",
-  title: "",
+  title: "Хоосон",
   description: "",
   questions: [],
   dateTime: new Date(),
@@ -40,6 +88,62 @@ type User = {
     email: "";
   };
 };
+export const studentColumns: ColumnDef<ExamWithStudentInfo>[] = [
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("status")}</div>
+    ),
+  },
+  {
+    accessorKey: "studentInfo.email",
+    header: "Email",
+    cell: ({ row }) => (
+      <div className="lowercase">
+        {row.original.studentInfo?.email ?? "N/A"}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "studentInfo.firstName",
+    header: "Name",
+    cell: ({ row }) => (
+      <div>
+        {row.original.studentInfo
+          ? `${row.original.studentInfo.firstName}`
+          : "Unknown"}
+      </div>
+    ),
+  },
+  {
+    id: "remove",
+    header: "Шалгалтаас хасах",
+    cell: ({ row }) => (
+      <Button
+        variant="destructive"
+        size="sm"
+        onClick={() => {
+          if (row.original.status === "submitted") {
+            toast.error("Шалгалт өгсөн оюутныг хасах боломжгүй");
+          } else {
+            const confirmed = confirm(
+              "Шалгуулагчийг шалгалтаас хасахдаа итгэлтэй байна уу?"
+            );
+            if (confirmed) {
+              deleteResultByExamUser(
+                row.original.examId,
+                row.original.studentInfo?._id
+              );
+            }
+          }
+        }}
+      >
+        Хасах
+      </Button>
+    ),
+  },
+];
 
 const downloadPDF = () => {
   const element = document.getElementById("pdf-content"); // PDF-д оруулах элемент
@@ -69,13 +173,39 @@ const downloadPDF = () => {
 };
 
 export default function MonitoringPage() {
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
   const router = useRouter();
   const [examData, setExamData] = useState<Exam[]>([]);
   const [lastExam, setLastExam] = useState<Exam>(defaultExam);
+
   const [studentResults, setStudentResults] = useState<ExamWithStudentInfo[]>(
     []
   );
   const [isExamTitleVisible, setExamTitleVisible] = useState(false);
+  const table = useReactTable({
+    data: studentResults, // ← Одоо studentResults ашиглана
+    columns: studentColumns, // ← шинэчилсэн column
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+    },
+  });
 
   const [dropdownStates, setDropdownStates] = useState({
     key: false,
@@ -92,7 +222,16 @@ export default function MonitoringPage() {
     print: useRef<HTMLDivElement>(null),
     send: useRef<HTMLDivElement>(null),
   };
-
+  useEffect(() => {
+    const userString = localStorage.getItem("user");
+    let userId: string | null = null;
+    try {
+      const user = JSON.parse(userString || "");
+      userId = user.user._id;
+    } catch (err) {
+      console.error("localStorage-с user авахад алдаа гарлаа", err);
+    }
+  });
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       Object.entries(dropdownRefs).forEach(([key, ref]) => {
@@ -114,6 +253,30 @@ export default function MonitoringPage() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+  const handleRemoveStudentFromExam = async (
+    examId: string,
+    studentId: string
+  ) => {
+    if (!examId || !studentId) {
+      toast.error("Шалгалт болон оюутны ID байхгүй байна");
+      return;
+    }
+    try {
+      await deleteResultByExamUser(examId, studentId);
+      toast.success("Шалгуулагч амжилттай хасагдлаа.");
+
+      // 🔄 Серверээс шинэ studentResults татах
+      const resultResponse = await getResultByUsers(examId);
+      if (resultResponse.success) {
+        setStudentResults(resultResponse.data);
+      } else {
+        toast.error("Шинэчилсэн мэдээлэл авахад алдаа гарлаа");
+      }
+    } catch (error) {
+      toast.error("Хасах үед алдаа гарлаа");
+      console.error(error);
+    }
+  };
 
   //database дуудах
   useEffect(() => {
@@ -136,7 +299,7 @@ export default function MonitoringPage() {
       }
     };
     fetchData();
-  }, []);
+  }, [studentResults]);
 
   // Toggle functions
   const toggleDropdown = (key: keyof typeof dropdownStates) => {
@@ -186,7 +349,7 @@ export default function MonitoringPage() {
   };
   const handleStatusChange = async (newStatus: "active" | "inactive") => {
     try {
-      const res = await  updateExamStatus(lastExam._id as string, newStatus);
+      const res = await updateExamStatus(lastExam._id as string, newStatus);
       if (res) {
         setLastExam((prev) => ({ ...prev, status: newStatus }));
         toast.success("Төлөв амжилттай шинэчлэгдлээ!");
@@ -415,13 +578,153 @@ export default function MonitoringPage() {
                     </div>
                   </div>
                   <div className="right w-1/2 flex flex-col items-center">
-                    <button className="flex items-center justify-center w-4/5 bg-slate-200 rounded-full my-2 py-1 hover:bg-white hover:border-2 transition duration-300">
-                      <i className="ri-expand-right-line text-[14px] mr-2"></i>{" "}
-                      Шалгалтаас хасах
-                    </button>
+                    <Sheet>
+                      <SheetTrigger asChild>
+                        <button className="flex items-center justify-center w-4/5 bg-slate-200 rounded-full my-2 py-1 hover:bg-white hover:border-2 transition duration-300">
+                          {" "}
+                          <i className="ri-expand-right-line text-[14px] mr-2"></i>{" "}
+                          Шалгалтаас хасах{" "}
+                        </button>
+                      </SheetTrigger>
+                      <SheetContent className="w-full sm:max-w-4xl">
+                        <SheetHeader>
+                          <SheetTitle>Оюутны мэдээлэл</SheetTitle>
+                          <SheetDescription>
+                            Та эндээс шалгуулагчдыг шалгалтаас хасах боломжтой.
+                          </SheetDescription>
+                        </SheetHeader>
+                        <div className="w-full p-4">
+                          <div className="flex items-center py-4">
+                            <Input
+                              placeholder="Оюутны нэрээр хайх"
+                              value={
+                                (table
+                                  .getColumn("studentInfo.firstName")
+                                  ?.getFilterValue() as string) ?? ""
+                              }
+                              onChange={(event) =>
+                                table
+                                  .getColumn("studentInfo.firstName")
+                                  ?.setFilterValue(event.target.value)
+                              }
+                              className="max-w-sm"
+                            />
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="outline" className="ml-auto">
+                                  Columns <ChevronDown />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                {table
+                                  .getAllColumns()
+                                  .filter((column) => column.getCanHide())
+                                  .map((column) => {
+                                    return (
+                                      <DropdownMenuCheckboxItem
+                                        key={column.id}
+                                        className="capitalize"
+                                        checked={column.getIsVisible()}
+                                        onCheckedChange={(value) =>
+                                          column.toggleVisibility(!!value)
+                                        }
+                                      >
+                                        {column.id}
+                                      </DropdownMenuCheckboxItem>
+                                    );
+                                  })}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                          <div className="rounded-md border">
+                            <Table>
+                              <TableHeader>
+                                {table.getHeaderGroups().map((headerGroup) => (
+                                  <TableRow key={headerGroup.id}>
+                                    {headerGroup.headers.map((header) => {
+                                      return (
+                                        <TableHead key={header.id}>
+                                          {header.isPlaceholder
+                                            ? null
+                                            : flexRender(
+                                                header.column.columnDef.header,
+                                                header.getContext()
+                                              )}
+                                        </TableHead>
+                                      );
+                                    })}
+                                  </TableRow>
+                                ))}
+                              </TableHeader>
+                              <TableBody>
+                                {table.getRowModel().rows?.length ? (
+                                  table.getRowModel().rows.map((row) => (
+                                    <TableRow
+                                      key={row.id}
+                                      data-state={
+                                        row.getIsSelected() && "selected"
+                                      }
+                                    >
+                                      {row.getVisibleCells().map((cell) => (
+                                        <TableCell key={cell.id}>
+                                          {flexRender(
+                                            cell.column.columnDef.cell,
+                                            cell.getContext()
+                                          )}
+                                        </TableCell>
+                                      ))}
+                                    </TableRow>
+                                  ))
+                                ) : (
+                                  <TableRow>
+                                    <TableCell
+                                      colSpan={studentColumns.length}
+                                      className="h-24 text-center"
+                                    >
+                                      No results.
+                                    </TableCell>
+                                  </TableRow>
+                                )}
+                              </TableBody>
+                            </Table>
+                          </div>
+                          <div className="flex items-center justify-end space-x-2 py-4">
+                            <div className="flex-1 text-sm text-muted-foreground">
+                              {table.getFilteredSelectedRowModel().rows.length}{" "}
+                              of {table.getFilteredRowModel().rows.length}{" "}
+                              row(s) selected.
+                            </div>
+                            <div className="space-x-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => table.previousPage()}
+                                disabled={!table.getCanPreviousPage()}
+                              >
+                                Previous
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => table.nextPage()}
+                                disabled={!table.getCanNextPage()}
+                              >
+                                Next
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </SheetContent>
+                    </Sheet>
                     <button
-                      className="flex items-center justify-center w-4/5 bg-slate-200 rounded-full my-2 py-1 hover:bg-white hover:border-2  transition duration-300"
-                      onClick={() => examView(lastExam._id as string)}
+                      className="flex items-center justify-center w-4/5 bg-slate-200 rounded-full my-2 py-1 hover:bg-white hover:border-2 transition duration-300"
+                      onClick={() => {
+                        if (!lastExam._id) {
+                          toast.error("Шалгалт байхгүй байна");
+                          return;
+                        }
+                        examView(lastExam._id as string);
+                      }}
                     >
                       <i className="ri-eye-line text-[14px] mr-2"></i>Материал
                       харах

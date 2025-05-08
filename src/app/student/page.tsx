@@ -202,12 +202,6 @@ export default function Home() {
                         >
                           <Printer size={16} />
                         </Link>
-                        <Link
-                          href=""
-                          className="border p-2 rounded-lg hover:bg-white"
-                        >
-                          <Trash2 size={16} />
-                        </Link>
                       </div>
                     </td>
                   </tr>
