@@ -25,7 +25,7 @@ export default function NavbarTeacher() {
     <header className="w-full shadow-sm border-b">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link href="/" className="text-xl font-medium">
-        <img src="/logo.jpg" alt="logo" className="w-12 rounded-xl"/>
+          <img src="/logo.jpg" alt="logo" className="w-12 rounded-xl" />
         </Link>
 
         {/* Desktop Navigation */}
@@ -45,13 +45,16 @@ export default function NavbarTeacher() {
           >
             <User className="h-5 w-5" />
           </Link>
-          <Link
-            href={"#"}
-            onClick={logoutUser}
-            className="text-gray-600 hover:border p-2 rounded-lg border-gray-900"
+          <Button
+            onClick={() => {
+              localStorage.clear();
+              router.push("/");
+            }}
+            className="hover:text-black text-base font-medium border-b pb-2 flex items-center space-x-2"
           >
             <LogOut className="h-5 w-5" />
-          </Link>
+            <span>Гарах</span>
+          </Button>
         </nav>
 
         {/* Mobile Navigation */}

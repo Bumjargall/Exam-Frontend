@@ -109,13 +109,16 @@ export default function NavbarStudent() {
             </SheetTrigger>
             <SheetContent side="left">
               <nav className="flex flex-col space-y-4 m-6">
-                <Link
-                  href=""
+                <Button
+                  onClick={() => {
+                    localStorage.clear();
+                    router.push("/");
+                  }}
                   className="text-gray-600 hover:text-black text-base font-medium border-b pb-2 flex items-center space-x-2"
                 >
                   <LogOut className="h-5 w-5" />
                   <span>Гарах</span>
-                </Link>
+                </Button>
               </nav>
             </SheetContent>
           </Sheet>

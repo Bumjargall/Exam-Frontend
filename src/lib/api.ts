@@ -1,6 +1,7 @@
 import mongoose, { ObjectId, Types } from "mongoose";
 import { ExamInput } from "@/lib/types/interface";
 import { Carter_One } from "next/font/google";
+import { RegisterInput } from "./validation";
 
 // Сервертэй холбогдож байгаа эсэхийг шалгах
 const getBackendUrl = (): string => {
@@ -8,7 +9,7 @@ const getBackendUrl = (): string => {
   if (!backendUrl) {
     throw new Error("NEXT_PUBLIC_BACKEND_URL тодорхойлогдоогүй байна.");
   }
-  console.log("Backend URL: ", backendUrl);
+  //console.log("Backend URL: ", backendUrl);
   return backendUrl;
 };
 
@@ -19,6 +20,7 @@ const handleResponse = async (response: Response) => {
   }
   return await response.json();
 };
+
 
 // API-тай холбогдох функц
 export const fetchHelloMessage = async () => {
@@ -35,9 +37,26 @@ export const fetchHelloMessage = async () => {
   /*USER*/
 }
 
+export const registerUser = async (data: RegisterInput) => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.message || "Бүртгэхэд алдаа гарлаа");
+  }
+
+  return await res.json();
+};
+
 export const loginUser = async (email: string, password: string) => {
   try {
-    const response = await fetch(`${getBackendUrl()}/login`, {
+    const response = await fetch(`${getBackendUrl()}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -62,6 +81,7 @@ export const forgotPassword = async (email: string) => {
       },
       body: JSON.stringify({ email }),
     });
+    if (!response.ok) throw new Error("Алдаа");
     return await handleResponse(response);
   } catch (err) {
     console.error("Нууц үг мартсан үед алдаа гарлаа:", err);
@@ -81,9 +101,10 @@ export const resetPassword = async (token: string, password: string) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ token, password }),
+        body: JSON.stringify({password }),
       }
     );
+    if (!response.ok) throw new Error("Алдаа");
     return await handleResponse(response);
   } catch (err) {
     console.error("Нууц үг шинэчлэх үед алдаа гарлаа:", err);
@@ -123,6 +144,7 @@ export const createExam = async (examData: ExamInput) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
       body: JSON.stringify(examDataWithUserId),
     });
@@ -170,10 +192,11 @@ export const deleteExam = async (examId: mongoose.Types.ObjectId) => {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
-    const deleteExam = await handleResponse(response);
-    return deleteExam;
+    const result= await handleResponse(response);
+    return result;
   } catch (err) {
     console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", err);
     throw err;
@@ -223,6 +246,7 @@ export const updateExam = async (examId: string, examData: ExamInput) => {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
       body: JSON.stringify(examData),
     });
@@ -239,6 +263,7 @@ export const updateExamStatus = async (examId: string, status: string) => {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
       body: JSON.stringify({ status }),
     });
@@ -291,6 +316,7 @@ export const updateUser = async (userId: string, userData: any) => {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
       body: JSON.stringify(userData),
     });
@@ -365,6 +391,7 @@ export const deleteResultByExamUser = async (
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       }
     );
@@ -397,6 +424,7 @@ export const updateResult = async (resultId: string, examData: any) => {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
       body: JSON.stringify(examData),
     });

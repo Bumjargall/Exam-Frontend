@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar/Navbar";
 import { Toaster } from "@/components/ui/sonner";
-import NavbarExam from "@/components/navbar/NavbarExam";
 
 export const metadata: Metadata = {
   title: "Examly",

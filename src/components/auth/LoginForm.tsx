@@ -18,6 +18,7 @@ import * as z from "zod";
 import { login } from "@/lib/actions/auth-action";
 import Navbar from "../navbar/NavbarPublic";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 type FormData = z.infer<typeof LoginSchema>;
 const LoginForm = () => {
   const [error, setError] = useState<string | null>(null);
@@ -35,15 +36,30 @@ const LoginForm = () => {
     setError(null);
 
     try {
-      console.log(data);
-      const userData = await login(data.email, data.password); // login функцийг дуудах
-      console.log("Амжилттай нэвтэрлээ:", userData?.user);
-      console.log("Амжилттай нэвтэрлээ:", userData?.token);
+      //console.log(data);
+      const userData = await login(data.email, data.password);
+      //console.log("Амжилттай нэвтэрлээ:", userData?.user);
+      //console.log("Амжилттай нэвтэрлээ:", userData?.token);
       let role = userData?.user.role;
-      localStorage.setItem("user", JSON.stringify(userData));
-      router.push("/");
+      //localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("token", userData.token);
+      localStorage.setItem("user", JSON.stringify(userData.user));
+      switch (role) {
+        case "admin":
+          router.push("/admin/dashboard");
+          break;
+        case "teacher":
+          router.push("/teacher/exams");
+          break;
+        case "student":
+          router.push("/student/exams");
+          break;
+        default:
+          router.push("/");
+          break;
+      }
     } catch (err: any) {
-      setError(err.message);
+      setError(err?.response?.data?.message || err.message || "Алдаа гарлаа");
     } finally {
       setLoading(false);
     }
@@ -95,10 +111,17 @@ const LoginForm = () => {
           </div>
           {error && <p className="text-red-500 text-sm my-4">{error}</p>}
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Түр хүлээнэ үү..." : "Нэвтрэх"}
+            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            {loading ? "Нэвтэрч байна..." : "Нэвтрэх"}
           </Button>
         </form>
       </Form>
+      <p
+        className="text-sm text-slate-500 mt-4 text-right cursor-pointer hover:underline"
+        onClick={() => router.push("/forgot-password")}
+      >
+        Нууц үг мартсан уу?
+      </p>
     </CardWrapper>
   );
 };

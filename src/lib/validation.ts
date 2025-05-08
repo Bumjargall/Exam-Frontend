@@ -1,13 +1,16 @@
 import Email from "next-auth/providers/email";
 import * as z from "zod";
 
+export const UserRoleEnum = z.enum(["admin", "student", "teacher"]);
+export type UserRole = z.infer<typeof UserRoleEnum>;
+
 export const RegisterSchema = z.object({
   lastName: z
     .string()
     .min(1, {
       message: "Нэр нь хамгийн багадаа 2 тэмдэгттэй байх ёстой!",
     })
-    .regex(/^[A-Za-zА-Яа-яЁё\s]+$/, {
+    .regex(/^[A-Za-zА-Яа-я\s]+$/, {
       message: "Нэр нь зөвхөн үсэг агуулах ёстой!",
     }),
   firstName: z
@@ -15,23 +18,20 @@ export const RegisterSchema = z.object({
     .min(1, {
       message: "Нэр нь хамгийн багадаа 2 тэмдэгттэй байх ёстой!",
     })
-    .regex(/^[A-Za-zА-Яа-яЁё\s]+$/, {
+    .regex(/^[A-Za-zА-Яа-я\s]+$/, {
       message: "Нэр нь зөвхөн үсэг агуулах ёстой!",
     }),
   email: z.string().email({
     message: "Таны оруулсан имейл хаяг алдаатай байна!",
   }),
   organization: z
-    .string()
-    .min(1, { message: "Хамгийн багадаа 2 тэмдэгттэй байх ёстой!" })
-    .regex(/^[A-Za-zА-Яа-яЁё\s]+$/, {
-      message: "Нэр нь зөвхөн үсэг агуулах ёстой!",
-    }),
+    .string().optional()
+    ,
   password: z
     .string()
     .min(4, { message: "Нууц үгээ шалгана уу!" })
     .regex(/[0-9]/, "Нууц үг тоо агуулсан байх ёстой!"),
-  role: z.enum(["admin", "student", "teacher"]),
+  role: UserRoleEnum,
 });
 export const LoginSchema = z.object({
   email: z.string().email({
@@ -61,7 +61,7 @@ export const UserSchema = z.object({
     .min(1, {
       message: "Нэр нь хамгийн багадаа 2 тэмдэгттэй байх ёстой!",
     })
-    .regex(/^[A-Za-zА-Яа-яЁё\s]+$/, {
+    .regex(/^[A-Za-zА-Яа-я\s]+$/, {
       message: "Нэр нь зөвхөн үсэг агуулах ёстой!",
     }),
   firstName: z
@@ -69,10 +69,10 @@ export const UserSchema = z.object({
     .min(1, {
       message: "Нэр нь хамгийн багадаа 2 тэмдэгттэй байх ёстой!",
     })
-    .regex(/^[A-Za-zА-Яа-яЁё\s]+$/, {
+    .regex(/^[A-Za-zА-Яа-я\s]+$/, {
       message: "Нэр нь зөвхөн үсэг агуулах ёстой!",
     }),
-  phone: z.number().min(8, { message: "Утасны дугаар 8 оронтой байх ёстой!" }),
+  phone: z.string().regex(/^\d{8}$/, { message: "Утасны дугаар 8 оронтой байх ёстой!" }),
   email: z.string().email({
     message: "Таны оруулсан имейл хаяг алдаатай байна!",
   }),
@@ -81,6 +81,7 @@ export const UserSchema = z.object({
     .min(4, { message: "Нууц үгээ шалгана уу!" })
     .regex(/[0-9]/, "Нууц үг тоо агуулсан байх ёстой!"),
 });
+
 export type UserSchema = z.infer<typeof UserSchema>;
 export type RegisterInput = z.infer<typeof RegisterSchema>;
 export type LoginInput = z.infer<typeof LoginSchema>;
