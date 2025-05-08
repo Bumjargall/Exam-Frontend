@@ -39,12 +39,11 @@ export default function ViewExam({
   const [exam, setExam] = useState<StudentExam>(initialExamState);
   const [isLoading, setIsLoading] = useState(true);
   const [isStarted, setIsStarted] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(0); // seconds
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string[]>>({});
   const [scoreResult, setScoreResult] = useState<number | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [studentId, setUserId] = useState<string | null>(null);
 
-  // Load saved state from localStorage
   useEffect(() => {
     const storedStarted = localStorage.getItem(`started-${id}`);
     const storedTime = localStorage.getItem(`timeLeft-${id}`);
@@ -106,19 +105,11 @@ export default function ViewExam({
       try {
         setIsLoading(true);
         const response = await getExamById(id);
-        const examWithIds = {
-          ...response.data,
-          questions: response.data.questions.map((q: any) => ({
-            ...q,
-            id: q.id || uuidv4(), // id байхгүй бол UUID онооно
-          })),
-        };
-        setExam(examWithIds);
 
-        // If no saved time, initialize
-        const hasSaved = localStorage.getItem(`timeLeft-${id}`);
-        if (!hasSaved) {
-          setTimeLeft(response.data.duration * 60); // in seconds
+        setExam(response.data);
+        const hasSavedTime = localStorage.getItem(`timeLeft-${id}`);
+        if (!hasSavedTime) {
+          setTimeLeft(response.data.duration * 60); // minutes → seconds
         }
       } catch (error) {
         console.error("Error fetching exam data:", error);
@@ -152,10 +143,22 @@ export default function ViewExam({
   }, [isStarted]);
 
   const handleChange = (questionId: string, value: string) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [questionId]: value,
-    }));
+    setAnswers((prev) => {
+      const currentAnswers = prev[questionId] || [];
+      const isMultiple =
+        exam.questions.find((q) => q._id === questionId)?.type ===
+        "multiple-choice";
+
+      if (isMultiple) {
+        const alreadySelected = currentAnswers.includes(value);
+        const updatedAnswers = alreadySelected
+          ? currentAnswers.filter((ans) => ans !== value)
+          : [...currentAnswers, value];
+        return { ...prev, [questionId]: updatedAnswers };
+      }
+
+      return { ...prev, [questionId]: [value] };
+    });
   };
 
   const handleSubmit = async () => {
@@ -165,33 +168,53 @@ export default function ViewExam({
     const structuredAnswers = Object.entries(answers).map(
       ([questionId, answer]) => ({
         questionId,
-        answer,
+        answer: answer.length === 1 ? answer[0] : answer, // ✅ string | string[]
       })
     );
 
     const score = exam.questions.reduce((total, question) => {
-      const studentAnswer = answers[question.id];
-      if (!studentAnswer) return total;
+      const studentAnswers = answers[question._id];
+      if (!studentAnswers || studentAnswers.length === 0) return total;
+      const correctAnswers =
+        question.answers?.filter((a) => a).map((a) => a.text) || [];
 
-      const correct = question.answers?.find((a) => a.isCorrect)?.text;
+      if (question.type === "multiple-choice") {
+        const studentAnswers = answers[question._id] || [];
 
-      if (question.type === "multiple-choice" && studentAnswer === correct) {
-        return total + (question.score || 0);
+        const totalCorrect = correctAnswers.length;
+        const selectedCorrect = studentAnswers.filter((ans) =>
+          correctAnswers.includes(ans)
+        ).length;
+        const selectedIncorrect = studentAnswers.filter(
+          (ans) => !correctAnswers.includes(ans)
+        ).length;
+        if (selectedCorrect === totalCorrect && selectedIncorrect === 0) {
+          return total + (question.score || 0);
+        }
+        if (selectedCorrect > 0 && selectedIncorrect === 0) {
+          const partialScore =
+            ((question.score || 0) * selectedCorrect) / totalCorrect;
+          return total + partialScore;
+        }
+
+        return total;
       }
 
       if (
         question.type === "simple-choice" &&
-        studentAnswer.toLowerCase() === correct?.toLowerCase()
+        correctAnswers.some(
+          (correct) =>
+            studentAnswers[0]?.toLowerCase() === correct.toLowerCase()
+        )
       ) {
         return total + (question.score || 0);
       }
-
       return total;
     }, 0);
 
     const payload: SubmitExam = {
       examId: exam._id.toString(),
-      userId: userId as string,
+      studentId: userId as string,
       answers: structuredAnswers,
       score,
       submittedAt,
@@ -312,7 +335,7 @@ export default function ViewExam({
 
             {exam.questions.map((question, index) => (
               <div
-                key={question.id || index}
+                key={question._id || index}
                 className="border p-4 rounded-lg bg-blue-50 shadow-sm"
               >
                 <div className="mb-2">
@@ -322,34 +345,35 @@ export default function ViewExam({
                 </div>
 
                 {question.type === "multiple-choice" && (
-                  <RadioGroup
-                    value={answers[question.id]}
-                    onValueChange={(val) => handleChange(question.id, val)}
-                  >
+                  <div className="pl-6">
                     {question.answers?.map((item, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center space-x-2 pl-6 font-semibold"
+                        className="flex items-center space-x-2 font-semibold"
                       >
-                        <RadioGroupItem
-                          value={item.text}
-                          id={`q-${question.id}-${idx}`}
+                        <input
+                          type="checkbox"
+                          id={`q-${question._id}-${idx}`}
+                          checked={
+                            answers[question._id]?.includes(item.text) || false
+                          }
+                          onChange={() => handleChange(question._id, item.text)}
                           disabled={!isStarted}
                         />
-                        <Label htmlFor={`q-${question.id}-${idx}`}>
+                        <label htmlFor={`q-${question._id}-${idx}`}>
                           {item.text}
-                        </Label>
+                        </label>
                       </div>
                     ))}
-                  </RadioGroup>
+                  </div>
                 )}
 
                 {question.type === "simple-choice" && (
                   <Input
                     type="text"
                     placeholder="Хариулт..."
-                    value={answers[question.id] || ""}
-                    onChange={(e) => handleChange(question.id, e.target.value)}
+                    value={answers[question._id]?.[0] || ""}
+                    onChange={(e) => handleChange(question._id, e.target.value)}
                     className="w-1/2 mt-2"
                     disabled={!isStarted}
                   />
@@ -362,8 +386,8 @@ export default function ViewExam({
                         ? "Кодоо бичнэ үү"
                         : "Хариултаа бичнэ үү"
                     }
-                    value={answers[question.id] || ""}
-                    onChange={(e) => handleChange(question.id, e.target.value)}
+                    value={answers[question._id]?.[0] || ""}
+                    onChange={(e) => handleChange(question._id, e.target.value)}
                     disabled={!isStarted}
                   />
                 )}

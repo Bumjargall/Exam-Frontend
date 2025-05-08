@@ -40,7 +40,7 @@ export const useExamStore = create<ExamStore>()(
           }
 
           const updatedQuestions = state.exam.questions.filter(
-            (q) => q.id !== questionId
+            (q) => q._id !== questionId
           );
 
           return {

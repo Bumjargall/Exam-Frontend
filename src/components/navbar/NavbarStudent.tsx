@@ -12,11 +12,20 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { getExamByKey } from "@/lib/api";
 import { set } from "mongoose";
+import { createResult } from "@/lib/api";
+import { checkedResultByExamUser } from "@/lib/api";
 export default function NavbarStudent() {
   const router = useRouter();
   const [exams, setExams] = useState<StudentExam>();
   const [inputValue, setInputValue] = useState("");
-
+  const [userId, setUserId] = useState("");
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    setUserId(user?.user?._id);
+    if (!user) {
+      router.push("/login");
+    }
+  }, []);
   const handleSearch = async () => {
     if (!inputValue.trim()) {
       toast.error("Exam key хоосон байна.");
@@ -25,11 +34,28 @@ export default function NavbarStudent() {
 
     try {
       const response = await getExamByKey(inputValue.trim());
-      if (!response) {
+      if (!response && response.status !== 200) {
         toast.error("Ийм түлхүүртэй шалгалт олдсонгүй.");
         return;
       }
-      router.push(`/student/exam/${response.data._id}`);
+      const data = response.data;
+      if (!data || !userId) {
+        return;
+      }
+      const checked = await checkedResultByExamUser(data._id, userId);
+      if (!checked) {
+        const examResult = {
+          status: "taking",
+          userId,
+          examId: response.data._id,
+          score: 0,
+        };
+        const createResultUser = await createResult(examResult);
+        router.push(`/student/exam/${response.data._id}`);
+      } else {
+        toast.error("Хэрэглэгч энэ шалгалтыг өгсөн байна...");
+        console.error("Хэрэглэгч энэ шалгалтыг өгсөн байна...");
+      }
     } catch (error) {
       toast.error("Шалгалтын мэдээлэл авч чадсангүй.");
     }

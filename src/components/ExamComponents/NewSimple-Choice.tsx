@@ -92,7 +92,7 @@ export default function NewSimpleChoice({
     }
     const examData = {
       type: "simple-choice" as const,
-      id: Date.now().toString(),
+      _id: Date.now().toString(),
       question: currentQuestion,
       answers: options,
       score: score,

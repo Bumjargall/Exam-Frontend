@@ -6,7 +6,7 @@ export type AnswerOption = {
 };
 
 export interface Question {
-  id: string;
+  _id: string;
   question: string;
   answers?: AnswerOption[];
   score?: number;
@@ -34,10 +34,10 @@ export interface StudentWithExamInfo {
 }
 export interface SubmitExam {
   examId: string;
-  userId: string;
+  studentId: string;
   answers: {
     questionId: string;
-    answer: number | number[] | string;
+    answer: string | number | string[] | number[];
   }[];
   score: number;
   submittedAt: Date | string;

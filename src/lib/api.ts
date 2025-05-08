@@ -200,19 +200,22 @@ export const getExamByKey = async (key: string) => {
 }
 //All Result => createrUserId === login userId
 export const getResultByCreateUser = async (userId: string) => {
-  try{
-    const response = await fetch(`${getBackendUrl()}/monitoring/by-creator/${userId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+  try {
+    const response = await fetch(
+      `${getBackendUrl()}/monitoring/by-creator/${userId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return await handleResponse(response);
-  } catch(err) {
+  } catch (err) {
     console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", err);
     throw err;
   }
-}
+};
 // Шалгалтын мэдээллийг шинэчлэх
 export const updateExam = async (examId: string, examData: ExamInput) => {
   try {
@@ -351,84 +354,86 @@ export const getResults = async () => {
   }
 };
 //examId, studentId хоёр байх юм бол тухайн шалгалтаас хэрэглэгчийн хасах
-export const deleteResultByExamUser = async (examId: string, studentId:string) => {
-  try{
-    const response = await fetch(`${getBackendUrl()}/monitoring/by-exam-user/${examId}/${studentId}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const deleteExam = await handleResponse(response);
-    return deleteExam;
-
-  } catch (err) {
-    console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", err);
-    throw err;
-
-  }
-}
-export const createResult = async (createResult: any) => {
-  try{
-    const {examId, studentId} = createResult;
-    if(!examId || !studentId) return
-    const cheked = await checkedResultByExamUser(examId, studentId)
-    if(cheked){
-      const res = await fetch(`${getBackendUrl()}/monitoring/`, {
-        method: "POST",
+export const deleteResultByExamUser = async (
+  examId: string,
+  studentId: string
+) => {
+  try {
+    const response = await fetch(
+      `${getBackendUrl()}/monitoring/by-exam-user/${examId}/${studentId}`,
+      {
+        method: "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ createResult }),
-      })
-      const newResult = await handleResponse(res)
-      return newResult
-    } else {
-      console.error("Хэрэглэгч энэ шалгалтыг өгсөн байна...");
-    }
-    console.error("шалгалт үүсгэх........");
-  } catch(err){
+      }
+    );
+    const deleteExam = await handleResponse(response);
+    return deleteExam;
+  } catch (err) {
+    console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", err);
+    throw err;
+  }
+};
+export const createResult = async (createResult: any) => {
+  try {
+    const res = await fetch(`${getBackendUrl()}/monitoring`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ createResult }),
+    });
+    return await handleResponse(res);
+  } catch (err) {
     console.error("Шалгалтын мэдээлэл үүсгэх үед алдаа гарлаа:", err);
     throw err;
   }
-}
+};
 //submit дарах үед database руу илгээсэн мэдээллийг шинэчлэх
-export const updateResult = async (resultId: string, examData: any)=> {
-  try{
+export const updateResult = async (resultId: string, examData: any) => {
+  try {
     const response = await fetch(`${getBackendUrl()}/monitoring/${resultId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ examData }),
-    })
-    const updateExam = await handleResponse(response)
-    return updateExam
-  }
-  catch(err) {
+    });
+    const updateExam = await handleResponse(response);
+    return updateExam;
+  } catch (err) {
     console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", err);
     throw err;
   }
-}
+};
 
 //examID, studentId 2-ыг match хийж байвал true, байхгүй бол false илгээх, шалгах функц
-export const checkedResultByExamUser = async (examId:string, studentId:string) => {
-  try{
-    const response = await fetch(`${getBackendUrl()}/monitoring/checkedResult/${examId}/${studentId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+export const checkedResultByExamUser = async (
+  examId: string,
+  studentId: string
+) => {
+  try {
+    const response = await fetch(
+      `${getBackendUrl()}/monitoring/checkedResult/${examId}/${studentId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return await handleResponse(response);
-  } catch(err) {
+  } catch (err) {
     console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", err);
     throw err;
   }
-}
-{/*
+};
+{
+  /*
   
   {
     "exists": true    //false
 }
-  */}
+  */
+}

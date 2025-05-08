@@ -58,7 +58,7 @@ export default function NewCode({
     }
     const examData: Question = {
       type: "code",
-      id: Date.now().toString(),
+      _id: Date.now().toString(),
       question: currentQuestion,
       score: score,
     };
