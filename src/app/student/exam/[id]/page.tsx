@@ -214,6 +214,7 @@ export default function ViewExam({
       submittedAt,
       durationTaken,
       status: "submitted",
+      pending: "off",
     };
 
     try {
