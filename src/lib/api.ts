@@ -368,7 +368,30 @@ export const deleteResultByExamUser = async (examId: string, studentId:string) =
 
   }
 }
-
+export const createResult = async (createResult: any) => {
+  try{
+    const {examId, studentId} = createResult;
+    if(!examId || !studentId) return
+    const cheked = await checkedResultByExamUser(examId, studentId)
+    if(cheked){
+      const res = await fetch(`${getBackendUrl()}/monitoring/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ createResult }),
+      })
+      const newResult = await handleResponse(res)
+      return newResult
+    } else {
+      console.error("Хэрэглэгч энэ шалгалтыг өгсөн байна...");
+    }
+    console.error("шалгалт үүсгэх........");
+  } catch(err){
+    console.error("Шалгалтын мэдээлэл үүсгэх үед алдаа гарлаа:", err);
+    throw err;
+  }
+}
 //submit дарах үед database руу илгээсэн мэдээллийг шинэчлэх
 export const updateResult = async (resultId: string, examData: any)=> {
   try{
