@@ -39,6 +39,7 @@ export default function ViewExam({
   const router = useRouter();
   const { id } = use(params);
   const [examId, resultId] = id.split("-");
+  //Шалгалтаа хадгалах төлөв StudentExam төрөлтэй
   const [exam, setExam] = useState<StudentExam>(initialExamState);
   const [isLoading, setIsLoading] = useState(true);
   const [isStarted, setIsStarted] = useState(false);

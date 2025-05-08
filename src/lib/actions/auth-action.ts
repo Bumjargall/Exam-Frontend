@@ -81,7 +81,7 @@ export const login = async (email: string, password: string) => {
   try {
     console.log("Хүсэлт илгээж байна:", email, password);
     const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/login`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`,
       { email, password }
     );
     const data = await response.data;
