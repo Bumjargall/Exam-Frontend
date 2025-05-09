@@ -12,9 +12,5 @@ const geistMono = Geist_Mono({
 });
 
 export default function MonitoringHome() {
-  return (
-       <div>
-        hihi
-       </div>
-  );
+  return <div></div>;
 }

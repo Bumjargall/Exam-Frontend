@@ -22,7 +22,7 @@ export default function NavbarStudent() {
   const [userId, setUserId] = useState("");
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
-    setUserId(user?.user?._id);
+    setUserId(user?._id);
     if (!user) {
       router.push("/login");
     }
@@ -43,10 +43,12 @@ export default function NavbarStudent() {
       if (!data._id || !userId) {
         return;
       }
-      const checked = await checkedResultByExamUser(data._id, userId);
-      console.log("checked", checked);
-      if (checked === true) {
+      const status = await checkedResultByExamUser(data._id, userId);
+      console.log("checked", status);
+      if (status === "submitted") {
         toast.error("Хэрэглэгч энэ шалгалтыг өгсөн байна...");
+      } else if (status === "taking") {
+        router.push(`/student/exam/${response.data._id}`);
       } else {
         const examResult = {
           status: "taking",
@@ -67,63 +69,26 @@ export default function NavbarStudent() {
   };
 
   return (
-    <header className="w-full shadow-sm border-b">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        <Link href="/" className="text-xl font-medium">
-          <img src="/logo.jpg" alt="logo" className="w-12 rounded-xl" />
-        </Link>
-
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex space-x-6 items-center">
-          <div className="relative w-full max-w-sm">
-            <input
-              type="text"
-              onChange={(e) => setInputValue(e.target.value)}
-              value={inputValue}
-              placeholder="Exam Key"
-              className="block p-2.5 w-full text-gray-900 bg-white border border-gray-900 rounded-lg placeholder:text-gray-900"
-            />
-            <Button
-              onClick={handleSearch}
-              type="button"
-              className="absolute top-0 end-0 p-2.5 h-full font-medium text-black bg-white border border-gray-900 rounded-e-lg cursor-pointer hover:bg-gray-100"
-            >
-              <MoveRight />
-            </Button>
-          </div>
-          <Link
-            href=""
-            className="text-gray-700 hover:text-black text-sm border border-gray-900 p-2 rounded-lg hover:bg-gray-100"
+    <>
+      {/* Desktop Navigation */}
+      <nav className="hidden md:flex space-x-6 items-center">
+        <div className="relative w-full max-w-sm">
+          <input
+            type="text"
+            onChange={(e) => setInputValue(e.target.value)}
+            value={inputValue}
+            placeholder="Exam Key"
+            className="block p-2.5 w-full text-gray-900 bg-white border border-gray-900 rounded-lg placeholder:text-gray-900"
+          />
+          <Button
+            onClick={handleSearch}
+            type="button"
+            className="absolute top-0 end-0 p-2.5 h-full font-medium text-black bg-white border border-gray-900 rounded-e-lg cursor-pointer hover:bg-gray-100"
           >
-            <LogOut className="h-5 w-5" />
-          </Link>
-        </nav>
-
-        {/* Mobile Navigation */}
-        <div className="md:hidden">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left">
-              <nav className="flex flex-col space-y-4 m-6">
-                <Button
-                  onClick={() => {
-                    localStorage.clear();
-                    router.push("/");
-                  }}
-                  className="text-gray-600 hover:text-black text-base font-medium border-b pb-2 flex items-center space-x-2"
-                >
-                  <LogOut className="h-5 w-5" />
-                  <span>Гарах</span>
-                </Button>
-              </nav>
-            </SheetContent>
-          </Sheet>
+            <MoveRight />
+          </Button>
         </div>
-      </div>
-    </header>
+      </nav>
+    </>
   );
 }

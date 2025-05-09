@@ -36,7 +36,6 @@ const LoginForm = () => {
     setError(null);
 
     try {
-      //console.log(data);
       const userData = await login(data.email, data.password);
       //console.log("Амжилттай нэвтэрлээ:", userData?.user);
       //console.log("Амжилттай нэвтэрлээ:", userData?.token);

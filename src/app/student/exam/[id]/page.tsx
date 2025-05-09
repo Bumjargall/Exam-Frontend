@@ -39,6 +39,7 @@ export default function ViewExam({
   const router = useRouter();
   const { id } = use(params);
   const [examId, resultId] = id.split("-");
+  localStorage.setItem("ResultId", resultId);
   //Шалгалтаа хадгалах төлөв StudentExam төрөлтэй
   const [exam, setExam] = useState<StudentExam>(initialExamState);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,7 +61,7 @@ export default function ViewExam({
   useEffect(() => {
     try {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
-      const id = user?.user?._id;
+      const id = user?._id;
       if (id) {
         setUserId(id);
       } else {
@@ -221,11 +222,14 @@ export default function ViewExam({
     try {
       setScoreResult(score);
       console.log(payload);
-      const examData = await updateResult(resultId, payload);
-      if (!examData) {
-        toast.error("Илгээхэд алдаа гарлаа.");
+      const ResultId = localStorage.getItem("ResultId");
+      if (ResultId) {
+        const examData = await updateResult(ResultId, payload);
+        if (!examData) {
+          toast.error("Илгээхэд алдаа гарлаа.");
+        }
+        toast.success("Шалгалт амжилттай илгээгдлээ!");
       }
-      toast.success("Шалгалт амжилттай илгээгдлээ!");
     } catch (error) {
       console.error("Илгээхэд алдаа гарлаа:", error);
     }
@@ -234,7 +238,7 @@ export default function ViewExam({
     localStorage.removeItem(`started-${id}`);
     localStorage.removeItem(`timeLeft-${id}`);
     localStorage.removeItem(`answers-${id}`);
-
+    localStorage.removeItem("ResultId");
     setIsStarted(false);
   };
 

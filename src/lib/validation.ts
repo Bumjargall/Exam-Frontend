@@ -24,9 +24,9 @@ export const RegisterSchema = z.object({
   email: z.string().email({
     message: "Таны оруулсан имейл хаяг алдаатай байна!",
   }),
-  organization: z
-    .string().optional()
-    ,
+  organization: z.string().optional(),
+  phone: z.string().min(8, "Утасны дугаар алдаатай"),
+
   password: z
     .string()
     .min(4, { message: "Нууц үгээ шалгана уу!" })
@@ -72,7 +72,9 @@ export const UserSchema = z.object({
     .regex(/^[A-Za-zА-Яа-я\s]+$/, {
       message: "Нэр нь зөвхөн үсэг агуулах ёстой!",
     }),
-  phone: z.string().regex(/^\d{8}$/, { message: "Утасны дугаар 8 оронтой байх ёстой!" }),
+  phone: z
+    .string()
+    .regex(/^\d{8}$/, { message: "Утасны дугаар 8 оронтой байх ёстой!" }),
   email: z.string().email({
     message: "Таны оруулсан имейл хаяг алдаатай байна!",
   }),

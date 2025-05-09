@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu, LogOut, User } from "lucide-react";
+import NavbarStudent from "./NavbarStudent";
 
 const navItemsMap: Record<string, { label: string; href: string }[]> = {
   teacher: [
@@ -37,7 +38,7 @@ export default function NavbarExam() {
 
     try {
       const userJson = JSON.parse(userString);
-      setRole(userJson?.user?.role || null);
+      setRole(userJson?.role || null);
     } catch (err) {
       console.error("Хэрэглэгчийн мэдээллийг уншихад алдаа гарлаа:", err);
       setRole(null);
@@ -73,6 +74,13 @@ export default function NavbarExam() {
               {item.label}
             </Link>
           ))}
+          {role === "student" && (
+            <>
+              {/*KEY дуудах*/}
+
+              <NavbarStudent />
+            </>
+          )}
           {role && (
             <>
               <Link
