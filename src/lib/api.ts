@@ -128,6 +128,25 @@ export const getByUserAllExams = async (userId: string) => {
     throw err;
   }
 };
+// Багшийн createByUserId - аар шалгалт шүүх
+export const getExamCreateByUser = async (userId: string) => {
+  try {
+    const response = await fetch(
+      `${getBackendUrl()}/exams/createByteacher/${userId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log("api response", response);
+    return await handleResponse(response);
+  } catch (err) {
+    console.error("Багшын шалгалтуудыг авахад алдаа гарлаа:", err);
+    throw err;
+  }
+};
 
 // Шалтгалт үүсгэх
 export const createExam = async (examData: ExamInput) => {
