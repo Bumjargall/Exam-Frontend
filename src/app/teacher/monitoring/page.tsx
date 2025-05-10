@@ -27,6 +27,7 @@ import {
   ChevronDown,
   CodeSquare,
   MoreHorizontal,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -96,6 +97,37 @@ type User = {
     email: string;
   };
 };
+const StudentList = ({
+  students,
+  status,
+}: {
+  students: ExamWithStudentInfo[];
+  status: "taking" | "submitted";
+}) => (
+  <div>
+    <p className="font-medium w-full border-b-1 pb-3">
+      {status === "taking" ? "Оролцож буй" : "Дууссан"}
+    </p>
+    <ul>
+      {students
+        .filter((student) => student.status === status)
+        .map((student) => (
+          <li
+            key={`${student._id}-${student.studentInfo?._id || "unknown"}`}
+            className="flex justify-between items-center pl-2 cursor-pointer m-3"
+          >
+            <p>
+              {student.studentInfo
+                ? `${student.studentInfo.lastName?.charAt(0)}.${
+                    student.studentInfo.firstName
+                  }`
+                : "Unknown"}
+            </p>
+          </li>
+        ))}
+    </ul>
+  </div>
+);
 
 const downloadPDF = () => {
   const element = document.getElementById("pdf-content"); // PDF-д оруулах элемент
@@ -126,6 +158,7 @@ const downloadPDF = () => {
 
 export default function MonitoringPage() {
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [studentFilter, setStudentFilter] = useState("");
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -228,7 +261,7 @@ export default function MonitoringPage() {
   };
   useEffect(() => {
     if (user?._id) {
-      setUserId(user._id);
+      setUserId(user._id.toString());
     }
   });
 
@@ -280,31 +313,32 @@ export default function MonitoringPage() {
 
   //database дуудах
   useEffect(() => {
-    if (!userId) return;
+    if (!user?._id) return;
+
     const fetchExamsAndResults = async () => {
       try {
-        const examsResponse = await getExamCreateByUser(userId);
-        console.log("getExamCreateByUser", examsResponse);
-        if (!examsResponse.data?.length) return;
+        const examsResponse = await getExamCreateByUser(user._id.toString());
+        if (!examsResponse.data?.length) {
+          toast.info("Шалгалтын мэдээлэл олдсонгүй");
+          return;
+        }
 
-        const latestExam = examsResponse.data.at(-1);
+        const latestExam = examsResponse.data[examsResponse.data.length - 1];
         setExamData(examsResponse.data);
         setLastExam(latestExam);
-        console.log("latestExam,ID-----", latestExam);
 
-        const { data } = await getResultByUsers(latestExam._id);
-        console.log("getResultByUsers---------", data);
-        if (data > 0) {
+        const { success, data } = await getResultByUsers(latestExam._id);
+        if (success && data) {
           setStudentResults(data);
         }
-        console.log("setResultUsers-----", studentResults);
       } catch (error) {
         toast.error("Мэдээлэл татахад алдаа гарлаа");
+        console.error(error);
       }
     };
 
     fetchExamsAndResults();
-  }, [userId]);
+  }, [user]);
   // Toggle functions
   const toggleDropdown = (key: keyof typeof dropdownStates) => {
     setDropdownStates((prev) => ({
@@ -351,6 +385,28 @@ export default function MonitoringPage() {
       console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", error);
     }
   };
+  // Өгсөн, өгөөгүй оюутнуудын тоо
+  const takingStudents = studentResults.filter(
+    (s) => s.status === "taking"
+  ).length;
+  const submittedStudents = studentResults.filter(
+    (s) => s.status === "submitted"
+  ).length;
+  const totalStudents = takingStudents + submittedStudents;
+
+  const filteredStudents = studentResults.filter(
+    (student) =>
+      student.studentInfo?.firstName
+        ?.toLowerCase()
+        .includes(studentFilter.toLowerCase()) ||
+      student.studentInfo?.lastName
+        ?.toLowerCase()
+        .includes(studentFilter.toLowerCase()) ||
+      student.studentInfo?.email
+        ?.toLowerCase()
+        .includes(studentFilter.toLowerCase())
+  );
+
   const handleStatusChange = async (newStatus: "active" | "inactive") => {
     try {
       const res = await updateExamStatus(lastExam._id as string, newStatus);
@@ -373,26 +429,6 @@ export default function MonitoringPage() {
       console.error("Хуулахад алдаа гарлаа:", err);
     }
   };
-  // const renderStudentList = (status: "taking" | "submitted") => (
-  //   <ul>
-  //     {studentResults
-  //       .filter((data) => data.status === status)
-  //       .map((data) => (
-  //         <li
-  //           key={`${data._id}-${data.studentInfo._id}`}
-  //           className="flex justify-between items-center pl-2 cursor-pointer m-3"
-  //         >
-  //           <p>
-  //             {data.studentInfo
-  //               ? `${data.studentInfo.lastName?.charAt(0)}.${
-  //                   data.studentInfo.firstName
-  //                 }`
-  //               : "Unknown Student"}
-  //           </p>
-  //         </li>
-  //       ))}
-  //   </ul>
-  // );
   const renderStudentList = (status: "taking" | "submitted") =>
     studentResults
       .filter((student) => student.status === status)
@@ -449,21 +485,21 @@ export default function MonitoringPage() {
             <input
               type="text"
               placeholder="Хайх нэр..."
+              value={studentFilter}
+              onChange={(e) => setStudentFilter(e.target.value)}
               className="w-full border-2 border-gray-100 border-r-0 rounded-l-lg p-2"
             />
-            <i className="ri-search-line border-2 border-gray-100 border-l-0 rounded-r-lg py-2 pr-2"></i>
+            <Search className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           </div>
           {/*Student-ээс нэрээр нь дэлгэцэнд харуулах*/}
+
+          {/*Starting*/}
           <div className="pt-4">
-            {/*Starting*/}
-            <div className="starting">
-              <p className="font-medium w-full border-b-1 pb-3">Starting</p>
-              {renderStudentList("taking")}
-            </div>
-            <div className="submitted">
-              <p className="font-medium w-full border-b-1 pb-3">Submitted</p>
-              {renderStudentList("submitted")}
-            </div>
+            {/* Taking exam */}
+            <StudentList students={filteredStudents} status="taking" />
+
+            {/* Submitted exam */}
+            <StudentList students={filteredStudents} status="submitted" />
           </div>
         </div>
         {/*Main*/}
@@ -569,29 +605,20 @@ export default function MonitoringPage() {
                         </div>
                       )}
                     </div>
-
-                    {/*Share*/}
-                    <div className="share_link flex justify-between pr-6 py-2 align-center">
-                      <p className="mr-4">Илгээх</p>
-                      <i
-                        className="ri-share-fill px-1 border-2  rounded-full cursor-pointer relative hover:text-yellow-500"
-                        onClick={() => {
-                          alert("Илгээх мэйлээ оруулна уу?");
-                        }}
-                      ></i>
-                    </div>
                     <div className="score">
                       <p className="text-xl font-medium pb-4">Үнэлгээ</p>
                       <div className="flex justify-space">
                         <div className="ongoing flex flex-col items-center w-1/3 border-b-2 border-sky-400 mr-4 pb-2 bg-gray-100">
                           <p className="number">
-                            <b className="text-xl">0</b>/1
+                            <b className="text-xl">{takingStudents}</b>/
+                            {totalStudents}
                           </p>
                           <p>Оролцсон</p>
                         </div>
                         <div className="submitted flex flex-col items-center w-1/3 border-b-2 border-lime-400 pb-2 bg-gray-100">
                           <p className="number">
-                            <b className="text-xl">1</b>/1
+                            <b className="text-xl">{submittedStudents}</b>/{" "}
+                            {totalStudents}
                           </p>
                           <p>Дууссан</p>
                         </div>
