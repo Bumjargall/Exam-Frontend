@@ -111,7 +111,7 @@ const LoginForm = () => {
             />
           </div>
           {error && <p className="text-red-500 text-sm my-4">{error}</p>}
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full bg-green-600" disabled={loading}>
             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
             {loading ? "Нэвтэрч байна..." : "Нэвтрэх"}
           </Button>

@@ -17,6 +17,7 @@ export default function ForgotPasswordPage() {
       await forgotPassword(email);
       toast.success("Имэйл илгээгдлээ!");
       setLoading(false);
+      setEmail("")
     } catch (err) {
       toast.error("Алдаа гарлаа");
       setLoading(false);
@@ -40,7 +41,7 @@ export default function ForgotPasswordPage() {
       <Button
         onClick={handleSubmit}
         disabled={loading}
-        className="w-full mt-4"
+        className="w-full mt-4 bg-green-600"
       >
         {loading ? "Илгээж байна..." : "Илгээх"}
       </Button>
