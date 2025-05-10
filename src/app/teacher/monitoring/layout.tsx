@@ -14,13 +14,14 @@ const geistMono = Geist_Mono({
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <Script 
-        src="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.js" 
+      <Script
+        src="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.js"
         strategy="lazyOnload"
       />
-       
 
-      <div className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <div
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <main className="p-6">{children}</main>
       </div>
     </>

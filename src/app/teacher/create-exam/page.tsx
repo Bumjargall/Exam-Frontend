@@ -76,7 +76,7 @@ export default function Page() {
                         <div className="flex items-center space-x-2">
                           <Button
                             onClick={() => {
-                              removeQuestion(item.id);
+                              removeQuestion(item._id);
                             }}
                             variant={"outline"}
                             className="cursor-pointer"
@@ -109,10 +109,10 @@ export default function Page() {
                               >
                                 <RadioGroupItem
                                   value={answer.text}
-                                  id={`question-${item.id}-answer-${idx}`}
+                                  id={`question-${item._id}-answer-${idx}`}
                                 />
                                 <Label
-                                  htmlFor={`question-${item.id}-answer-${idx}`}
+                                  htmlFor={`question-${item._id}-answer-${idx}`}
                                 >
                                   {answer.text}
                                 </Label>
