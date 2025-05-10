@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { deleteExam, getExams } from "@/lib/api";
 import { Exam } from "@/lib/types/interface";
 import mongoose from "mongoose";
-import { getResultByCreateUser } from "@/lib/api";
+import { getExamCreateByUser } from "@/lib/api";
 
 export default function Exams() {
   const [exams, setExams] = useState<Exam[]>([]);
@@ -41,11 +41,9 @@ export default function Exams() {
 
     setLoading(true);
     try {
-      const res = await getResultByCreateUser(userId);
-      console.log("->>>>", res);
-
-      if (res?.data?.exams) {
-        const sortedExams = res.data.exams.sort(
+      const res = await getExamCreateByUser(userId);
+      if (res?.data) {
+        const sortedExams = res.data.sort(
           (a: Exam, b: Exam) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );

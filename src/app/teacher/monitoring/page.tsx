@@ -51,6 +51,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { getExamCreateByUser } from "@/lib/api";
 import {
   Table,
   TableBody,
@@ -281,12 +282,12 @@ export default function MonitoringPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const examsResponse = await getResultByCreateUser(userId);
+        const examsResponse = await getExamCreateByUser(userId);
+        console.log("exams", examsResponse);
         if (examsResponse.data?.length > 0) {
           const latestExam = examsResponse.data[examsResponse.data.length - 1];
           setExamData(examsResponse.data);
           setLastExam(latestExam);
-
           const resultResponse = await getResultByUsers(
             latestExam._id as string
           );
@@ -297,7 +298,7 @@ export default function MonitoringPage() {
       }
     };
     fetchData();
-  }, []);
+  }, [userId]);
 
   // Toggle functions
   const toggleDropdown = (key: keyof typeof dropdownStates) => {
