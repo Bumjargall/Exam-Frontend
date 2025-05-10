@@ -8,37 +8,27 @@ import { deleteExam, getExams } from "@/lib/api";
 import { Exam } from "@/lib/types/interface";
 import mongoose from "mongoose";
 import { getExamCreateByUser } from "@/lib/api";
+import { useAuth } from "@/store/useAuth";
 
 export default function Exams() {
   const [exams, setExams] = useState<Exam[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [userId, setUserId] = useState("");
   const router = useRouter();
+  const { user } = useAuth();
   useEffect(() => {
-    // Get user from localStorage
-    try {
-      const data = localStorage.getItem("user");
-      if (data) {
-        const user = JSON.parse(data);
-        if (user && user._id) {
-          setUserId(user._id);
-        } else {
-          setError("Хэрэглэгчийн мэдээлэл олдсонгүй.");
-          router.push("/login");
-        }
-      } else {
-        setError("Хэрэглэгчийн мэдээлэл олдсонгүй.");
-        router.push("/login");
-      }
-    } catch (error) {
-      console.error("localStorage-с user авахад алдаа гарлаа", error);
-      setError("Хэрэглэгчийн мэдээлэл унших явцад алдаа гарлаа.");
+    if (!user || !user._id) {
+      console.log(".............user...")
+      //router.replace("/login");
+    } else {
+      fetchExams(user._id);
     }
-  }, [router]);
-  const fetchExams = async () => {
-    if (!userId) return;
+  }, [user]);
 
+  console.log(".............userUTGU...", user)
+  const fetchExams = async (userId: string) => {
+
+    console.log(".............user...")
     setLoading(true);
     try {
       const res = await getExamCreateByUser(userId);
@@ -73,12 +63,6 @@ export default function Exams() {
       localStorage.setItem("exams-edit-storage", JSON.stringify(exams[index]));
     };
   };
-
-  useEffect(() => {
-    if (userId) {
-      fetchExams();
-    }
-  }, [userId]);
 
   return (
     <div className="max-w-4xl mx-auto mt-20">

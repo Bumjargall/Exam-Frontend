@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useAuth } from "@/store/useAuth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -24,35 +24,14 @@ const navItemsMap: Record<string, { label: string; href: string }[]> = {
 const guestNavItems = [{ label: "Нэвтрэх", href: "/login" }];
 
 export default function NavbarExam() {
-  const [role, setRole] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, logout } = useAuth();
+  const role = user?.role || null;
   const router = useRouter();
 
-  useEffect(() => {
-    const userString = localStorage.getItem("user");
-    if (!userString) {
-      setRole(null);
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const userJson = JSON.parse(userString);
-      setRole(userJson?.role || null);
-    } catch (err) {
-      console.error("Хэрэглэгчийн мэдээллийг уншихад алдаа гарлаа:", err);
-      setRole(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   const logoutUser = () => {
-    localStorage.clear();
+    logout();
     router.push("/");
   };
-
-  if (loading) return null;
 
   const navItems = role ? navItemsMap[role] || [] : guestNavItems;
 
@@ -74,13 +53,7 @@ export default function NavbarExam() {
               {item.label}
             </Link>
           ))}
-          {role === "student" && (
-            <>
-              {/*KEY дуудах*/}
-
-              <NavbarStudent />
-            </>
-          )}
+          {role === "student" && <NavbarStudent />}
           {role && (
             <>
               <Link

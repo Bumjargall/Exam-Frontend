@@ -6,9 +6,9 @@ import { redirect } from "next/navigation";
  function login() {
  
   return (
-    <div>
-        <LoginForm/>
-    </div>
+    <main suppressHydrationWarning>
+      <LoginForm />
+    </main>
   )
 }
 

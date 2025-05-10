@@ -3,6 +3,7 @@ import { LoginSchema } from "@/lib/validation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import CardWrapper from "./card-wrapper";
+import { useAuth } from "@/store/useAuth";
 import {
   Form,
   FormControl,
@@ -21,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 type FormData = z.infer<typeof LoginSchema>;
 const LoginForm = () => {
+  const { setAuth } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -39,22 +41,24 @@ const LoginForm = () => {
       const userData = await login(data.email, data.password);
       //console.log("Амжилттай нэвтэрлээ:", userData?.user);
       //console.log("Амжилттай нэвтэрлээ:", userData?.token);
-      let role = userData?.user.role;
+      const role = userData?.user.role;
       //localStorage.setItem("user", JSON.stringify(userData));
-      localStorage.setItem("token", userData.token);
-      localStorage.setItem("user", JSON.stringify(userData.user));
+      //localStorage.setItem("token", userData.token);
+      //localStorage.setItem("user", JSON.stringify(userData.user));
+      setAuth(userData.user, userData.token);
+
       switch (role) {
-        case "admin":
-          router.push("/admin/dashboard");
-          break;
         case "teacher":
-          router.push("/teacher/exams");
+          window.location.assign("/teacher/exams");
+          break;
+        case "admin":
+          window.location.assign("/admin/dashboard");
           break;
         case "student":
-          router.push("/student");
+          window.location.assign("/student");
           break;
         default:
-          router.push("/");
+          window.location.assign("/");
           break;
       }
     } catch (err: any) {
@@ -111,7 +115,11 @@ const LoginForm = () => {
             />
           </div>
           {error && <p className="text-red-500 text-sm my-4">{error}</p>}
-          <Button type="submit" className="w-full bg-green-600" disabled={loading}>
+          <Button
+            type="submit"
+            className="w-full bg-green-600"
+            disabled={loading}
+          >
             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
             {loading ? "Нэвтэрч байна..." : "Нэвтрэх"}
           </Button>
