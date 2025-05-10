@@ -3,6 +3,8 @@ import { RegisterSchema, RegisterInput } from "@/lib/validation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import CardWrapper from "./card-wrapper";
+import { Label } from "@/components/ui/label";
+
 import {
   Form,
   FormControl,
@@ -18,9 +20,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { registerUser } from "@/lib/api";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const RegisterForm = () => {
-    const router = useRouter()
+  const router = useRouter();
   const form = useForm<RegisterInput>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
@@ -28,17 +31,20 @@ const RegisterForm = () => {
       lastName: "",
       email: "",
       organization: "",
+      phone: "",
       password: "",
-      role:"student"
+      role: "student",
     },
   });
   const onSubmit = async (data: RegisterInput) => {
-    try{
-        await registerUser(data)
-        toast.success("Хэрэглэгчийн бүртгэл амжилттай үүслээ.")
-        router.push("/login")
-    } catch(err:any) {
-        toast.error(err.message || "Бүртгэл үүсгэхэд алдаа гарлаа. Та түр хүлээнэ үү...")
+    try {
+      await registerUser(data);
+      toast.success("Хэрэглэгчийн бүртгэл амжилттай үүслээ.");
+      router.push("/login");
+    } catch (err: any) {
+      toast.error(
+        err.message || "Бүртгэл үүсгэхэд алдаа гарлаа. Та түр хүлээнэ үү..."
+      );
     }
   };
   return (
@@ -99,12 +105,55 @@ const RegisterForm = () => {
             />
             <FormField
               control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Утасны дугаараа оруулна уу!</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="phone"
+                      placeholder="Утасны дугаараа оруулна уу!"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="organization"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Organization</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Organization оруулна уу!" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Хэрэглэгчийн төрөл</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex space-x-4"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="teacher" id="teacher" />
+                        <Label htmlFor="teacher">Багш</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="student" id="student" />
+                        <Label htmlFor="student">Сурагч</Label>
+                      </div>
+                    </RadioGroup>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

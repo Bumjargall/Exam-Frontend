@@ -36,7 +36,6 @@ const LoginForm = () => {
     setError(null);
 
     try {
-      //console.log(data);
       const userData = await login(data.email, data.password);
       //console.log("Амжилттай нэвтэрлээ:", userData?.user);
       //console.log("Амжилттай нэвтэрлээ:", userData?.token);
@@ -52,7 +51,7 @@ const LoginForm = () => {
           router.push("/teacher/exams");
           break;
         case "student":
-          router.push("/student/exams");
+          router.push("/student");
           break;
         default:
           router.push("/");
@@ -84,6 +83,7 @@ const LoginForm = () => {
                     <Input
                       {...field}
                       type="email"
+                      autoComplete="email"
                       placeholder="Цахим шуудангаа оруулна уу!"
                     />
                   </FormControl>
@@ -102,6 +102,7 @@ const LoginForm = () => {
                       {...field}
                       type="password"
                       placeholder="Нууц үгээ оруулна уу!"
+                      autoComplete="current-password"
                     />
                   </FormControl>
                   <FormMessage />

@@ -4,18 +4,15 @@ import Link from "next/link";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Menu,User } from "lucide-react";
+import { Menu, User } from "lucide-react";
 
-const navItems = [
-  { label: "Нэвтрэх", href: "/login" },
-];
+const navItems = [{ label: "Нэвтрэх", href: "/login" }];
 export default function Navbar() {
-
   return (
     <header className="w-full shadow-sm border-b">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link href="/" className="text-xl font-medium">
-          <img src="/logo.jpg" alt="logo" className="w-12 rounded-xl"/>
+          <img src="/logo.jpg" alt="logo" className="w-12 rounded-xl" />
         </Link>
 
         {/* Desktop Navigation */}

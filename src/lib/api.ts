@@ -22,7 +22,6 @@ const handleResponse = async (response: Response) => {
   return await response.json();
 };
 
-
 // API-тай холбогдох функц
 export const fetchHelloMessage = async () => {
   try {
@@ -51,7 +50,6 @@ export const registerUser = async (data: RegisterInput) => {
     const errorData = await res.json();
     throw new Error(errorData.message || "Бүртгэхэд алдаа гарлаа");
   }
-
   return await res.json();
 };
 
@@ -214,7 +212,7 @@ export const deleteExam = async (examId: mongoose.Types.ObjectId) => {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
-    const result= await handleResponse(response);
+    const result = await handleResponse(response);
     return result;
   } catch (err) {
     console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", err);
@@ -345,7 +343,7 @@ export const updateUser = async (userId: string, userData: any) => {
     throw err;
   }
 };
-
+//result доторх шалгалтууд
 export const getSubmittedExams = async () => {
   try {
     const response = await fetch(
@@ -364,7 +362,7 @@ export const getSubmittedExams = async () => {
   }
 };
 
-//UserId-аар нь result авах
+//Сурагчын өгсөн шалгалт
 export const getResultByUserId = async (userId: string) => {
   try {
     const response = await fetch(
@@ -383,7 +381,7 @@ export const getResultByUserId = async (userId: string) => {
   }
 };
 
-//Result -ууд авах
+//Бүх шалгалтын мэдээлэл
 export const getResults = async () => {
   try {
     const response = await fetch(`${getBackendUrl()}/monitoring`, {
@@ -421,6 +419,7 @@ export const deleteResultByExamUser = async (
     throw err;
   }
 };
+// Шинэ шалгалт үүсгэх
 export const createResult = async (createResult: any) => {
   try {
     const res = await fetch(`${getBackendUrl()}/monitoring`, {
@@ -436,7 +435,7 @@ export const createResult = async (createResult: any) => {
     throw err;
   }
 };
-//submit дарах үед database руу илгээсэн мэдээллийг шинэчлэх
+//submit дарах үед database руу result шинэчлэх
 export const updateResult = async (resultId: string, examData: any) => {
   try {
     const response = await fetch(`${getBackendUrl()}/monitoring/${resultId}`, {
@@ -456,6 +455,7 @@ export const updateResult = async (resultId: string, examData: any) => {
 };
 
 //examID, studentId 2-ыг match хийж байвал true, байхгүй бол false илгээх, шалгах функц
+// Шалгалтыг өгсөн бол дахиж өгөхгүй байх функц
 export const checkedResultByExamUser = async (
   examId: string,
   studentId: string
@@ -470,9 +470,10 @@ export const checkedResultByExamUser = async (
         },
       }
     );
-    return await handleResponse(response);
+    const json = await handleResponse(response);
+    return json.status;
   } catch (err) {
-    console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", err);
+    console.error("Оюутны шалгалтын статусыг авахад алдаа гарлаа", err);
     throw err;
   }
 };

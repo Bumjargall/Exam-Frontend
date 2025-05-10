@@ -4,6 +4,7 @@ import SelectExamComponent from "@/app/teacher/monitoring/components/SelectExamC
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getResultByCreateUser } from "@/lib/api";
 import {
   getExams,
   getResultByUsers,
@@ -28,7 +29,12 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import {
+  ArrowUpDown,
+  ChevronDown,
+  CodeSquare,
+  MoreHorizontal,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
@@ -90,31 +96,24 @@ type User = {
 };
 export const studentColumns: ColumnDef<ExamWithStudentInfo>[] = [
   {
-    accessorKey: "status",
-    header: "Status",
+    id: "status",
+    accessorFn: (row) => row.status,
+    header: "Төлөв",
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("status")}</div>
     ),
   },
   {
-    accessorKey: "studentInfo.email",
-    header: "Email",
-    cell: ({ row }) => (
-      <div className="lowercase">
-        {row.original.studentInfo?.email ?? "N/A"}
-      </div>
-    ),
+    id: "email",
+    accessorFn: (row) => row.studentInfo?.email ?? "N/A",
+    header: "И-мэйл",
+    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
   },
   {
-    accessorKey: "studentInfo.firstName",
-    header: "Name",
-    cell: ({ row }) => (
-      <div>
-        {row.original.studentInfo
-          ? `${row.original.studentInfo.firstName}`
-          : "Unknown"}
-      </div>
-    ),
+    id: "firstName",
+    accessorFn: (row) => row.studentInfo?.firstName ?? "Unknown",
+    header: "Нэр",
+    cell: ({ row }) => <div>{row.getValue("firstName")}</div>,
   },
   {
     id: "remove",
@@ -183,14 +182,15 @@ export default function MonitoringPage() {
   const router = useRouter();
   const [examData, setExamData] = useState<Exam[]>([]);
   const [lastExam, setLastExam] = useState<Exam>(defaultExam);
+  const [userId, setUserId] = useState("");
 
   const [studentResults, setStudentResults] = useState<ExamWithStudentInfo[]>(
     []
   );
   const [isExamTitleVisible, setExamTitleVisible] = useState(false);
   const table = useReactTable({
-    data: studentResults, // ← Одоо studentResults ашиглана
-    columns: studentColumns, // ← шинэчилсэн column
+    data: studentResults,
+    columns: studentColumns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -224,14 +224,13 @@ export default function MonitoringPage() {
   };
   useEffect(() => {
     const userString = localStorage.getItem("user");
-    let userId: string | null = null;
     try {
       const user = JSON.parse(userString || "");
-      userId = user.user._id;
+      setUserId(user._id);
     } catch (err) {
       console.error("localStorage-с user авахад алдаа гарлаа", err);
     }
-  });
+  }, []);
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       Object.entries(dropdownRefs).forEach(([key, ref]) => {
@@ -282,7 +281,7 @@ export default function MonitoringPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const examsResponse = await getSubmittedExams();
+        const examsResponse = await getResultByCreateUser(userId);
         if (examsResponse.data?.length > 0) {
           const latestExam = examsResponse.data[examsResponse.data.length - 1];
           setExamData(examsResponse.data);
@@ -291,7 +290,6 @@ export default function MonitoringPage() {
           const resultResponse = await getResultByUsers(
             latestExam._id as string
           );
-          //console.log("🎯 getResultByUsers----", resultResponse);
           setStudentResults(resultResponse.data);
         }
       } catch (error) {
@@ -299,7 +297,7 @@ export default function MonitoringPage() {
       }
     };
     fetchData();
-  }, [studentResults]);
+  }, []);
 
   // Toggle functions
   const toggleDropdown = (key: keyof typeof dropdownStates) => {
@@ -373,9 +371,9 @@ export default function MonitoringPage() {
     <ul>
       {studentResults
         .filter((data) => data.status === status)
-        .map((data, index) => (
+        .map((data) => (
           <li
-            key={index}
+            key={`${data._id}-${data.studentInfo._id}`}
             className="flex justify-between items-center pl-2 cursor-pointer m-3"
           >
             <p>
@@ -599,12 +597,12 @@ export default function MonitoringPage() {
                               placeholder="Оюутны нэрээр хайх"
                               value={
                                 (table
-                                  .getColumn("studentInfo.firstName")
+                                  .getColumn("firstName")
                                   ?.getFilterValue() as string) ?? ""
                               }
                               onChange={(event) =>
                                 table
-                                  .getColumn("studentInfo.firstName")
+                                  .getColumn("firstName")
                                   ?.setFilterValue(event.target.value)
                               }
                               className="max-w-sm"

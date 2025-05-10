@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import MonitoringHome from "./app";
-import TeacherHeader from "@/Components/TeacherHeader";
-
+import TeacherHeader from "@/components/TeacherHeader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,14 +27,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.css" />
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.css"
+        />
       </head>
 
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <TeacherHeader/>
-        <MonitoringHome/>
+        <TeacherHeader />
+        <MonitoringHome />
         {children}
       </body>
     </html>

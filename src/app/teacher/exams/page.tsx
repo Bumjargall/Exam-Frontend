@@ -7,17 +7,43 @@ import { useRouter } from "next/navigation";
 import { deleteExam, getExams } from "@/lib/api";
 import { Exam } from "@/lib/types/interface";
 import mongoose from "mongoose";
+import { getResultByCreateUser } from "@/lib/api";
 
 export default function Exams() {
   const [exams, setExams] = useState<Exam[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState("");
   const router = useRouter();
-
+  useEffect(() => {
+    // Get user from localStorage
+    try {
+      const data = localStorage.getItem("user");
+      if (data) {
+        const user = JSON.parse(data);
+        if (user && user._id) {
+          setUserId(user._id);
+        } else {
+          setError("Хэрэглэгчийн мэдээлэл олдсонгүй.");
+          router.push("/login");
+        }
+      } else {
+        setError("Хэрэглэгчийн мэдээлэл олдсонгүй.");
+        router.push("/login");
+      }
+    } catch (error) {
+      console.error("localStorage-с user авахад алдаа гарлаа", error);
+      setError("Хэрэглэгчийн мэдээлэл унших явцад алдаа гарлаа.");
+    }
+  }, [router]);
   const fetchExams = async () => {
+    if (!userId) return;
+
     setLoading(true);
     try {
-      const res = await getExams();
+      const res = await getResultByCreateUser(userId);
+      console.log("->>>>", res);
+
       if (res?.data?.exams) {
         const sortedExams = res.data.exams.sort(
           (a: Exam, b: Exam) =>
@@ -28,6 +54,7 @@ export default function Exams() {
         setExams([]);
       }
     } catch (err) {
+      console.error("Шалгалтын жагсаалтыг авч чадсангүй:", err);
       setError("Шалгалтын жагсаалтыг авч чадсангүй.");
     } finally {
       setLoading(false);
@@ -50,8 +77,10 @@ export default function Exams() {
   };
 
   useEffect(() => {
-    fetchExams();
-  }, []);
+    if (userId) {
+      fetchExams();
+    }
+  }, [userId]);
 
   return (
     <div className="max-w-4xl mx-auto mt-20">
