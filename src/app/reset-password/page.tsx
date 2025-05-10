@@ -13,6 +13,7 @@ export default function ResetPasswordPage() {
 
   const handleReset = async () => {
     try {
+      console.log("token---", token)
       await resetPassword(token, password);
       toast.success("Нууц үг шинэчлэгдлээ");
       router.push("/login");

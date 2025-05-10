@@ -2,6 +2,7 @@ import mongoose, { ObjectId, Types } from "mongoose";
 import { ExamInput } from "@/lib/types/interface";
 import { Carter_One } from "next/font/google";
 import { RegisterInput } from "./validation";
+import { useParams } from "next/navigation";
 
 // Сервертэй холбогдож байгаа эсэхийг шалгах
 const getBackendUrl = (): string => {
@@ -90,24 +91,42 @@ export const forgotPassword = async (email: string) => {
 };
 //Нууц үг шинэчлэх
 //await resetPassword(tokenFromEmail, "newStrongPassword123");
-//http://localhost:8000/users/reset-password/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZWEzMWEwMzkzZGZiZjRkNThlNWMyMSIsImlhdCI6MTc0NjQxODQ4NCwiZXhwIjoxNzQ2NDE5Mzg0fQ.ecIyu9xCzdu7_x6lLNCoEpboDoFOQ63cRsiDIOuY2rE
+//http://localhost:8000/reset-password/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZWEzMWEwMzkzZGZiZjRkNThlNWMyMSIsImlhdCI6MTc0NjQxODQ4NCwiZXhwIjoxNzQ2NDE5Mzg0fQ.ecIyu9xCzdu7_x6lLNCoEpboDoFOQ63cRsiDIOuY2rE
 
 export const resetPassword = async (token: string, password: string) => {
+  console.log("-----",token)
   try {
     const response = await fetch(
-      `${getBackendUrl()}/users/reset-password/${token}`,
+      `${getBackendUrl()}/reset-password/${token}`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({password }),
+        body: JSON.stringify({password}),
       }
     );
+    console.log(response)
     if (!response.ok) throw new Error("Алдаа");
     return await handleResponse(response);
   } catch (err) {
     console.error("Нууц үг шинэчлэх үед алдаа гарлаа:", err);
+    throw err;
+  }
+};
+// Имэйлээр сэргээх холбоос илгээх
+export const sendResetEmail = async (toEmail: string, resetLink: string) => {
+  try {
+    const response = await fetch(`${getBackendUrl()}/api/send-email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ toEmail, resetLink }),
+    });
+    return await handleResponse(response);
+  } catch (err) {
+    console.error("Имэйл илгээх үед алдаа гарлаа:", err);
     throw err;
   }
 };
