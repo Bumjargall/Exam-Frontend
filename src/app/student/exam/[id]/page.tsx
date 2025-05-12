@@ -2,7 +2,7 @@
 
 import { getExamById } from "@/lib/api";
 import { format } from "date-fns";
-import { Exam, StudentExam } from "@/lib/types/interface";
+import { StudentExam } from "@/lib/types/interface";
 import GapRenderer from "@/components/ExamComponents/GapRenderer";
 import { useEffect, useState } from "react";
 import { Label } from "@radix-ui/react-label";
@@ -17,6 +17,7 @@ import { v4 as uuidv4 } from "uuid";
 import { SubmitExam } from "@/lib/types/interface";
 import { updateResult } from "@/lib/api";
 import { CodeSquare } from "lucide-react";
+import { useAuth } from "@/store/useAuth";
 const initialExamState: StudentExam = {
   _id: "",
   title: "Шалгалтын гарчиг...",
@@ -31,11 +32,7 @@ const initialExamState: StudentExam = {
   createdAt: new Date(),
 };
 
-export default function ViewExam({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default function Exam({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { id } = use(params);
   const [examId, resultId] = id.split("-");
@@ -48,6 +45,7 @@ export default function ViewExam({
   const [answers, setAnswers] = useState<Record<string, string[]>>({});
   const [scoreResult, setScoreResult] = useState<number | null>(null);
   const [studentId, setUserId] = useState<string | null>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     const storedStarted = localStorage.getItem(`started-${id}`);
@@ -59,16 +57,22 @@ export default function ViewExam({
     if (storedAnswers) setAnswers(JSON.parse(storedAnswers));
   }, [id]);
   useEffect(() => {
-    try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      const id = user?._id;
+    const initialize = () => {
+      if (!user) return;
+      const id = user._id;
       if (id) {
         setUserId(id);
       } else {
         console.warn("Хэрэглэгчийн ID олдсонгүй");
       }
+    };
+    try {
+      initialize();
     } catch (err) {
-      console.error("localStorage-с хэрэглэгчийн мэдээлэл авахад алдаа:", err);
+      console.error(
+        "💥 localStorage-с хэрэглэгчийн мэдээлэл авахад алдаа:",
+        err
+      );
     }
   }, []);
 

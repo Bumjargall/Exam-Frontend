@@ -87,7 +87,22 @@ export const forgotPassword = async (email: string) => {
     throw err;
   }
 };
-//Нууц үг шинэчлэх
+export const checkPassword = async (userId: string, password: string) => {
+  try {
+    const response = await fetch(`${getBackendUrl()}/users/check-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId, password }),
+    });
+    return await response.json();
+  } catch (err) {
+    console.error("checkPassword алдаа", err);
+    throw err;
+  }
+};
+//Нууц үг шинэчлэхcheckPassword
 //await resetPassword(tokenFromEmail, "newStrongPassword123");
 //http://localhost:8000/reset-password/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZWEzMWEwMzkzZGZiZjRkNThlNWMyMSIsImlhdCI6MTc0NjQxODQ4NCwiZXhwIjoxNzQ2NDE5Mzg0fQ.ecIyu9xCzdu7_x6lLNCoEpboDoFOQ63cRsiDIOuY2rE
 
@@ -283,7 +298,6 @@ export const updateExam = async (examId: string, examData: ExamInput) => {
       },
       body: JSON.stringify(examData),
     });
-    return await handleResponse(response);
   } catch (err) {
     console.error("Шалгалтын мэдээллийг шинэчлэхэд алдаа гарлаа:", err);
     throw err;

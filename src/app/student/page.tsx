@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { StudentWithExamInfo, User } from "@/lib/types/interface";
 import { updateUser, getResultByUserId } from "@/lib/api";
 import { toast } from "sonner";
+import { useAuth } from "@/store/useAuth";
+import { date } from "zod";
 
 export default function Home() {
-  const [user, setUser] = useState<User | null>(null);
+  const user = useAuth();
   const [isEditing, setIsEditing] = useState(false);
 
   const [firstName, setFirstName] = useState("");
@@ -19,20 +21,19 @@ export default function Home() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [exams, setExams] = useState<StudentWithExamInfo[]>([]);
   const [studentId, setStudentId] = useState<string | null>(null);
-
+  const [studentPhone, setStudentPhone] = useState("");
   useEffect(() => {
-    const rawUser = localStorage.getItem("user");
-    if (!rawUser) return;
+    const data = user.user;
+    if (data?._id) {
+      setFirstName(data.firstName || "");
+      setLastName(data.lastName || "");
+      setEmail(data.email || "");
+      setStudentCode(data.studentCode || "");
+      setStudentId(data._id);
+      setStudentPhone(data.phone);
+    }
+  }, [user]);
 
-    const userData = JSON.parse(rawUser);
-    if (!userData?._id) return;
-    setUser(userData);
-    setFirstName(userData.firstName || "");
-    setLastName(userData.lastName || "");
-    setEmail(userData.email || "");
-    setStudentCode(userData.studentCode || "");
-    setStudentId(userData._id);
-  }, []);
   useEffect(() => {
     if (!studentId) return;
     const fetchExams = async () => {
@@ -61,23 +62,27 @@ export default function Home() {
   };
 
   const handleSave = async () => {
-    if (!user) return;
+    const data = user.user; // ← нэмж өг
+    if (!data || !data._id) return;
     if (!validateFields()) return;
 
     try {
-      const updated = { firstName, lastName, email, studentCode };
-      const response = await updateUser(user._id as string, updated);
+      const updated = {
+        firstName,
+        lastName,
+        email,
+        studentCode,
+        phone: Number(studentPhone),
+      };
+      const response = await updateUser(data._id, updated);
       if (response.success) {
-        const updatedUser = { ...user, ...updated };
-        setUser(updatedUser);
-        localStorage.setItem("user", JSON.stringify({ updatedUser }));
-        toast.success(
-          "Амжилттай хэрэглэгчийн мэдээлэл амжилттай шинэчлэгдлээ "
-        );
+        // optionally update Zustand state
+        user.setAuth({ ...data, ...updated }, user.token!);
+        toast.success("Хэрэглэгчийн мэдээлэл амжилттай шинэчлэгдлээ");
         setIsEditing(false);
         setErrors({});
       } else {
-        alert("Хадгалах үед алдаа гарлаа.");
+        toast.error("Хадгалах үед алдаа гарлаа.");
       }
     } catch (err) {
       console.error("Холболтын алдаа:", err);
@@ -124,6 +129,12 @@ export default function Home() {
               label: "Оюутны код",
               value: studentCode,
               setter: setStudentCode,
+            },
+            {
+              name: "studentPhone",
+              label: "Утасны дугаар",
+              value: studentPhone,
+              setter: setStudentPhone,
             },
           ].map((field, idx) => (
             <div key={idx} className="space-y-1">

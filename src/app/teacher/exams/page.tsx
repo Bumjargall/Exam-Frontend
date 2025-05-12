@@ -18,17 +18,16 @@ export default function Exams() {
   const { user } = useAuth();
   useEffect(() => {
     if (!user || !user._id) {
-      console.log(".............user...")
+      console.log(".............user...");
       //router.replace("/login");
     } else {
       fetchExams(user._id);
     }
   }, [user]);
 
-  console.log(".............userUTGU...", user)
+  console.log(".............userUTGU...", user);
   const fetchExams = async (userId: string) => {
-
-    console.log(".............user...")
+    console.log(".............user...");
     setLoading(true);
     try {
       const res = await getExamCreateByUser(userId);

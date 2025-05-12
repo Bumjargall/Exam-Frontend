@@ -22,8 +22,8 @@ export default function SelectExamComponent({
             className="block px-4 py-2 border-b-1 border-gray-100 text-sm text-gray-700 hover:bg-gray-500 hover:text-gray-100 focus:bg-gray-100 focus:text-gray-900 focus:outline-hidden cursor-pointer"
             role="menuitem"
             onClick={() => {
-                onClickExam(e);
-              }}
+              onClickExam(e);
+            }}
           >
             {index + 1}. {e.title}
           </div>

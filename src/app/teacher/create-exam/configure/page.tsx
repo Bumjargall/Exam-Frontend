@@ -31,6 +31,8 @@ import { generateExamKey } from "@/lib/utils";
 import { useExamStore } from "@/store/ExamStore";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useAuth } from "@/store/useAuth";
+import { generateKey } from "crypto";
 
 type FormData = z.infer<typeof ConfigureSchema>;
 
@@ -42,7 +44,7 @@ export default function ConfigureForm() {
   const [totalScore, setTotalScore] = useState<number>(0);
   const { exam, setExam } = useExamStore();
   const router = useRouter();
-
+  const { user } = useAuth();
   useEffect(() => {
     const questions = exam?.questions ?? [];
     const calculatedTotal = questions.reduce(
@@ -52,18 +54,25 @@ export default function ConfigureForm() {
     setTotalScore(calculatedTotal || exam?.totalScore || 0);
   }, [exam?.questions, exam?.totalScore]);
   useEffect(() => {
-    try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      const id = user?.user?._id;
+    const initialize = () => {
+      if (!user) return;
+      const id = user._id;
       if (id) {
         setUserId(id);
       } else {
         console.warn("Хэрэглэгчийн ID олдсонгүй");
       }
+      const key = generateExamKey();
+      setExamKey(key);
+    };
+    try {
+      initialize();
     } catch (err) {
-      console.error("localStorage-с хэрэглэгчийн мэдээлэл авахад алдаа:", err);
+      console.error(
+        "💥 localStorage-с хэрэглэгчийн мэдээлэл авахад алдаа:",
+        err
+      );
     }
-    setExamKey(generateExamKey());
   }, []);
   const resetExamForm = useCallback(() => {
     router.push("/teacher/exams");

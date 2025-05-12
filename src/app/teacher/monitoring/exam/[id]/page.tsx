@@ -127,7 +127,7 @@ export default function ViewExam({
       ) : (
         exam.questions.map((question, index) => (
           <div
-            key={`${question.id || index}`}
+            key={`${question._id || index}`}
             className="border p-4 rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition"
           >
             <div className="flex flex-col justify-between">
@@ -147,10 +147,10 @@ export default function ViewExam({
                       >
                         <RadioGroupItem
                           value={item.text}
-                          id={`question-${question.id}-answer-${idx}`}
+                          id={`question-${question._id}-answer-${idx}`}
                         />
                         <Label
-                          htmlFor={`question-${question.id}-answer-${idx}`}
+                          htmlFor={`question-${question._id}-answer-${idx}`}
                         >
                           {item.text}
                         </Label>

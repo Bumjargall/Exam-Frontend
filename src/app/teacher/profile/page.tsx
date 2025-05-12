@@ -1,10 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/store/useAuth";
 import { toast } from "sonner";
-import { forgotPassword } from "@/lib/api";
-import { updateUser } from "@/lib/api";
+import { checkPassword, forgotPassword, updateUser } from "@/lib/api";
+import { useAuth } from "@/store/useAuth";
+import { Phone } from "lucide-react";
+import { resetPassword } from "@/lib/api";
 
 interface ProfileFormData {
   firstName: string;
@@ -67,14 +68,15 @@ const FormField = ({
 );
 
 export default function UserProfile() {
+  const { user } = useAuth();
+
   const [isEditing, setIsEditing] = useState(false);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [successMessage, setSuccessMessage] = useState("");
   const [resetEmail, setResetEmail] = useState("");
-  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const { token, setAuth } = useAuth();
 
   const [formData, setFormData] = useState<ProfileFormData>({
     firstName: "",
@@ -87,29 +89,22 @@ export default function UserProfile() {
   });
 
   useEffect(() => {
-    if (!user || !user._id) {
-      console.error("Хэрэглэгчийн бүртгэл олдсонгүй");
-      return;
+    if (user) {
+      setFormData({
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
     }
-
-    setFormData({
-      firstName: user.firstName || "",
-      lastName: user.lastName || "",
-      email: user.email || "",
-      phone: user.phone || "",
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
   }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -152,25 +147,48 @@ export default function UserProfile() {
       toast.error("Хэрэглэгчийн ID олдсонгүй.");
       return;
     }
+
     setLoading(true);
     try {
-      const res = await updateUser(user._id, formData);
-      if (!res) {
-        toast.error(
-          res?.message || "Хэрэглэгчийн мэдээллийн шинэчлэхэд алдаа гарлаа"
+      if (showChangePassword) {
+        const result = await checkPassword(user._id, formData.currentPassword);
+        if (!result.success) {
+          toast.error(result.message);
+          return;
+        }
+
+        const reset = await resetPassword(
+          token as string,
+          formData.newPassword
         );
+        if (!reset.success) {
+          toast.error(reset.message || "Нууц үг шинэчлэхэд алдаа гарлаа");
+          return;
+        }
+
+        toast.success("Нууц үг шинэчлэгдлээ");
+      }
+
+      const payload = {
+        ...formData,
+        phone: formData.phone ? Number(formData.phone) : undefined,
+      };
+
+      const res = await updateUser(user._id, payload);
+      if (!res || res.error) {
+        toast.error(res?.message || "Шинэчлэхэд алдаа гарлаа.");
         return;
       }
-      setSuccessMessage("Хэрэглэгчийн мэдээлэл амжилттай шинэчлэгдлээ");
-      setTimeout(() => setSuccessMessage(""), 3000);
+
+      setAuth(res.data, token as string);
+      toast.success("Хэрэглэгчийн мэдээлэл амжилттай шинэчлэгдлээ");
       setIsEditing(false);
       setShowChangePassword(false);
     } catch (err) {
-      toast.error("Алдаа гарлаа");
+      toast.error("Сервертэй холбогдоход алдаа гарлаа");
     } finally {
       setLoading(false);
     }
-    console.log("Хадгалах:", formData);
   };
 
   const handlePasswordReset = async () => {
@@ -179,46 +197,47 @@ export default function UserProfile() {
       return;
     }
 
-    console.log("Нууц үг сэргээх:", resetEmail);
     setLoading(true);
     try {
       await forgotPassword(resetEmail);
-      setSuccessMessage("Нууц үг сэргээх линк илгээгдлээ");
-      setTimeout(() => setSuccessMessage(""), 3000);
+      toast.success("Нууц үг сэргээх линк илгээгдлээ");
       setShowPasswordReset(false);
       setResetEmail("");
     } catch (err) {
-      toast.error("Алдаа гарлаа");
+      toast.error("И-мэйл илгээхэд алдаа гарлаа");
     } finally {
       setLoading(false);
     }
   };
 
+  if (!user) {
+    return (
+      <div className="text-center text-gray-500 py-10">Түр хүлээнэ үү...</div>
+    );
+  }
+
   return (
     <div className="max-w-2xl mx-auto mt-10 px-4">
-      {successMessage && (
-        <div className="animate-fade-in-down bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6 transition-opacity duration-700">
-          {successMessage}
-        </div>
-      )}
-
       <div className="bg-white shadow rounded-lg overflow-hidden">
-        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-          <div className="flex justify-between items-center">
-            <h1 className="text-xl font-semibold text-gray-800">
-              Хэрэглэгчийн мэдээлэл
-            </h1>
-            <Button
-              onClick={isEditing ? handleSave : () => setIsEditing(true)}
-              className={`text-sm font-semibold px-6 py-2 rounded-lg transition ${
-                isEditing
-                  ? "bg-green-600 hover:bg-green-700 text-white"
-                  : "bg-sky-100 hover:bg-sky-200 text-sky-700"
-              }`}
-            >
-              {isEditing ? "Хадгалах" : "Засварлах"}
-            </Button>
-          </div>
+        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <h1 className="text-xl font-semibold text-gray-800">
+            Хэрэглэгчийн мэдээлэл
+          </h1>
+          <Button
+            onClick={isEditing ? handleSave : () => setIsEditing(true)}
+            disabled={loading}
+            className={`text-sm font-semibold px-6 py-2 rounded-lg transition ${
+              isEditing
+                ? "bg-green-600 hover:bg-green-700 text-white"
+                : "bg-sky-100 hover:bg-sky-200 text-sky-700"
+            }`}
+          >
+            {loading
+              ? "Хадгалж байна..."
+              : isEditing
+              ? "Хадгалах"
+              : "Засварлах"}
+          </Button>
         </div>
 
         <div className="p-6 space-y-6">
@@ -249,9 +268,7 @@ export default function UserProfile() {
                 <label className="text-sm font-medium text-gray-700">
                   Овог, нэр
                 </label>
-                <div className="py-2 px-4 bg-gray-100 rounded-lg">
-                  {`${formData.lastName || ""} ${formData.firstName || ""}`}
-                </div>
+                <div className="py-2 px-4 bg-gray-100 rounded-lg">{`${formData.lastName} ${formData.firstName}`}</div>
               </div>
             )}
           </div>
@@ -280,7 +297,7 @@ export default function UserProfile() {
             iconClass="ri-mail-line"
           />
 
-          {/* Change password section */}
+          {/* Password Change */}
           {isEditing && (
             <div className="border-t pt-6 mt-6 space-y-4">
               <h2 className="text-lg font-medium text-gray-800">
@@ -337,7 +354,7 @@ export default function UserProfile() {
             </div>
           )}
 
-          {/* Password reset */}
+          {/* Password Reset */}
           {!isEditing && (
             <div className="border-t pt-6 mt-6 space-y-2">
               {!showPasswordReset ? (
@@ -364,7 +381,9 @@ export default function UserProfile() {
                     <p className="text-red-500 text-xs">{errors.resetEmail}</p>
                   )}
                   <div className="flex space-x-2">
-                    <Button onClick={handlePasswordReset}>Илгээх</Button>
+                    <Button disabled={loading} onClick={handlePasswordReset}>
+                      Илгээх
+                    </Button>
                     <Button
                       variant="outline"
                       onClick={() => setShowPasswordReset(false)}

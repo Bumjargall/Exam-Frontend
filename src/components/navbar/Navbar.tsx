@@ -25,11 +25,11 @@ const guestNavItems = [{ label: "Нэвтрэх", href: "/login" }];
 
 export default function NavbarExam() {
   const { user, logout } = useAuth();
-  const role = user?.role || null;
+  const role = user?.role.toLowerCase() || null;
   const router = useRouter();
 
-  const logoutUser = () => {
-    logout();
+  const logoutUser = async () => {
+    await logout();
     router.push("/");
   };
 
@@ -56,12 +56,6 @@ export default function NavbarExam() {
           {role === "student" && <NavbarStudent />}
           {role && (
             <>
-              <Link
-                href={`/${role}/profile`}
-                className="text-gray-600 hover:border p-2 rounded-lg border-gray-900"
-              >
-                <User className="h-5 w-5" />
-              </Link>
               <button
                 onClick={logoutUser}
                 className="text-gray-600 hover:border p-2 rounded-lg border-gray-900"

@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -15,23 +14,39 @@ import { set } from "mongoose";
 import { createResult } from "@/lib/api";
 import { checkedResultByExamUser } from "@/lib/api";
 import { channel } from "diagnostics_channel";
+import { useAuth } from "@/store/useAuth";
 export default function NavbarStudent() {
   const router = useRouter();
   const [exams, setExams] = useState<StudentExam>();
   const [inputValue, setInputValue] = useState("");
   const [userId, setUserId] = useState("");
+  const { user } = useAuth();
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    setUserId(user?._id);
-    if (!user) {
-      router.push("/login");
+    const initialize = () => {
+      if (!user) return;
+      const id = user._id;
+      if (id) {
+        setUserId(id);
+      } else {
+        console.warn("Хэрэглэгчийн ID олдсонгүй");
+      }
+    };
+    try {
+      initialize();
+    } catch (err) {
+      console.error(
+        "💥 localStorage-с хэрэглэгчийн мэдээлэл авахад алдаа:",
+        err
+      );
     }
   }, []);
+
   const handleSearch = async () => {
     if (!inputValue.trim()) {
       toast.error("Exam key хоосон байна.");
       return;
     }
+    console.log("key", inputValue);
 
     try {
       const response = await getExamByKey(inputValue.trim());
@@ -44,7 +59,6 @@ export default function NavbarStudent() {
         return;
       }
       const status = await checkedResultByExamUser(data._id, userId);
-      console.log("checked", status);
       if (status === "submitted") {
         toast.error("Хэрэглэгч энэ шалгалтыг өгсөн байна...");
       } else if (status === "taking") {

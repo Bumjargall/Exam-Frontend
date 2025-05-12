@@ -70,6 +70,7 @@ import {
   updateExam,
 } from "@/lib/api";
 import { useAuth } from "@/store/useAuth";
+import AnswerReviewDrawer from "@/components/AnswerReviewDrawer";
 
 const defaultExam: Exam = {
   _id: "",
@@ -932,24 +933,36 @@ export default function MonitoringPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {studentResults.map((student) => (
-                          <tr
-                            key={student._id.toString()}
-                            className="border-b hover:bg-gray-50"
-                          >
-                            <td className="p-2 text-blue-600 cursor-pointer">
-                              {student.studentInfo._id
-                                ? `${student.studentInfo.lastName} ${student.studentInfo.firstName}`
-                                : "Unknown Student"}
-                            </td>
-                            <td className="p-2">{student.score}</td>
-                            <td className="p-2">
-                              {student.submittedAt
-                                ? new Date(student.submittedAt).toLocaleString()
-                                : "N/A"}
-                            </td>
-                          </tr>
-                        ))}
+                        {studentResults
+                          .filter((student) => student.status === "submitted")
+                          .map((student) => (
+                            <tr
+                              key={student._id.toString()}
+                              className="border-b hover:bg-gray-50"
+                            >
+                              <td className="p-2">
+                                <AnswerReviewDrawer
+                                  studentName={`${student.studentInfo.lastName} ${student.studentInfo.firstName}`}
+                                  questions={student.questions} // free-text, code асуултуудын массив
+                                  onSave={(updatedAnswers) => {
+                                    // API-р оноог хадгалах функц дуудаж болно
+                                    console.log(
+                                      "Updated answers:",
+                                      updatedAnswers
+                                    );
+                                  }}
+                                />
+                              </td>
+                              <td className="p-2">{student.score}</td>
+                              <td className="p-2">
+                                {student.submittedAt
+                                  ? new Date(
+                                      student.submittedAt
+                                    ).toLocaleString()
+                                  : "N/A"}
+                              </td>
+                            </tr>
+                          ))}
                       </tbody>
                     </table>
                   </div>
