@@ -2,7 +2,7 @@ import mongoose, { ObjectId, Types } from "mongoose";
 import { ExamInput } from "@/lib/types/interface";
 import { Carter_One } from "next/font/google";
 import { RegisterInput } from "./validation";
-import { useParams } from "next/navigation";
+//import { useParams } from "next/navigation";
 
 // Сервертэй холбогдож байгаа эсэхийг шалгах
 const getBackendUrl = (): string => {
@@ -107,7 +107,6 @@ export const checkPassword = async (userId: string, password: string) => {
 //http://localhost:8000/reset-password/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZWEzMWEwMzkzZGZiZjRkNThlNWMyMSIsImlhdCI6MTc0NjQxODQ4NCwiZXhwIjoxNzQ2NDE5Mzg0fQ.ecIyu9xCzdu7_x6lLNCoEpboDoFOQ63cRsiDIOuY2rE
 
 export const resetPassword = async (token: string, password: string) => {
-  console.log("-----", token);
   try {
     const response = await fetch(`${getBackendUrl()}/reset-password/${token}`, {
       method: "POST",
@@ -137,6 +136,22 @@ export const sendResetEmail = async (toEmail: string, resetLink: string) => {
     return await handleResponse(response);
   } catch (err) {
     console.error("Имэйл илгээх үед алдаа гарлаа:", err);
+    throw err;
+  }
+};
+
+//role -р нь хэрэглэгчийн тоог буцаах
+export const getRoleByUserCount = async (role: string) => {
+  try {
+    const res = await fetch(`${getBackendUrl()}/users/role?role=${role}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return await handleResponse(res);
+  } catch (err) {
+    console.error("Role илгээх үед алдаа гарлаа:", err);
     throw err;
   }
 };
@@ -266,6 +281,37 @@ export const getExamByKey = async (key: string) => {
     throw err;
   }
 };
+
+export const getExamCount = async () => {
+  const res = await fetch(`${getBackendUrl()}/exams/count`);
+  return await handleResponse(res);
+};
+
+export const getRecentExams = async (limit = 5) => {
+  const res = await fetch(`${getBackendUrl()}/exams/recent?limit=${limit}`);
+  //console.log("api/res----->",res)
+  if (!res.ok) throw new Error("Сүүлийн шалгалтыг татаж чадсангүй");
+  const data = await res.json();
+  //console.log("getRecentExams API хариу:", data.data);
+  return data;
+};
+
+//exams chart data
+export const getExamChartData = async ()=> {
+  const res = await fetch(`${getBackendUrl()}/exams/chart`)
+  if(!res.ok) throw new Error("Chart өгөгдөл татахад алдаа гарлаа");
+  console.log("res--------> ",res)
+  return await res.json()
+}
+
+export const getTeachers = async () => {
+  const res = await fetch(`${getBackendUrl()}/users/role-teachers`);
+  if (!res.ok) throw new Error("Багш нарын мэдээлэл татаж чадсангүй");
+  const data = await res.json()
+  console.log("teachers=------>", data)
+  return data;
+};
+
 {
   /* RESULT */
 }
@@ -411,6 +457,39 @@ export const getResultByUserId = async (userId: string) => {
   }
 };
 
+export const deleteByUser = async (userId: string) => {
+  try {
+    const response = await fetch(
+      `${getBackendUrl()}/users/${userId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return await handleResponse(response);
+  } catch (err) {
+    console.error("Шалгалт өгсөн оюутны мэдээллийг авахад алдаа гарлаа:", err);
+    throw err;}
+}
+export const updateByUser = async (userId: string, userData: any) => {
+  try {
+    const response = await fetch(
+      `${getBackendUrl()}/users/${userId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      }
+    );
+    return await handleResponse(response);
+  } catch (err) {
+    console.error("Шалгалт өгсөн оюутны мэдээллийг авахад алдаа гарлаа:", err);
+    throw err;}
+}
 //Бүх шалгалтын мэдээлэл
 export const getResults = async () => {
   try {
@@ -515,3 +594,8 @@ export const checkedResultByExamUser = async (
 }
   */
 }
+
+export const getExamTakenCount = async () => {
+  const res = await fetch(`${getBackendUrl()}/monitoring/taken-count`);
+  return await handleResponse(res);
+};
