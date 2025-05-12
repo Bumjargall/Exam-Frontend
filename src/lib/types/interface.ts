@@ -18,7 +18,6 @@ export interface Question {
     | "information-block"
     | "code";
 }
-
 export interface StudentWithExamInfo {
   examId: string;
   _id: string;
@@ -38,6 +37,7 @@ export interface SubmitExam {
   questions: {
     questionId: string;
     answer: string | number | string[] | number[];
+    score: number;
   }[];
   score: number;
   submittedAt: Date | string;
@@ -112,6 +112,8 @@ export interface ExamWithStudentInfo {
   score: number;
   status: "taking" | "submitted";
   questions: {
+    questionId: string;
+    answer: string | number | string[] | number[];
     score: number;
   }[];
   duration?: number;

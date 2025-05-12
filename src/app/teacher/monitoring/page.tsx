@@ -942,18 +942,22 @@ export default function MonitoringPage() {
                             >
                               <td className="p-2">
                                 <AnswerReviewDrawer
+                                  key={student.studentInfo._id.toString()} // drawer бүрт unique key өгөх
+                                  examEdit={lastExam}
                                   studentName={`${student.studentInfo.lastName} ${student.studentInfo.firstName}`}
-                                  questions={student.questions} // free-text, code асуултуудын массив
+                                  questions={student.questions}
                                   onSave={(updatedAnswers) => {
-                                    // API-р оноог хадгалах функц дуудаж болно
                                     console.log(
                                       "Updated answers:",
                                       updatedAnswers
                                     );
+                                    // энд оноог серверт хадгалах API дуудаж болно
                                   }}
                                 />
                               </td>
-                              <td className="p-2">{student.score}</td>
+                              <td className="p-2">
+                                {student.score}/{lastExam.totalScore}
+                              </td>
                               <td className="p-2">
                                 {student.submittedAt
                                   ? new Date(

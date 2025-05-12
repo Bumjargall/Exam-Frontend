@@ -58,7 +58,7 @@ export default function Page() {
                     className="p-2.5 border border-gray-900 rounded-lg text-black hover:bg-gray-200"
                     onClick={() => createExamHandleSave()}
                   >
-                    Баталгаажуулахx
+                    Баталгаажуулах
                   </Link>
                 </li>
               </ul>
@@ -89,12 +89,12 @@ export default function Page() {
                         <div className="flex items-center space-x-2">
                           <Button
                             onClick={() => {
-                              removeQuestion(item.id);
+                              removeQuestion(item._id);
                             }}
                             variant={"outline"}
                             className="cursor-pointer"
                           >
-                            Утсгах
+                            Устгах
                           </Button>
                           <Button
                             onClick={() => {
@@ -119,10 +119,10 @@ export default function Page() {
                               >
                                 <RadioGroupItem
                                   value={answer.text}
-                                  id={`question-${item.id}-answer-${idx}`}
+                                  id={`question-${item._id}-answer-${idx}`}
                                 />
                                 <Label
-                                  htmlFor={`question-${item.id}-answer-${idx}`}
+                                  htmlFor={`question-${item._id}-answer-${idx}`}
                                 >
                                   {answer.text}
                                 </Label>

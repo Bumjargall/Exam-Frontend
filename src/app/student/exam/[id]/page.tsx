@@ -110,7 +110,6 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
           setTimeLeft(response.data.duration * 60); // minutes → seconds
         }
       } catch (error) {
-        console.error("Error fetching exam data:", error);
         toast("Шалгалтын мэдээлэл авах үед алдаа гарлаа!", {
           action: { label: "Хаах", onClick: () => console.log("OK") },
         });
@@ -158,65 +157,61 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
       return { ...prev, [questionId]: [value] };
     });
   };
-
   const handleSubmit = async () => {
     const submittedAt = new Date().toISOString();
     const durationTaken = exam.duration * 60 - timeLeft;
 
     const structuredQuestions = Object.entries(answers).map(
-      ([questionId, answer]) => ({
-        questionId,
-        answer: answer.length === 1 ? answer[0] : answer,
-        score: 0,
-        isCorrect: false,
-      })
+      ([questionId, answer]) => {
+        const question = exam.questions.find((q) => q._id === questionId);
+        if (!question) return { questionId, answer, score: 0 };
+
+        const correctAnswers =
+          question.answers?.filter((a) => a?.isCorrect).map((a) => a.text) ||
+          [];
+        let score = 0;
+
+        if (question.type === "multiple-choice") {
+          const totalCorrect = correctAnswers.length;
+          const selectedCorrect = answer.filter((ans) =>
+            correctAnswers.includes(ans)
+          ).length;
+          const selectedIncorrect = answer.filter(
+            (ans) => !correctAnswers.includes(ans)
+          ).length;
+
+          if (selectedCorrect === totalCorrect && selectedIncorrect === 0) {
+            score = question.score || 0;
+          } else if (selectedCorrect > 0 && selectedIncorrect < totalCorrect) {
+            score = ((question.score || 0) * selectedCorrect) / totalCorrect;
+          }
+        }
+
+        if (
+          question.type === "simple-choice" &&
+          correctAnswers.some(
+            (correct) => answer[0]?.toLowerCase() === correct.toLowerCase()
+          )
+        ) {
+          score = question.score || 0;
+        }
+
+        return {
+          questionId,
+          answer: answer.length === 1 ? answer[0] : answer,
+          score,
+        };
+      }
     );
 
-    const score = exam.questions.reduce((total, question) => {
-      const studentAnswers = answers[question._id];
-      if (!studentAnswers || studentAnswers.length === 0) return total;
-      const correctAnswers =
-        question.answers?.filter((a) => a).map((a) => a.text) || [];
-
-      if (question.type === "multiple-choice") {
-        const studentAnswers = answers[question._id] || [];
-
-        const totalCorrect = correctAnswers.length;
-        const selectedCorrect = studentAnswers.filter((ans) =>
-          correctAnswers.includes(ans)
-        ).length;
-        const selectedIncorrect = studentAnswers.filter(
-          (ans) => !correctAnswers.includes(ans)
-        ).length;
-        if (selectedCorrect === totalCorrect && selectedIncorrect === 0) {
-          return total + (question.score || 0);
-        }
-        if (selectedCorrect > 0 && selectedIncorrect === 0) {
-          const partialScore =
-            ((question.score || 0) * selectedCorrect) / totalCorrect;
-          return total + partialScore;
-        }
-
-        return total;
-      }
-
-      if (
-        question.type === "simple-choice" &&
-        correctAnswers.some(
-          (correct) =>
-            studentAnswers[0]?.toLowerCase() === correct.toLowerCase()
-        )
-      ) {
-        return total + (question.score || 0);
-      }
-      return total;
-    }, 0);
+    // 🎯 Нийт оноог тооцоолно
+    const totalScore = structuredQuestions.reduce((sum, q) => sum + q.score, 0);
 
     const payload: SubmitExam = {
       examId: exam._id.toString(),
       studentId: studentId as string,
       questions: structuredQuestions,
-      score,
+      score: totalScore,
       submittedAt,
       durationTaken,
       status: "submitted",
@@ -224,8 +219,8 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
     };
 
     try {
-      setScoreResult(score);
-      console.log(payload);
+      setScoreResult(totalScore);
+      console.log("Payload to send:", payload);
       const ResultId = localStorage.getItem("ResultId");
       if (ResultId) {
         const examData = await updateResult(ResultId, payload);
@@ -238,7 +233,7 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
       console.error("Илгээхэд алдаа гарлаа:", error);
     }
 
-    // LocalStorage цэвэрлэх
+    // 🧹 LocalStorage цэвэрлэх
     localStorage.removeItem(`started-${id}`);
     localStorage.removeItem(`timeLeft-${id}`);
     localStorage.removeItem(`answers-${id}`);

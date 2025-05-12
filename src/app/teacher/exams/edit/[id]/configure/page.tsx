@@ -56,7 +56,7 @@ export default function ConfigureForm() {
     },
   });
   const convertedQuestions: Question[] = (exam?.questions || []).map((q) => ({
-    id: q.id || uuidv4(), // ← id шаардлагатай бол үүсгэнэ
+    _id: q._id || uuidv4(), // ← id шаардлагатай бол үүсгэнэ
     question: q.question,
     score: q.score,
     type: q.type,
@@ -103,14 +103,12 @@ export default function ConfigureForm() {
         return;
       }
       console.log("Шалгалтын мэдээлэл:----", examData);
-      const res = await updateExam(exam?._id as string, examData);
+      await updateExam(exam?._id as string, examData);
 
-      if (res) {
-        router.push("/teacher/exams");
-        useExamStore.persist.clearStorage();
-        setTotalScore(0);
-        toast.success("Шалгалт амжилттай шинэчлэгдлээ.");
-      }
+      router.push("/teacher/exams");
+      useExamStore.persist.clearStorage();
+      setTotalScore(0);
+      toast.success("Шалгалт амжилттай шинэчлэгдлээ.");
     } catch (error) {
       console.error("Алдаа:", error);
       setError("Шалгалт үүсгэхэд алдаа гарлаа.");
