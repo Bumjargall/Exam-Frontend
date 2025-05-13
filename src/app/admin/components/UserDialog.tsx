@@ -23,7 +23,12 @@ type Props = {
   onSaveSuccess: () => void;
 };
 
-export default function UserDialog({ open, onClose, user, onSaveSuccess }: Props) {
+export default function UserDialog({
+  open,
+  onClose,
+  user,
+  onSaveSuccess,
+}: Props) {
   const [form, setForm] = useState(user);
   const [loading, setLoading] = useState(false);
   const handleSave = async () => {
@@ -32,6 +37,7 @@ export default function UserDialog({ open, onClose, user, onSaveSuccess }: Props
       await updateByUser(user._id, form);
       toast.success("Хэрэглэгчийн мэдээлэл амжилттай шинэчлэгдлээ.");
       onSaveSuccess();
+      onClose();
     } catch (err) {
       toast.error("Хэрэглэгчийн мэдээлэл шинэчлэхэд алдаа гарлаа.");
       console.error("update error:", err);
@@ -40,8 +46,12 @@ export default function UserDialog({ open, onClose, user, onSaveSuccess }: Props
     }
   };
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+    <Dialog open={open}
+    onOpenChange={(isOpen) => {
+      if (!isOpen) onClose();
+    }}>
+         
+      <DialogContent className="">
         <DialogHeader>
           <DialogTitle>Хэрэглэгч засварлах</DialogTitle>
           <DialogDescription>
