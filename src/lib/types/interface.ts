@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 
 export type AnswerOption = {
   text: string;
-  isCorrect: boolean;
+  isCorrect?: boolean;
 };
 
 export interface Question {

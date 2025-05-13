@@ -6,6 +6,7 @@ import { X, Trash2, Pencil } from "lucide-react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import MarkingRules from "@/components/create-exam/MarkingRules";
+import NewAnswerOption from "@/components/create-exam/NewAnswerOption";
 
 type FillChoiceProps = {
   handleSelect: (type: string | null) => void;
@@ -17,16 +18,12 @@ type FillChoiceProps = {
 };
 export default function FillChoice({
   handleSelect,
-  setExam,
-  exam,
   editingIndex,
   setEditingIndex,
   setSelectedType,
 }: FillChoiceProps) {
   const [questionContent, setQuestionContent] = useState<string>("");
-  const [addAnswer, setAddAnswer] = useState<
-    { text: string; editMode: boolean }[]
-  >([]);
+  const [addAnswer, setAddAnswer] = useState<{ text: string }[]>([]);
   const [score, setScore] = useState<number>(0);
   const [open, setOpen] = useState(false);
   const editor = useEditor({
@@ -46,6 +43,11 @@ export default function FillChoice({
       editor?.commands.setContent(current.question);
     }
   }, [editingIndex, exam, editor]);
+  const handleOptionsChange = (
+    newOptions: { text: string; isCorrect: boolean }[]
+  ) => {
+    setOptions(newOptions);
+  };
 
   const handleAddGap = () => {
     if (!editor) return;
@@ -169,58 +171,10 @@ export default function FillChoice({
           </button>
         </div>
         {/*Answer option */}
-
-        <div className="max-w-2xl mx-auto">
-          <div className="flex items-center justify-between w-full py-3 text-gray-900 bg-gray-100 gap-3 px-2 rounded-t-lg cursor-pointer">
-            <span className="text-gray-600">Хариултууд:</span>
-          </div>
-          <div className="flex flex-col space-y-5 bg-gray-100 p-3 py-5">
-            <div className="flex flex-col space-y-2">
-              <div>
-                <p>Gaps</p>
-              </div>
-              <div className="space-y-3">
-                {addAnswer.map((answer, index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between bg-white py-2 px-3 w-full border rounded-lg space-x-3"
-                  >
-                    <div className="flex items-center w-full">
-                      {answer.editMode ? (
-                        <input
-                          type="text"
-                          value={answer.text}
-                          onChange={(e) =>
-                            handleEditText(index, e.target.value)
-                          }
-                          className="border border-gray-400 py-1 rounded-lg px-2 items-center w-full"
-                        />
-                      ) : (
-                        <span className="text-gray-900">
-                          {index + 1}. {answer.text}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex justify-between items-center space-x-2">
-                      <button
-                        className="p-2 bg-red-500 rounded-lg cursor-pointer"
-                        onClick={() => handleDeleteAnswer(index)}
-                      >
-                        <Trash2 size={18} color="white" />
-                      </button>
-                      <button
-                        className="p-2 bg-gray-900 rounded-lg cursor-pointer"
-                        onClick={() => toggleEditMode(index)}
-                      >
-                        <Pencil size={18} color="white" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
+        <NewAnswerOption
+          onOptionsChange={handleOptionsChange}
+          initialOptions={options}
+        />
         <MarkingRules score={score} setScore={setScore} initialScore={score} />
       </div>
       {/*Save button */}
