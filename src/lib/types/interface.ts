@@ -86,6 +86,8 @@ export interface User {
 }
 
 export interface Exam extends ExamInput {
+  subject: ReactNode;
+  grade: ReactNode;
   _id: Types.ObjectId | string;
   createdAt: Date;
   updatedAt: Date;

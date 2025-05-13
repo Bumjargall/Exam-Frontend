@@ -134,6 +134,8 @@ export default function TeacherTable() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+      
+
               <DropdownMenuItem onClick={() => {
                 setSelectedTeacher(teacher);
                 setEditDialogOpen(true);
@@ -261,7 +263,7 @@ export default function TeacherTable() {
       {selectedTeacher && (
         <UserDialog
           open={editDialogOpen}
-          onClose={() => setEditDialogOpen(false)}
+          onClose={()=>setEditDialogOpen(false)}
           user={selectedTeacher}
           onSaveSuccess={() => {
             setEditDialogOpen(false);
