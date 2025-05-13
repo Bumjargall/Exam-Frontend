@@ -9,17 +9,11 @@ import MarkingRules from "../create-exam/MarkingRules";
 
 type FillChoiceProps = {
   handleSelect: (type: string | null) => void;
-  setExam: React.Dispatch<React.SetStateAction<any[]>>;
-  exam: any[];
-  editingIndex: number | null;
   setEditingIndex: React.Dispatch<React.SetStateAction<number | null>>;
   setSelectedType: React.Dispatch<React.SetStateAction<string | null>>;
 };
 export default function FillChoice({
   handleSelect,
-  setExam,
-  exam,
-  editingIndex,
   setEditingIndex,
   setSelectedType,
 }: FillChoiceProps) {
