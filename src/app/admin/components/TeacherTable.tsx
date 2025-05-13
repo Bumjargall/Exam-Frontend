@@ -1,5 +1,4 @@
 "use client";
-
 import * as React from "react";
 import {
   ColumnDef,
@@ -19,9 +18,15 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuCheckboxItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -34,17 +39,48 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { MoreHorizontal, ChevronDown } from "lucide-react";
-import { deleteByUser, getTeachers, updateByUser } from "@/lib/api";
+import { deleteByUser, getTeachers } from "@/lib/api";
 import { toast } from "sonner";
+import UserDialog from "./UserDialog";
+import { useEffect } from "react";
 
-export type Teacher = {
+export type User = {
   _id: string;
   firstName: string;
   lastName: string;
   email: string;
+  phone:string;
 };
 
-export const columns: ColumnDef<Teacher>[] = [
+export default function TeacherTable() {
+  const [data, setData] = React.useState<User[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+  const [editDialogOpen, setEditDialogOpen] = React.useState(false);
+  const [selectedTeacher, setSelectedTeacher] = React.useState<User | null>(null);
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
+  const [teacherToDelete, setTeacherToDelete] = React.useState<User | null>(null);
+
+  const refetchTeachers = async () => {
+    setLoading(true);
+    try {
+      const res = await getTeachers();
+      setData(res.data);
+    } catch (err) {
+      console.error("Fetch error", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    refetchTeachers();
+  }, []);
+
+  const columns = React.useMemo<ColumnDef<User>[]>(() => [
     {
       id: "select",
       header: ({ table }) => (
@@ -76,6 +112,10 @@ export const columns: ColumnDef<Teacher>[] = [
       header: "Нэр",
     },
     {
+      accessorKey: "phone",
+      header: "Утас",
+    },
+    {
       accessorKey: "email",
       header: "Имэйл",
       cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
@@ -95,15 +135,14 @@ export const columns: ColumnDef<Teacher>[] = [
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => {
-                // updateByUser
-              }
-              }>
+                setSelectedTeacher(teacher);
+                setEditDialogOpen(true);
+              }}>
                 Засах
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={async () => {
-                toast("Энэ хэрэглэгчийг устгах уу...")
-                const deleteUser = await deleteByUser(teacher._id)
-                console.log("deeletee----->", deleteUser)
+              <DropdownMenuItem onClick={() => {
+                setTeacherToDelete(teacher);
+                setConfirmOpen(true);
               }}>
                 Устгах
               </DropdownMenuItem>
@@ -112,23 +151,7 @@ export const columns: ColumnDef<Teacher>[] = [
         );
       },
     },
-  ];
-  
-
-export default function TeacherTable() {
-  const [data, setData] = React.useState<Teacher[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
-
-  React.useEffect(() => {
-    getTeachers()
-      .then((res) => setData(res.data))
-      .catch((err) => console.error("Fetch error", err))
-      .finally(() => setLoading(false));
-  }, []);
+  ], []);
 
   const table = useReactTable({
     data,
@@ -151,13 +174,12 @@ export default function TeacherTable() {
 
   return (
     <div className="w-full">
+      {/* Filter */}
       <div className="flex items-center py-4">
         <Input
           placeholder="Имэйлээр шүүх..."
           value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
-          }
+          onChange={(event) => table.getColumn("email")?.setFilterValue(event.target.value)}
           className="max-w-sm"
         />
         <DropdownMenu>
@@ -167,22 +189,21 @@ export default function TeacherTable() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  className="capitalize"
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                >
-                  {column.id}
-                </DropdownMenuCheckboxItem>
-              ))}
+            {table.getAllColumns().filter((column) => column.getCanHide()).map((column) => (
+              <DropdownMenuCheckboxItem
+                key={column.id}
+                className="capitalize"
+                checked={column.getIsVisible()}
+                onCheckedChange={(value) => column.toggleVisibility(!!value)}
+              >
+                {column.id}
+              </DropdownMenuCheckboxItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Table */}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -190,16 +211,16 @@ export default function TeacherTable() {
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
+                    {header.isPlaceholder ? null : flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
                   </TableHead>
                 ))}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
-            
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
@@ -220,29 +241,69 @@ export default function TeacherTable() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Footer */}
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
           {table.getFilteredSelectedRowModel().rows.length} / {table.getFilteredRowModel().rows.length} сонгогдсон.
         </div>
         <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
+          <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
             Өмнөх
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
+          <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
             Дараах
           </Button>
         </div>
       </div>
+
+      {/* Edit Dialog */}
+      {selectedTeacher && (
+        <UserDialog
+          open={editDialogOpen}
+          onClose={() => setEditDialogOpen(false)}
+          user={selectedTeacher}
+          onSaveSuccess={() => {
+            setEditDialogOpen(false);
+            refetchTeachers();
+          }}
+        />
+      )}
+
+      {/* Delete User Dialog */}
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Устгахдаа итгэлтэй байна уу? </DialogTitle>
+            <DialogDescription>
+              Та энэ <b>{teacherToDelete?.lastName} </b>хэрэглэгчийг бүрмөсөн устгах гэж байна. 
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setConfirmOpen(false)}>
+              Болих
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                if (teacherToDelete) {
+                  try {
+                    await deleteByUser(teacherToDelete._id);
+                    toast.success("Хэрэглэгч амжилттай устгалаа.");
+                    setConfirmOpen(false);
+                    setTeacherToDelete(null);
+                    refetchTeachers();
+                  } catch {
+                    toast.error("Устгах үед алдаа гарлаа.");
+                  }
+                }
+              }}
+            >
+              Тийм, устгах
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

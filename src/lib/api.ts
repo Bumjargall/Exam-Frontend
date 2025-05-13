@@ -300,7 +300,7 @@ export const getRecentExams = async (limit = 5) => {
 export const getExamChartData = async ()=> {
   const res = await fetch(`${getBackendUrl()}/exams/chart`)
   if(!res.ok) throw new Error("Chart өгөгдөл татахад алдаа гарлаа");
-  console.log("res--------> ",res)
+  //console.log("res--------> ",res)
   return await res.json()
 }
 
@@ -308,7 +308,14 @@ export const getTeachers = async () => {
   const res = await fetch(`${getBackendUrl()}/users/role-teachers`);
   if (!res.ok) throw new Error("Багш нарын мэдээлэл татаж чадсангүй");
   const data = await res.json()
-  console.log("teachers=------>", data)
+  //console.log("teachers=------>", data)
+  return data;
+};
+export const getUsers = async () => {
+  const res = await fetch(`${getBackendUrl()}/users/role-students`);
+  if (!res.ok) throw new Error("Сурагч нарын мэдээлэл татаж чадсангүй");
+  const data = await res.json()
+  console.log("сурагч=------>", data)
   return data;
 };
 

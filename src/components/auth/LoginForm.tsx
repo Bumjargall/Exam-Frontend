@@ -52,7 +52,7 @@ const LoginForm = () => {
           window.location.assign("/teacher/exams");
           break;
         case "admin":
-          window.location.assign("/admin/dashboard");
+          window.location.assign("/admin/exams");
           break;
         case "student":
           window.location.assign("/student");

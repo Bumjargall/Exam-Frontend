@@ -17,7 +17,6 @@ const navItemsMap: Record<string, { label: string; href: string }[]> = {
   student: [],
   admin: [
     { label: "Шалгалтууд", href: "/admin/exams" },
-    { label: "Админ самбар", href: "/admin/dashboard" },
   ],
 };
 

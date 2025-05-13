@@ -1,9 +1,0 @@
-import React, { Children } from "react";
-
-export default function Admin() {
-    return (
-        <div className="m-50%">
-            
-        </div>
-    )
-}
