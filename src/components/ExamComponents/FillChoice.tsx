@@ -1,11 +1,11 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, Mark } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { X, Trash2, Pencil } from "lucide-react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
-import MarkingRules from "../create-exam/MarkingRules";
+import MarkingRules from "@/components/create-exam/MarkingRules";
 
 type FillChoiceProps = {
   handleSelect: (type: string | null) => void;
@@ -221,7 +221,7 @@ export default function FillChoice({
             </div>
           </div>
         </div>
-        {/*Marking rules */}
+        <MarkingRules score={score} setScore={setScore} initialScore={score} />
       </div>
       {/*Save button */}
       <div className="rounded-b-lg border-t">
