@@ -258,8 +258,6 @@ const AnswerReviewDrawer: React.FC<Props> = ({
             onClick={async () => {
               try {
                 await updateResult({
-                  examId: examEdit._id,
-                  studentId: studentId, // 👈 props-р ирсэн
                   questions: editedAnswers,
                 });
                 onSave(editedAnswers);
