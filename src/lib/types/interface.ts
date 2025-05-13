@@ -41,7 +41,6 @@ export interface SubmitExam {
   }[];
   score: number;
   submittedAt: Date | string;
-  durationTaken: number;
   status: string;
   pending: string;
 }

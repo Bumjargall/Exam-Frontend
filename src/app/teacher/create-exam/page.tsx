@@ -14,6 +14,7 @@ import NewSimpleChoice from "@/components/ExamComponents/NewSimple-Choice";
 import NewFreeText from "@/components/ExamComponents/NewFreeText";
 import NewInformationBlock from "@/components/ExamComponents/NewInformation-block";
 import NewCode from "@/components/ExamComponents/NewCode";
+import NewFillChoice from "@/components/ExamComponents/NewFillChoice";
 import { useRouter } from "next/navigation";
 import { useExamStore } from "@/store/ExamStore";
 import { updateExam } from "@/lib/api";
@@ -185,7 +186,7 @@ export default function Page() {
                     );
                   case "fill-choice":
                     return (
-                      <NewCode
+                      <NewFillChoice
                         handleSelect={handleSelectType}
                         editingIndex={editingIndex}
                         setEditingIndex={setEditingIndex}

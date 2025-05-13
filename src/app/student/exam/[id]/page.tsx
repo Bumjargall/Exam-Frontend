@@ -36,7 +36,7 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { id } = use(params);
   const [examId, resultId] = id.split("-");
-  localStorage.setItem("ResultId", resultId);
+  // localStorage.setItem("ResultId", resultId);
   //Шалгалтаа хадгалах төлөв StudentExam төрөлтэй
   const [exam, setExam] = useState<StudentExam>(initialExamState);
   const [isLoading, setIsLoading] = useState(true);
@@ -159,19 +159,18 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
   };
   const handleSubmit = async () => {
     const submittedAt = new Date().toISOString();
-    const durationTaken = exam.duration * 60 - timeLeft;
 
     const structuredQuestions = Object.entries(answers).map(
       ([questionId, answer]) => {
         const question = exam.questions.find((q) => q._id === questionId);
         if (!question) return { questionId, answer, score: 0 };
 
-        const correctAnswers =
-          question.answers?.filter((a) => a?.isCorrect).map((a) => a.text) ||
-          [];
         let score = 0;
 
         if (question.type === "multiple-choice") {
+          const correctAnswers =
+            question.answers?.filter((a) => a?.isCorrect).map((a) => a.text) ||
+            [];
           const totalCorrect = correctAnswers.length;
           const selectedCorrect = answer.filter((ans) =>
             correctAnswers.includes(ans)
@@ -187,13 +186,23 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
           }
         }
 
-        if (
-          question.type === "simple-choice" &&
-          correctAnswers.some(
-            (correct) => answer[0]?.toLowerCase() === correct.toLowerCase()
-          )
-        ) {
-          score = question.score || 0;
+        if (question.type === "simple-choice") {
+          if (!question.answers) return; // answers байхгүй бол логикыг цааш явуулахгүй
+
+          const correctAnswers = question.answers
+            .filter((a) => !!a)
+            .map((a) => a.text);
+
+          if (
+            correctAnswers.some(
+              (correct) =>
+                answer[0]?.toLowerCase().trim() === correct.toLowerCase().trim()
+            )
+          ) {
+            score = question.score || 0;
+          } else {
+            score = 0;
+          }
         }
 
         return {
@@ -213,7 +222,6 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
       questions: structuredQuestions,
       score: totalScore,
       submittedAt,
-      durationTaken,
       status: "submitted",
       pending: "off",
     };

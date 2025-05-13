@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Texteditor from "@/components/rich-text/TextEditor";
 import SaveQuestion from "@/components/ui/savequestion";
-import SimpleAnswerOption from "@/components/create-exam/SimpleAnswerOption";
+import SimpleAnswerOption from "@/components/ExamComponents/SimpleAnswerOpton";
 import { useForm } from "react-hook-form";
 import { X } from "lucide-react";
 import * as z from "zod";
@@ -42,9 +42,7 @@ export default function NewSimpleChoice({
   setEditingIndex,
   setSelectedType,
 }: functionType) {
-  const [options, setOptions] = useState<
-    { text: string; isCorrect: boolean }[]
-  >([]);
+  const [options, setOptions] = useState<{ text: string }[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState("");
   const [score, setScore] = useState<number>(0);
   const addQuestion = useExamStore((s) => s.addQuestion);
@@ -64,9 +62,7 @@ export default function NewSimpleChoice({
       });
     }
   }, []);
-  const handleOptionsChange = (
-    newOptions: { text: string; isCorrect: boolean }[]
-  ) => {
+  const handleOptionsChange = (newOptions: { text: string }[]) => {
     setOptions(newOptions);
   };
   useEffect(() => {
@@ -136,7 +132,7 @@ export default function NewSimpleChoice({
           label="Асуулт"
           initialContent={currentQuestion}
         />
-        <NewAnswerOption
+        <SimpleAnswerOption
           onOptionsChange={handleOptionsChange}
           initialOptions={options}
         />

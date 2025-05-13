@@ -15,9 +15,7 @@ const navItemsMap: Record<string, { label: string; href: string }[]> = {
     { label: "Хянах", href: "/teacher/monitoring" },
   ],
   student: [],
-  admin: [
-    { label: "Шалгалтууд", href: "/admin/exams" },
-  ],
+  admin: [{ label: "Шалгалтууд", href: "/admin/exams" }],
 };
 
 const guestNavItems = [{ label: "Нэвтрэх", href: "/login" }];
@@ -44,13 +42,23 @@ export default function NavbarExam() {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-6 items-center">
           {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-gray-700 hover:text-black text-sm font-medium border border-gray-900 p-2 px-4 rounded-lg hover:bg-gray-100"
-            >
-              {item.label}
-            </Link>
+            <div key={item.href}>
+              {item.href === "/teacher/create-exam" ? (
+                <a
+                  href={item.href}
+                  className="text-gray-700 hover:text-black text-sm font-medium border border-gray-900 p-2 px-4 rounded-lg hover:bg-gray-100"
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <Link
+                  href={item.href}
+                  className="text-gray-700 hover:text-black text-sm font-medium border border-gray-900 p-2 px-4 rounded-lg hover:bg-gray-100"
+                >
+                  {item.label}
+                </Link>
+              )}
+            </div>
           ))}
           {role === "student" && <NavbarStudent />}
           {role && (

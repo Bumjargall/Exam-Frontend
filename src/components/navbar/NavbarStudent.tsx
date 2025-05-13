@@ -46,7 +46,6 @@ export default function NavbarStudent() {
       toast.error("Exam key хоосон байна.");
       return;
     }
-    console.log("key", inputValue);
 
     try {
       const response = await getExamByKey(inputValue.trim());
@@ -72,10 +71,9 @@ export default function NavbarStudent() {
           pending: "off",
         };
         const createResultUser = await createResult(examResult);
-        console.log("data", createResultUser.data._id);
-        router.push(
-          `/student/exam/${response.data._id}-${createResultUser.data._id}`
-        );
+        localStorage.setItem("ResultId", createResultUser.data._id);
+        const ResultItem = localStorage.getItem("ResultId");
+        router.push(`/student/exam/${response.data._id}-${ResultItem}`);
       }
     } catch (error) {
       toast.error("Шалгалтын мэдээлэл авч чадсангүй.");

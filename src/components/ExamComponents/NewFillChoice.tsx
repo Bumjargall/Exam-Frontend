@@ -6,36 +6,57 @@ import { X, Trash2, Pencil } from "lucide-react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import MarkingRules from "../create-exam/MarkingRules";
+import { useExamStore } from "@/store/ExamStore";
 
-type FillChoiceProps = {
+type functionType = {
   handleSelect: (type: string | null) => void;
+  editingIndex: number | null;
   setEditingIndex: React.Dispatch<React.SetStateAction<number | null>>;
   setSelectedType: React.Dispatch<React.SetStateAction<string | null>>;
 };
+
 export default function FillChoice({
   handleSelect,
+  editingIndex,
   setEditingIndex,
   setSelectedType,
-}: FillChoiceProps) {
-  const [questionContent, setQuestionContent] = useState<string>("");
-  const [addAnswer, setAddAnswer] = useState<
-    { text: string; editMode: boolean }[]
-  >([]);
+}: functionType) {
+  const [currentQuestion, setCurrentQuestion] = useState("");
+  const [options, setOptions] = useState<{ text: string; editMode: boolean }[]>(
+    []
+  );
   const [score, setScore] = useState<number>(0);
   const [open, setOpen] = useState(false);
+  const addQuestion = useExamStore((s) => s.addQuestion);
+  const { exam, updateQuestion, setExam } = useExamStore();
   const editor = useEditor({
     extensions: [StarterKit],
     content: "",
     onUpdate: ({ editor }) => {
-      setQuestionContent(editor.getHTML());
+      setCurrentQuestion(editor.getHTML());
     },
   });
+  useEffect(() => {
+    if (!exam) {
+      setExam({
+        title: "",
+        description: "",
+        questions: [],
+        dateTime: "",
+        duration: 0,
+        totalScore: 0,
+        status: "inactive",
+        key: "",
+        createUserById: "",
+      });
+    }
+  }, []);
 
   useEffect(() => {
     if (editingIndex !== null) {
-      const current = exam[editingIndex];
-      setQuestionContent(current.question);
-      setAddAnswer(current.answers);
+      const current: any = exam?.questions[editingIndex];
+      setCurrentQuestion(current.question);
+      setOptions(current.answers);
       setScore(current.score);
       editor?.commands.setContent(current.question);
     }
@@ -43,18 +64,18 @@ export default function FillChoice({
 
   const handleAddGap = () => {
     if (!editor) return;
-    const gap = `{gap-${addAnswer.length + 1}}`; // Gap текст
+    const gap = `{gap-${options.length + 1}}`; // Gap текст
     editor.commands.insertContent(gap);
-    setAddAnswer((prev) => [
+    setOptions((prev) => [
       ...prev,
       { text: `Gap ${prev.length + 1}`, editMode: false },
     ]);
   };
 
   const handleEditText = (index: number, newText: string) => {
-    const updated = [...addAnswer];
+    const updated = [...options];
     updated[index].text = newText;
-    setAddAnswer(updated);
+    setOptions(updated);
   };
 
   const handleDeleteAnswer = (index: number) => {
@@ -65,7 +86,7 @@ export default function FillChoice({
       let content = editor.getHTML();
       content = content.replaceAll(gapText, "");
       editor.commands.setContent(content);
-      const updatedAnswers = addAnswer.filter((_, i) => i !== index);
+      const updatedAnswers = options.filter((_, i) => i !== index);
 
       //үлдсэн gap дугаар шинэчлэх
       updatedAnswers.forEach((_, i) => {
@@ -76,17 +97,17 @@ export default function FillChoice({
       //editor агуулгын шинэчлэх
       editor.commands.setContent(content);
       //state шинэчлэх
-      setAddAnswer(updatedAnswers);
+      setOptions(updatedAnswers);
     }
   };
 
   const toggleEditMode = (index: number) => {
-    const updated = [...addAnswer];
+    const updated = [...options];
     updated[index].editMode = !updated[index].editMode;
-    setAddAnswer(updated);
+    setOptions(updated);
   };
   const handleSave = () => {
-    if (!questionContent.trim()) {
+    if (!currentQuestion.trim()) {
       toast("Асуултын текст хоосон байна!", {
         action: { label: "Хаах", onClick: () => console.log("OK") },
       });
@@ -99,34 +120,22 @@ export default function FillChoice({
       return;
     }
     const newData = {
-      type: "fill-choice",
+      type: "fill-choice" as const,
+      _id: Date.now().toString(),
       question: editor?.getText() || "",
-      answers: addAnswer,
+      answers: options,
       score: score,
     };
-
-    setExam((prevExam) => {
-      if (editingIndex !== null) {
-        const updated = [...prevExam];
-        updated[editingIndex] = newData;
-        return updated;
-      } else {
-        const updateExam = [...prevExam, newData];
-        console.log("exam--->", updateExam);
-        //final data
-        return updateExam;
-      }
-    });
-    {
-      /*
-      setExam((prev) => {
-      const updateExam = [...prev, newData];
-      console.log("exam--->", updateExam);
-      //final data
-      return updateExam;
-    });
-      */
+    if (editingIndex !== null) {
+      updateQuestion(editingIndex, newData);
+      toast.success("Асуулт амжилттай засагдлаа");
+    } else {
+      addQuestion(newData);
+      toast.success("Асуулт амжилттай нэмэгдлээ!");
     }
+    setCurrentQuestion("");
+    setOptions([]);
+    setScore(0);
     handleSelect(null);
     setEditingIndex(null);
     setSelectedType(null);
@@ -174,7 +183,7 @@ export default function FillChoice({
                 <p>Gaps</p>
               </div>
               <div className="space-y-3">
-                {addAnswer.map((answer, index) => (
+                {options.map((answer, index) => (
                   <div
                     key={index}
                     className="flex justify-between bg-white py-2 px-3 w-full border rounded-lg space-x-3"
@@ -216,6 +225,7 @@ export default function FillChoice({
           </div>
         </div>
         {/*Marking rules */}
+        <MarkingRules score={score} setScore={setScore} initialScore={score} />
       </div>
       {/*Save button */}
       <div className="rounded-b-lg border-t">

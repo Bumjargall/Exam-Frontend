@@ -201,7 +201,6 @@ export const createExam = async (examData: ExamInput) => {
       ...examData,
       createUserById: examData.createUserById, // Энд зүгээр string хэлбэрээр үлдээнэ
     };
-    console.log("examDataWithUserId", examDataWithUserId);
 
     const response = await fetch(`${getBackendUrl()}/exams/`, {
       method: "POST",
@@ -297,25 +296,25 @@ export const getRecentExams = async (limit = 5) => {
 };
 
 //exams chart data
-export const getExamChartData = async ()=> {
-  const res = await fetch(`${getBackendUrl()}/exams/chart`)
-  if(!res.ok) throw new Error("Chart өгөгдөл татахад алдаа гарлаа");
+export const getExamChartData = async () => {
+  const res = await fetch(`${getBackendUrl()}/exams/chart`);
+  if (!res.ok) throw new Error("Chart өгөгдөл татахад алдаа гарлаа");
   //console.log("res--------> ",res)
-  return await res.json()
-}
+  return await res.json();
+};
 
 export const getTeachers = async () => {
   const res = await fetch(`${getBackendUrl()}/users/role-teachers`);
   if (!res.ok) throw new Error("Багш нарын мэдээлэл татаж чадсангүй");
-  const data = await res.json()
+  const data = await res.json();
   //console.log("teachers=------>", data)
   return data;
 };
 export const getUsers = async () => {
   const res = await fetch(`${getBackendUrl()}/users/role-students`);
   if (!res.ok) throw new Error("Сурагч нарын мэдээлэл татаж чадсангүй");
-  const data = await res.json()
-  console.log("сурагч=------>", data)
+  const data = await res.json();
+  console.log("сурагч=------>", data);
   return data;
 };
 
@@ -466,37 +465,33 @@ export const getResultByUserId = async (userId: string) => {
 
 export const deleteByUser = async (userId: string) => {
   try {
-    const response = await fetch(
-      `${getBackendUrl()}/users/${userId}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await fetch(`${getBackendUrl()}/users/${userId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
     return await handleResponse(response);
   } catch (err) {
     console.error("Шалгалт өгсөн оюутны мэдээллийг авахад алдаа гарлаа:", err);
-    throw err;}
-}
+    throw err;
+  }
+};
 export const updateByUser = async (userId: string, userData: any) => {
   try {
-    const response = await fetch(
-      `${getBackendUrl()}/users/${userId}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      }
-    );
+    const response = await fetch(`${getBackendUrl()}/users/${userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    });
     return await handleResponse(response);
   } catch (err) {
     console.error("Шалгалт өгсөн оюутны мэдээллийг авахад алдаа гарлаа:", err);
-    throw err;}
-}
+    throw err;
+  }
+};
 //Бүх шалгалтын мэдээлэл
 export const getResults = async () => {
   try {
