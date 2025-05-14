@@ -22,7 +22,7 @@ const GapRenderer: React.FC<GapRendererProps> = ({ text = "", onChange }) => {
     if (onChange) {
       onChange(answers);
     }
-  }, [answers, onChange]);
+  }, [answers]);
 
   const handleInputChange = (index: number, value: string) => {
     if (index < 0 || index >= answers.length) return;

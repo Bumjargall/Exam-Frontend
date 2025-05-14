@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-
+import { ReactNode } from "react";
 export type AnswerOption = {
   text: string;
   isCorrect?: boolean;
@@ -36,7 +36,7 @@ export interface SubmitExam {
   studentId: string;
   questions: {
     questionId: string;
-    answer: string | number | string[] | number[];
+    answer?: string | number | string[] | number[];
     score: number;
   }[];
   score: number;
@@ -85,8 +85,6 @@ export interface User {
 }
 
 export interface Exam extends ExamInput {
-  subject: ReactNode;
-  grade: ReactNode;
   _id: Types.ObjectId | string;
   createdAt: Date;
   updatedAt: Date;

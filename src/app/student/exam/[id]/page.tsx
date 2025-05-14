@@ -18,6 +18,7 @@ import { SubmitExam } from "@/lib/types/interface";
 import { updateResult } from "@/lib/api";
 import { CodeSquare } from "lucide-react";
 import { useAuth } from "@/store/useAuth";
+import { useCallback } from "react";
 const initialExamState: StudentExam = {
   _id: "",
   title: "Шалгалтын гарчиг...",
@@ -139,27 +140,38 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
     return () => clearInterval(interval);
   }, [isStarted]);
 
-  const handleChange = (questionId: string, value: string) => {
-    setAnswers((prev) => {
-      const currentAnswers = prev[questionId] || [];
-      const isMultiple =
-        exam.questions.find((q) => q._id === questionId)?.type ===
-        "multiple-choice";
+  const handleChange = useCallback(
+    (questionId: string, value: string | string[]) => {
+      setAnswers((prev) => {
+        const question = exam.questions.find((q) => q._id === questionId);
+        const isMultiple = question?.type === "multiple-choice";
+        const isFillChoice = question?.type === "fill-choice";
 
-      if (isMultiple) {
-        const alreadySelected = currentAnswers.includes(value);
-        const updatedAnswers = alreadySelected
-          ? currentAnswers.filter((ans) => ans !== value)
-          : [...currentAnswers, value];
-        return { ...prev, [questionId]: updatedAnswers };
-      }
+        let updatedValue: string[];
 
-      return { ...prev, [questionId]: [value] };
-    });
-  };
+        if (isMultiple && typeof value === "string") {
+          const currentAnswers = prev[questionId] || [];
+          const alreadySelected = currentAnswers.includes(value);
+          updatedValue = alreadySelected
+            ? currentAnswers.filter((ans) => ans !== value)
+            : [...currentAnswers, value];
+        } else if (isFillChoice && Array.isArray(value)) {
+          updatedValue = value;
+        } else {
+          updatedValue = [value as string];
+        }
+
+        return {
+          ...prev,
+          [questionId]: updatedValue,
+        };
+      });
+    },
+    [exam.questions]
+  ); // эсвэл exam.questions өөрчлөгдөхөд л дахин үүснэ
+
   const handleSubmit = async () => {
     const submittedAt = new Date().toISOString();
-
     const structuredQuestions = Object.entries(answers).map(
       ([questionId, answer]) => {
         const question = exam.questions.find((q) => q._id === questionId);
@@ -171,35 +183,48 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
           const correctAnswers =
             question.answers?.filter((a) => a?.isCorrect).map((a) => a.text) ||
             [];
+
           const totalCorrect = correctAnswers.length;
+
           const selectedCorrect = answer.filter((ans) =>
             correctAnswers.includes(ans)
           ).length;
-          const selectedIncorrect = answer.filter(
-            (ans) => !correctAnswers.includes(ans)
-          ).length;
 
-          if (selectedCorrect === totalCorrect && selectedIncorrect === 0) {
-            score = question.score || 0;
-          } else if (selectedCorrect > 0 && selectedIncorrect < totalCorrect) {
-            score = ((question.score || 0) * selectedCorrect) / totalCorrect;
-          }
+          score = ((question.score || 0) * selectedCorrect) / totalCorrect;
         }
 
         if (question.type === "simple-choice") {
-          if (!question.answers) return; // answers байхгүй бол логикыг цааш явуулахгүй
-
-          const correctAnswers = question.answers
-            .filter((a) => !!a)
-            .map((a) => a.text);
-
+          const answers = question.answers?.map((a) => a.text) || [];
           if (
-            correctAnswers.some(
-              (correct) =>
-                answer[0]?.toLowerCase().trim() === correct.toLowerCase().trim()
+            answer[0] &&
+            answers.some(
+              (possibleAnswer) =>
+                answer[0].toLowerCase() === possibleAnswer.toLowerCase()
             )
           ) {
             score = question.score || 0;
+          } else {
+            score = 0;
+          }
+        }
+        if (question.type === "fill-choice") {
+          const correctAnswers =
+            question.answers?.map((a) => a.text.trim().toLowerCase()) || [];
+
+          const studentAnswers = Array.isArray(answer)
+            ? answer.map((a) => a.trim().toLowerCase())
+            : [];
+
+          const totalGaps = correctAnswers.length;
+
+          const correctCount = studentAnswers.filter((ans, i) => {
+            return correctAnswers[i] === ans;
+          }).length;
+
+          if (correctCount === totalGaps) {
+            score = question.score || 0;
+          } else if (correctCount > 0) {
+            score = ((question.score || 0) * correctCount) / totalGaps;
           } else {
             score = 0;
           }
@@ -228,7 +253,6 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
 
     try {
       setScoreResult(totalScore);
-      console.log("Payload to send:", payload);
       const ResultId = localStorage.getItem("ResultId");
       if (ResultId) {
         const examData = await updateResult(ResultId, payload);
@@ -352,10 +376,13 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
               >
                 <div className="mb-2">
                   <h2 className="flex items-center gap-2">
-                    {index + 1}. <GapRenderer text={question.question} />
+                    {index + 1}.{" "}
+                    <GapRenderer
+                      text={question.question}
+                      onChange={(vals) => handleChange(question._id, vals)}
+                    />
                   </h2>
                 </div>
-
                 {question.type === "multiple-choice" && (
                   <div className="pl-6">
                     {question.answers?.map((item, idx) => (
@@ -403,7 +430,6 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
                     disabled={!isStarted}
                   />
                 )}
-
                 <p className="text-right text-sm mt-2">
                   Оноо: {question.score}
                 </p>
