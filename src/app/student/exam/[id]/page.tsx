@@ -256,6 +256,7 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
       const ResultId = localStorage.getItem("ResultId");
       if (ResultId) {
         const examData = await updateResult(ResultId, payload);
+        console.log("examData", examData);
         if (!examData) {
           toast.error("Илгээхэд алдаа гарлаа.");
         }

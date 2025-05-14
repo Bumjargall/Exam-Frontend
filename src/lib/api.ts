@@ -393,7 +393,6 @@ export const getExamByStudent = async (studentId: string) => {
     throw err;
   }
 };
-
 // Шалгалт өгсөн оюутнуудын мэдээлэл, шалгалтыг авах
 export const getResultByUsers = async (examId: string) => {
   try {

@@ -18,6 +18,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { updateResult } from "@/lib/api";
+import GapRenderer from "./ExamComponents/GapRenderer";
 function stripHtmlTags(html: string) {
   const temp = document.createElement("div");
   temp.innerHTML = html;
@@ -101,10 +102,12 @@ const AnswerReviewDrawer: React.FC<Props> = ({
                     <div className="bg-gray-200 rounded-full h-6 w-6 flex items-center justify-center text-sm font-medium">
                       {idx + 1}
                     </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-800">
-                        {stripHtmlTags(originalQuestion.question)}
-                      </p>
+                    <div className="font-medium text-gray-800">
+                      {originalQuestion.type === "fill-choice" ? (
+                        <GapRenderer text={originalQuestion.question} />
+                      ) : (
+                        <span>{stripHtmlTags(originalQuestion.question)}</span>
+                      )}
                     </div>
                   </div>
 
@@ -112,6 +115,32 @@ const AnswerReviewDrawer: React.FC<Props> = ({
                     <p className="text-sm text-gray-600 mb-2 font-medium">
                       Хариулт:
                     </p>
+                    {originalQuestion.type === "fill-choice" &&
+                      Array.isArray(q.answer) &&
+                      Array.isArray(originalQuestion.answers) &&
+                      originalQuestion.answers.map((correct, idx) => {
+                        const studentAnswer = (q.answer as string[])[idx] || "";
+                        const isCorrect =
+                          studentAnswer.trim().toLowerCase() ===
+                          (correct.text?.trim().toLowerCase() || "");
+                        return (
+                          <div
+                            key={idx}
+                            className={`p-2 rounded mb-2 border ${
+                              isCorrect
+                                ? "bg-green-50 border-green-300 text-green-700"
+                                : "bg-red-50 border-red-300 text-red-700"
+                            }`}
+                          >
+                            <span className="font-medium">{idx + 1}.</span>{" "}
+                            Хариулт: {studentAnswer || "—"}
+                            <br />
+                            <span className="text-sm italic">
+                              {isCorrect ? "Зөв" : `Буруу, зөв нь: ${correct}`}
+                            </span>
+                          </div>
+                        );
+                      })}
 
                     {isMultipleChoice && (
                       <div className="pl-2 space-y-1 mb-4">
@@ -163,7 +192,7 @@ const AnswerReviewDrawer: React.FC<Props> = ({
                           {originalQuestion?.answers?.map(
                             (choice: any, index: number) => {
                               const isSelected = q.answer === choice.text;
-                              // Simple-choice displays selection without right/wrong indication
+
                               const textColor = isSelected
                                 ? "text-green-700"
                                 : "text-gray-700";
@@ -213,15 +242,12 @@ const AnswerReviewDrawer: React.FC<Props> = ({
                     <div className="flex items-center justify-between mt-2">
                       <div className="text-sm font-medium text-gray-600">
                         {isMultipleChoice ||
-                        originalQuestion.type === "simple-choice" ? (
+                        originalQuestion.type === "simple-choice" ||
+                        originalQuestion.type === "fill-choice" ? (
                           <div className="flex items-center">
-                            <span>
-                              {isMultipleChoice ? "Авсан оноо:" : "Авсан оноо:"}
-                            </span>
+                            <span>Авсан оноо:</span>
                             <span className="ml-2 px-2 py-1 bg-blue-50 text-blue-700 font-medium rounded">
-                              {isMultipleChoice
-                                ? `${q.score} оноо`
-                                : `${q.score} оноо`}
+                              {q.score} оноо
                             </span>
                           </div>
                         ) : (
