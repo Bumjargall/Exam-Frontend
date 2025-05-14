@@ -596,8 +596,20 @@ export const checkedResultByExamUser = async (
 }
   */
 }
-
+//charts
 export const getExamTakenCount = async () => {
   const res = await fetch(`${getBackendUrl()}/monitoring/taken-count`);
   return await handleResponse(res);
+};
+
+export const getExamTakenPerMonth = async () => {
+  const res = await fetch(`${getBackendUrl()}/monitoring/taken/monthly`)
+  const data = await res.json();
+  console.log("-2--->", data)
+  return data;
+}
+
+export const getMonthlyUserGrowth = async () => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/growth/monthly`);
+  return res.json();
 };

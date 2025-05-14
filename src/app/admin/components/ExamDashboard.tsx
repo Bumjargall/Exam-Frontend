@@ -143,20 +143,7 @@ const ExamDashboard: React.FC<Props> = ({ recentExams, chartData }) => {
         </DrawerContent>
       </Drawer>
 
-      <div className="my-16">
-        <h3 className="text-lg font-semibold mb-4 text-gray-700">
-          📊 7 хоногоор үүссэн шалгалтын тоо
-        </h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="week" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="count" fill="#4f46e5" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+      
     </>
   );
 };

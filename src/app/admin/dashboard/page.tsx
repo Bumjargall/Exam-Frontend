@@ -5,6 +5,8 @@ import {
   getExamChartData,
   getExamCount,
   getExamTakenCount,
+  getExamTakenPerMonth,
+  getMonthlyUserGrowth,
   getRecentExams,
   getRoleByUserCount,
 } from "@/lib/api";
@@ -26,8 +28,16 @@ export default function Admin() {
   const [isLoading, setIsLoading] = useState(true);
 
   const [recentExams, setRecentExams] = useState<Exam[]>([]);
-  const [chartData, setChartData] = useState<{ week: string; count: number }[]>([]);
-  const [monthlyData, setMonthlyData] = useState<{ month: string; students: number; teachers: number }[]>([]);
+  const [chartData, setChartData] = useState<{ week: string; count: number }[]>(
+    []
+  );
+  const [monthlyData, setMonthlyData] = useState<
+    { month: string; total: number; students: number; teachers: number }[]
+  >([]);
+
+  const [takenMonthlyData, setTakenMonthlyData] = useState<
+    { month: string; taken: number }[]
+  >([]);
 
   useEffect(() => {
     const fetchCounts = async () => {
@@ -45,23 +55,27 @@ export default function Admin() {
 
     const fetchRecent = async () => {
       const res = await getRecentExams();
+      const userMonthly = await getMonthlyUserGrowth();
+      const withTotal = userMonthly.data.map(
+        (item: { month: string; students: number; teachers: number }) => ({
+          ...item,
+          total: item.students + item.teachers,
+        })
+      );
+      setMonthlyData(withTotal);
+      console.log("userMonthly data---->", withTotal);
       setRecentExams(res.data);
     };
+
+    const fetchChartAi = async () => {
+      const res = await getExamTakenPerMonth();
+      setTakenMonthlyData(res.data);
+    };
+    fetchChartAi();
 
     const fetchChart = async () => {
       const res = await getExamChartData();
       setChartData(res.data);
-      
-      // Sample monthly data for the advanced chart
-      // In a real app, this would come from an API
-      setMonthlyData([
-        { month: "1-р сар", students: 45, teachers: 12 },
-        { month: "2-р сар", students: 52, teachers: 13 },
-        { month: "3-р сар", students: 61, teachers: 15 },
-        { month: "4-р сар", students: 67, teachers: 16 },
-        { month: "5-р сар", students: 70, teachers: 17 },
-        { month: "6-р сар", students: 78, teachers: 20 },
-      ]);
     };
 
     fetchCounts();
@@ -107,15 +121,15 @@ export default function Admin() {
       <div className="mx-4 mb-8">
         <h2 className="text-2xl font-bold mb-4">Ерөнхий статистик</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <AdvancedChart 
+          <AdvancedChart
             data={monthlyData}
             title="Сарын хэрэглэгчдийн өсөлт"
-            description="Сар бүрээр хэрэглэгч нэмэгдсэн тоо"
+            description="Сурагч, багш болон нийт хэрэглэгчдийн өсөлт"
             xAxisKey="month"
-            yAxisKey="students"
+            yAxisKeys={["students", "teachers", "total"]}
             height={300}
           />
-          <AdvancedChart 
+          <AdvancedChart
             data={chartData}
             title="7 хоногийн шалгалтын тоо"
             description="7 хоног бүрээр авсан шалгалтын тоо"
@@ -123,16 +137,40 @@ export default function Admin() {
             yAxisKey="count"
             height={300}
           />
+
+          <AdvancedChart
+            data={takenMonthlyData}
+            title="Сарын шалгалт өгсөн тоо"
+            description="Сар бүр өгсөн шалгалтын тоо"
+            xAxisKey="month"
+            yAxisKey="taken"
+            height={300}
+          />
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="mx-4">
+      <div className="mx-4 mt-20 bg-white shadow-md rounded-xl p-6 border border-gray-200 mb-40">
         <Tabs defaultValue="exam" className="w-full">
-          <TabsList className="mb-10">
-            <TabsTrigger value="exam">Шалгалт</TabsTrigger>
-            <TabsTrigger value="teacher">Багш</TabsTrigger>
-            <TabsTrigger value="users">Хэрэглэгчид</TabsTrigger>
+          <TabsList className="mb-10 bg-gradient-to-r from-sky-100 to-blue-100 rounded-full p-1 shadow-inner">
+            <TabsTrigger
+              value="exam"
+              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-blue-600 px-6 py-2 rounded-full text-gray-600 hover:bg-white transition"
+            >
+              Шалгалт
+            </TabsTrigger>
+            <TabsTrigger
+              value="teacher"
+              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-blue-600 px-6 py-2 rounded-full text-gray-600 hover:bg-white transition"
+            >
+              Багш
+            </TabsTrigger>
+            <TabsTrigger
+              value="users"
+              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-blue-600 px-6 py-2 rounded-full text-gray-600 hover:bg-white transition"
+            >
+              Хэрэглэгчид
+            </TabsTrigger>
           </TabsList>
 
           {/* Exam Tab */}
