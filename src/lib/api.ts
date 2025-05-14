@@ -2,7 +2,9 @@ import mongoose, { ObjectId, Types } from "mongoose";
 import { ExamInput } from "@/lib/types/interface";
 import { Carter_One } from "next/font/google";
 import { RegisterInput } from "./validation";
+import { fetchWithAuth } from "./fetch";
 //import { useParams } from "next/navigation";
+
 
 // Сервертэй холбогдож байгаа эсэхийг шалгах
 const getBackendUrl = (): string => {
@@ -143,7 +145,7 @@ export const sendResetEmail = async (toEmail: string, resetLink: string) => {
 //role -р нь хэрэглэгчийн тоог буцаах
 export const getRoleByUserCount = async (role: string) => {
   try {
-    const res = await fetch(`${getBackendUrl()}/users/role?role=${role}`, {
+    const res = await fetchWithAuth(`${getBackendUrl()}/users/role?role=${role}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -465,7 +467,7 @@ export const getResultByUserId = async (userId: string) => {
 
 export const deleteByUser = async (userId: string) => {
   try {
-    const response = await fetch(`${getBackendUrl()}/users/${userId}`, {
+    const response = await fetchWithAuth(`${getBackendUrl()}/users/${userId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -479,7 +481,7 @@ export const deleteByUser = async (userId: string) => {
 };
 export const updateByUser = async (userId: string, userData: any) => {
   try {
-    const response = await fetch(`${getBackendUrl()}/users/${userId}`, {
+    const response = await fetchWithAuth(`${getBackendUrl()}/users/${userId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -513,7 +515,7 @@ export const deleteResultByExamUser = async (
   studentId: string
 ) => {
   try {
-    const response = await fetch(
+    const response = await fetchWithAuth(
       `${getBackendUrl()}/monitoring/by-exam-user/${examId}/${studentId}`,
       {
         method: "DELETE",
@@ -533,7 +535,7 @@ export const deleteResultByExamUser = async (
 // Шинэ шалгалт үүсгэх
 export const createResult = async (createResult: any) => {
   try {
-    const res = await fetch(`${getBackendUrl()}/monitoring`, {
+    const res = await fetchWithAuth(`${getBackendUrl()}/monitoring`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -549,7 +551,7 @@ export const createResult = async (createResult: any) => {
 //submit дарах үед database руу result шинэчлэх
 export const updateResult = async (resultId: string, examData: any) => {
   try {
-    const response = await fetch(`${getBackendUrl()}/monitoring/${resultId}`, {
+    const response = await fetchWithAuth(`${getBackendUrl()}/monitoring/${resultId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -603,13 +605,13 @@ export const getExamTakenCount = async () => {
 };
 
 export const getExamTakenPerMonth = async () => {
-  const res = await fetch(`${getBackendUrl()}/monitoring/taken/monthly`)
+  const res = await fetchWithAuth(`${getBackendUrl()}/monitoring/taken/monthly`)
   const data = await res.json();
-  console.log("-2--->", data)
+  //console.log("-2--->", data)
   return data;
 }
 
 export const getMonthlyUserGrowth = async () => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/growth/monthly`);
+  const res = await fetchWithAuth(`${getBackendUrl()}/users/growth/monthly`);
   return res.json();
 };

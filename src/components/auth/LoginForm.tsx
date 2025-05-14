@@ -43,8 +43,8 @@ const LoginForm = () => {
       //console.log("Амжилттай нэвтэрлээ:", userData?.token);
       const role = userData?.user.role;
       //localStorage.setItem("user", JSON.stringify(userData));
-      //localStorage.setItem("token", userData.token);
-      //localStorage.setItem("user", JSON.stringify(userData.user));
+      localStorage.setItem("token", userData.token);
+      localStorage.setItem("user", JSON.stringify(userData.user));
       setAuth(userData.user, userData.token);
 
       switch (role) {
