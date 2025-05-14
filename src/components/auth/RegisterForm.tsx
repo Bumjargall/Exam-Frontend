@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { registerUser } from "@/lib/api";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { error } from "console";
 
 const RegisterForm = () => {
   const router = useRouter();
@@ -38,10 +39,21 @@ const RegisterForm = () => {
   });
   const onSubmit = async (data: RegisterInput) => {
     try {
-      await registerUser(data);
-      toast.success("Хэрэглэгчийн бүртгэл амжилттай үүслээ.");
+      if (data.organization) {
+        data.organization = "NaN";
+      }
+      const newUser = await registerUser(data);
+      if (!newUser) {
+        toast.error("Хэрэглэгчийн бүртгэл үүсгэх үед алдаа гарлаа: ");
+      }
+      console.log("new user------->>>>>>", newUser);
+      const data2 = newUser.json();
+      console.log("new user------->>>>>>", data2);
+
+      toast.success(`Хэрэглэгчийн бүртгэл амжилттай үүслээ.`);
       router.push("/login");
     } catch (err: any) {
+      console.log("eererere------->>>>>>", err);
       toast.error(
         err.message || "Бүртгэл үүсгэхэд алдаа гарлаа. Та түр хүлээнэ үү..."
       );

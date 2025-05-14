@@ -3,8 +3,8 @@ import { ExamInput } from "@/lib/types/interface";
 import { Carter_One } from "next/font/google";
 import { RegisterInput } from "./validation";
 import { fetchWithAuth } from "./fetch";
+import { error } from "console";
 //import { useParams } from "next/navigation";
-
 
 // Сервертэй холбогдож байгаа эсэхийг шалгах
 const getBackendUrl = (): string => {
@@ -47,10 +47,12 @@ export const registerUser = async (data: RegisterInput) => {
     },
     body: JSON.stringify(data),
   });
+  console.log("api-createUser---->", res.json());
 
   if (!res.ok) {
     const errorData = await res.json();
     throw new Error(errorData.message || "Бүртгэхэд алдаа гарлаа");
+    console.log("api-create-user---->", errorData);
   }
   return await res.json();
 };
@@ -145,12 +147,15 @@ export const sendResetEmail = async (toEmail: string, resetLink: string) => {
 //role -р нь хэрэглэгчийн тоог буцаах
 export const getRoleByUserCount = async (role: string) => {
   try {
-    const res = await fetchWithAuth(`${getBackendUrl()}/users/role?role=${role}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const res = await fetchWithAuth(
+      `${getBackendUrl()}/users/role?role=${role}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return await handleResponse(res);
   } catch (err) {
     console.error("Role илгээх үед алдаа гарлаа:", err);
@@ -551,14 +556,17 @@ export const createResult = async (createResult: any) => {
 //submit дарах үед database руу result шинэчлэх
 export const updateResult = async (resultId: string, examData: any) => {
   try {
-    const response = await fetchWithAuth(`${getBackendUrl()}/monitoring/${resultId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify(examData),
-    });
+    const response = await fetchWithAuth(
+      `${getBackendUrl()}/monitoring/${resultId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(examData),
+      }
+    );
     const updateExam = await handleResponse(response);
     return updateExam;
   } catch (err) {
@@ -605,11 +613,13 @@ export const getExamTakenCount = async () => {
 };
 
 export const getExamTakenPerMonth = async () => {
-  const res = await fetchWithAuth(`${getBackendUrl()}/monitoring/taken/monthly`)
+  const res = await fetchWithAuth(
+    `${getBackendUrl()}/monitoring/taken/monthly`
+  );
   const data = await res.json();
   //console.log("-2--->", data)
   return data;
-}
+};
 
 export const getMonthlyUserGrowth = async () => {
   const res = await fetchWithAuth(`${getBackendUrl()}/users/growth/monthly`);
