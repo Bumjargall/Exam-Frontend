@@ -39,24 +39,26 @@ const RegisterForm = () => {
   });
   const onSubmit = async (data: RegisterInput) => {
     try {
-      if (data.organization) {
+      if (!data.organization) {
         data.organization = "NaN";
       }
       const newUser = await registerUser(data);
-      if (!newUser) {
-        toast.error("Хэрэглэгчийн бүртгэл үүсгэх үед алдаа гарлаа: ");
-      }
-      console.log("new user------->>>>>>", newUser);
-      const data2 = newUser.json();
-      console.log("new user------->>>>>>", data2);
+      if (!newUser.success) {
+      throw new Error(newUser.message || "Бүртгэл амжилтгүй боллоо.");
+    }
+     // console.log("new user------->>>>>>", newUser);
 
       toast.success(`Хэрэглэгчийн бүртгэл амжилттай үүслээ.`);
       router.push("/login");
     } catch (err: any) {
-      console.log("eererere------->>>>>>", err);
-      toast.error(
-        err.message || "Бүртгэл үүсгэхэд алдаа гарлаа. Та түр хүлээнэ үү..."
-      );
+      //console.error("Бүртгэл алдаа:", err);
+      if (err.message.includes("имэйл")) {
+        toast.error("Имэйл аль хэдийн бүртгэлтэй байна.");
+      } else if (err.message.includes("утас")) {
+        toast.error("Утасны дугаар бүртгэлтэй байна.");
+      } else {
+        toast.error("Бүртгэл үүсгэхэд алдаа гарлаа.");
+      }
     }
   };
   return (

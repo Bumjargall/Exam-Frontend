@@ -40,21 +40,27 @@ export const fetchHelloMessage = async () => {
 }
 
 export const registerUser = async (data: RegisterInput) => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  console.log("api-createUser---->", res.json());
+ try {
+    const res = await fetch(`${getBackendUrl()}/users`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
 
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || "Бүртгэхэд алдаа гарлаа");
-    console.log("api-create-user---->", errorData);
+    const responseData = await res.json();
+    
+    
+    if (!res.ok) {
+      throw new Error(responseData || "Бүртгэхэд алдаа гарлаа");
+    }
+
+    return responseData;
+  } catch (err: any) {
+    console.error("registerUser алдаа:", err);
+    throw err;
   }
-  return await res.json();
 };
 
 export const loginUser = async (email: string, password: string) => {
