@@ -3,7 +3,6 @@ import { ExamInput } from "@/lib/types/interface";
 import { Carter_One } from "next/font/google";
 import { RegisterInput } from "./validation";
 import { fetchWithAuth } from "./fetch";
-import { error } from "console";
 //import { useParams } from "next/navigation";
 
 // Сервертэй холбогдож байгаа эсэхийг шалгах
@@ -12,7 +11,6 @@ const getBackendUrl = (): string => {
   if (!backendUrl) {
     throw new Error("NEXT_PUBLIC_BACKEND_URL тодорхойлогдоогүй байна.");
   }
-  //console.log("Backend URL: ", backendUrl);
   return backendUrl;
 };
 
@@ -501,6 +499,21 @@ export const updateByUser = async (userId: string, userData: any) => {
     return await handleResponse(response);
   } catch (err) {
     console.error("Шалгалт өгсөн оюутны мэдээллийг авахад алдаа гарлаа:", err);
+    throw err;
+  }
+};
+export const updateResultId = async (resultId: string, resultData: any) => {
+  try {
+    const response = await fetchWithAuth(`${getBackendUrl()}/monitoring/${resultId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(resultData),
+    });
+    return await handleResponse(response);
+  } catch (err) {
+    console.error("Шалгалтын мэдээллийг оруулах үед алдаа гарлаа:", err);
     throw err;
   }
 };
