@@ -76,7 +76,6 @@ export default function Home() {
       };
       const response = await updateUser(data._id, updated);
       if (response.success) {
-        // optionally update Zustand state
         user.setAuth({ ...data, ...updated }, user.token!);
         toast.success("Хэрэглэгчийн мэдээлэл амжилттай шинэчлэгдлээ");
         setIsEditing(false);

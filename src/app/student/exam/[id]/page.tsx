@@ -238,7 +238,6 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
       }
     );
 
-    // 🎯 Нийт оноог тооцоолно
     const totalScore = structuredQuestions.reduce((sum, q) => sum + q.score, 0);
 
     const payload: SubmitExam = {

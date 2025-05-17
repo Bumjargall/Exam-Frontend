@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu, User } from "lucide-react";
 
@@ -37,6 +43,9 @@ export default function Navbar() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left">
+              <SheetHeader>
+                <SheetTitle>Цэс</SheetTitle>
+              </SheetHeader>
               <nav className="flex flex-col space-y-4 m-6">
                 {navItems.map((item) => (
                   <Link
