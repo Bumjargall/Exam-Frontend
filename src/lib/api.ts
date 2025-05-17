@@ -38,7 +38,7 @@ export const fetchHelloMessage = async () => {
 }
 
 export const registerUser = async (data: RegisterInput) => {
- try {
+  try {
     const res = await fetch(`${getBackendUrl()}/users`, {
       method: "POST",
       headers: {
@@ -48,8 +48,7 @@ export const registerUser = async (data: RegisterInput) => {
     });
 
     const responseData = await res.json();
-    
-    
+
     if (!res.ok) {
       throw new Error(responseData || "Бүртгэхэд алдаа гарлаа");
     }
@@ -397,6 +396,29 @@ export const getExamByStudent = async (studentId: string) => {
     throw err;
   }
 };
+export const getResultByUserAndExam = async (
+  examId: string,
+  userId: string
+) => {
+  try {
+    const res = await fetch(
+      `${getBackendUrl()}/monitoring/by-result/${examId}/${userId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authhorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    const data = await res.json();
+    console.log("Оюутны шалгалтын мэдээлэл амжилттай");
+    return data;
+  } catch (err) {
+    console.log("Амжилтгүй");
+    throw err;
+  }
+};
 // Шалгалт өгсөн оюутнуудын мэдээлэл, шалгалтыг авах
 export const getResultByUsers = async (examId: string) => {
   try {
@@ -504,13 +526,16 @@ export const updateByUser = async (userId: string, userData: any) => {
 };
 export const updateResultId = async (resultId: string, resultData: any) => {
   try {
-    const response = await fetchWithAuth(`${getBackendUrl()}/monitoring/${resultId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(resultData),
-    });
+    const response = await fetchWithAuth(
+      `${getBackendUrl()}/monitoring/${resultId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(resultData),
+      }
+    );
     return await handleResponse(response);
   } catch (err) {
     console.error("Шалгалтын мэдээллийг оруулах үед алдаа гарлаа:", err);
@@ -635,7 +660,6 @@ export const getExamTakenPerMonth = async () => {
     `${getBackendUrl()}/monitoring/taken/monthly`
   );
   const data = await res.json();
-  //console.log("-2--->", data)
   return data;
 };
 

@@ -941,8 +941,9 @@ export default function MonitoringPage() {
                             >
                               <td className="p-2">
                                 <AnswerReviewDrawer
-                                  key={student.studentInfo._id.toString()} // drawer бүрт unique key өгөх
+                                  key={student.studentInfo._id.toString()}
                                   examEdit={lastExam}
+                                  resultId={student._id}
                                   studentName={`${student.studentInfo.lastName} ${student.studentInfo.firstName}`}
                                   questions={student.questions}
                                   onSave={(updatedAnswers) => {
@@ -950,7 +951,6 @@ export default function MonitoringPage() {
                                       "Updated answers:",
                                       updatedAnswers
                                     );
-                                    // энд оноог серверт хадгалах API дуудаж болно
                                   }}
                                 />
                               </td>

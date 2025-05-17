@@ -1,6 +1,6 @@
 "use client";
 import { getExamById } from "@/lib/api";
-import { format } from "date-fns";
+import { format, setISODay } from "date-fns";
 import { Exam, Question } from "@/lib/types/interface";
 import GapRenderer from "@/components/ExamComponents/GapRenderer";
 import { useEffect, useState } from "react";
@@ -11,11 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { use } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-interface ViewExamProps {
-  params: {
-    id: string;
-  };
-}
+import { useAuth } from "@/store/useAuth";
+import { getResultByUserAndExam } from "@/lib/api";
 
 const initialExamState: Exam = {
   _id: "",
@@ -40,17 +37,25 @@ export default function ViewExam({
   const { id } = use(params);
   const [exam, setExam] = useState<Exam>(initialExamState);
   const [isLoading, setIsLoading] = useState(true);
+  const [studentResult, setStudentResult] = useState<any>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const user = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
         const response = await getExamById(id);
-        console.log("===================>", response.data);
         setExam(response.data);
-      } catch (error) {
-        console.error("Error fetching exam data:", error);
+        if (user.user?._id) {
+          const resutlRes = await getResultByUserAndExam(
+            response.data._id,
+            user.user._id
+          );
+          setStudentResult(resutlRes.data);
+        }
+      } catch (err) {
+        console.log("Error fetching exam data: ", err);
         toast("Шалгалтын мэдээлэл авах үед алдаа гарлаа!", {
           action: { label: "Хаах", onClick: () => console.log("OK") },
         });
@@ -60,25 +65,7 @@ export default function ViewExam({
     };
 
     fetchData();
-  }, [id]);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const response = await getExamById(id);
-        setExam(response.data);
-      } catch (error) {
-        console.error("Error fetching exam data:", error);
-        toast("Шалгалтын мэдээлэл авах үед алдаа гарлаа!", {
-          action: { label: "Хаах", onClick: () => console.log("OK") },
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [id]);
+  }, [id, user.user?._id]);
 
   if (isLoading) {
     return (
@@ -99,6 +86,8 @@ export default function ViewExam({
     );
   }
 
+  const getStundentAnswer = (questionId: string) =>
+    studentResult?.questions?.find((q: any) => q.questionId === questionId);
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-2xl border border-gray-200 space-y-4 mt-10">
       <div className="flex justify-between items-center">
@@ -113,8 +102,6 @@ export default function ViewExam({
           {exam.status}
         </span>
       </div>
-
-      {exam.description && <p className="text-gray-600">{exam.description}</p>}
 
       <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
         <div>
@@ -136,85 +123,160 @@ export default function ViewExam({
         </div>
       </div>
 
-      <div className="text-xs text-gray-400">
-        Үүсгэсэн: {format(new Date(exam.createdAt), "yyyy-MM-dd HH:mm")}
-      </div>
+      <h3 className="text-lg font-semibold text-gray-800 mt-6">Асуултууд</h3>
 
-      <h3 className="text-lg font-semibold text-gray-800">Асуултууд</h3>
-
-      {exam.questions.length === 0 ? (
-        <p className="text-gray-500 text-center py-4">Асуулт олдсонгүй</p>
-      ) : (
-        exam.questions.map((question, index) => (
+      {exam.questions.map((question, index) => {
+        const studentAns = getStundentAnswer(question._id!);
+        return (
           <div
-            key={`${question._id || index}`}
+            key={question._id || index}
             className="border p-4 rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition"
           >
-            <div className="flex flex-col justify-between">
-              <div>
-                <h2 className="flex items-center gap-2">
-                  {index + 1}. <GapRenderer text={question.question} />
-                </h2>
-              </div>
+            <div className="flex flex-col gap-3">
+              <h2 className="flex items-center gap-2 font-medium text-gray-700">
+                {index + 1}. <GapRenderer text={question.question} />
+              </h2>
 
+              {/* Multiple choice */}
               {question.type === "multiple-choice" && (
-                <div className="text-gray-700 my-3">
-                  <RadioGroup disabled>
-                    {question.answers?.map((item, idx) => (
+                <RadioGroup disabled>
+                  {question.answers?.map((item, idx) => {
+                    const selected = studentAns?.answer?.includes(item.text);
+                    const isCorrect = item.isCorrect;
+
+                    let textColor = "text-gray-800";
+                    let bgColor = "bg-white";
+                    let borderColor = "border-gray-300";
+
+                    if (isCorrect && selected) {
+                      // Зөв хариулт + сонгосон
+                      textColor = "text-green-700";
+                      bgColor = "bg-green-50";
+                      borderColor = "border-green-400";
+                    } else if (!isCorrect && selected) {
+                      // Буруу хариулт + сонгосон
+                      textColor = "text-red-700";
+                      bgColor = "bg-red-50";
+                      borderColor = "border-red-400";
+                    } else if (isCorrect && !selected) {
+                      // Зөв хариулт + сонгоогүй
+                      textColor = "text-green-500";
+                      bgColor = "bg-green-50";
+                      borderColor = "border-green-200";
+                    }
+
+                    return (
                       <div
                         key={idx}
-                        className="flex items-center space-x-2 pl-6 font-semibold"
+                        className={`flex items-center space-x-2 pl-6 font-semibold p-2 rounded ${bgColor} ${textColor} border ${borderColor}`}
                       >
                         <RadioGroupItem
                           value={item.text}
-                          checked={item.isCorrect}
-                          id={`question-${question._id}-answer-${idx}`}
+                          checked={selected}
+                          id={`q-${question._id}-a-${idx}`}
                         />
-                        <Label
-                          htmlFor={`question-${question._id}-answer-${idx}`}
-                        >
+                        <Label htmlFor={`q-${question._id}-a-${idx}`}>
                           {item.text}
                         </Label>
                       </div>
-                    ))}
-                  </RadioGroup>
-                </div>
+                    );
+                  })}
+                </RadioGroup>
+              )}
+              {question.type === "fill-choice" &&
+                Array.isArray(question.answers) &&
+                Array.isArray(studentAns?.answer) && (
+                  <div className="p-3 space-y-4">
+                    <p className="font-semibold">Оюутны хариулт:</p>
+
+                    {question.answers.map((correctOption, index) => {
+                      const correct = correctOption?.text || "";
+                      const student = studentAns.answer[index] || "";
+                      const isCorrect =
+                        student.trim().toLowerCase() ===
+                        correct.trim().toLowerCase();
+
+                      return (
+                        <div
+                          key={index}
+                          className={`w-full p-2 rounded-md border-2 my-1 ${
+                            isCorrect
+                              ? "border-green-500 bg-green-50 text-green-800"
+                              : "border-red-500 bg-red-50 text-red-800"
+                          }`}
+                        >
+                          <p>
+                            <span className="font-medium">{index + 1}:</span>{" "}
+                            {student || "Хариулт өгөөгүй"}
+                          </p>
+                        </div>
+                      );
+                    })}
+
+                    <p className="font-semibold text-sm text-gray-500 pt-2">
+                      Зөв хариулт:
+                    </p>
+                    <ul className="list-disc list-inside text-sm text-black">
+                      {question.answers.map((ans: any, idx: number) => (
+                        <li key={idx}>
+                          {idx + 1}: {ans.text}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+              {/* Simple choice */}
+              {question.type === "simple-choice" &&
+                Array.isArray(question.answers) && (
+                  <div className="space-y-2 my-2">
+                    <Input
+                      type="text"
+                      disabled
+                      value={studentAns?.answer || ""}
+                      className={`w-1/2 rounded-lg pl-4 border-2 ${
+                        typeof studentAns?.answer === "string" &&
+                        question.answers.some(
+                          (a) =>
+                            typeof a.text === "string" &&
+                            a.text.trim().toLowerCase() ===
+                              studentAns.answer.trim().toLowerCase()
+                        )
+                          ? "border-green-400 text-green-700 bg-green-50"
+                          : "border-red-400 text-red-700 bg-red-50"
+                      }`}
+                    />
+
+                    <p className="text-sm text-gray-500 font-medium pt-1">
+                      Зөв хариулт:
+                    </p>
+                    <ul className="list-disc list-inside text-sm text-black">
+                      {question.answers.map((a, idx) => (
+                        <li key={idx}>{a.text}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+              {/* Free text / Code */}
+              {(question.type === "free-text" || question.type === "code") && (
+                <Textarea
+                  disabled
+                  value={studentAns?.answer || ""}
+                  className="border-gray-300 text-sm text-gray-800"
+                />
               )}
 
-              {question.type === "simple-choice" && (
-                <div className="flex justify-end my-6">
-                  <Input
-                    type="text"
-                    disabled
-                    placeholder="Хариулт..."
-                    className="w-1/5 border-gray-900 rounded-lg pl-4 placeholder-gray-900"
-                  />
-                </div>
-              )}
-
-              {question.type === "free-text" && (
-                <div className="p-3 space-y-4">
-                  <p className="font-semibold">Хариулт:</p>
-                  <Textarea disabled placeholder="Хариултаа бичнэ үү" />
-                </div>
-              )}
-
-              {question.type === "code" && (
-                <div className="p-3 space-y-4">
-                  <p className="font-semibold">Хариулт:</p>
-                  <Textarea disabled placeholder="Кодоо бичнэ үү" />
-                </div>
-              )}
-
+              {/* Оноо */}
               {question.type !== "information-block" && (
-                <p className="flex text-sm text-gray-600 mb-2 justify-end mt-2">
-                  Оноо: {question.score}
-                </p>
+                <div className="text-sm text-right text-gray-600 mt-2">
+                  Авсан оноо: <b>{studentAns?.score ?? 0}</b> / {question.score}
+                </div>
               )}
             </div>
           </div>
-        ))
-      )}
+        );
+      })}
     </div>
   );
 }
