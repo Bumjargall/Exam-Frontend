@@ -192,17 +192,15 @@ const AnswerReviewDrawer: React.FC<Props> = ({
                           {originalQuestion?.answers?.map(
                             (choice: any, index: number) => {
                               const isSelected = q.answer === choice.text;
-
                               const textColor = isSelected
                                 ? "text-green-700"
                                 : "text-gray-700";
                               const bgColor = isSelected
                                 ? "bg-green-50"
-                                : "bg-white";
+                                : "bg-red-100";
                               const borderColor = isSelected
                                 ? "border-green-200"
                                 : "border-gray-200";
-
                               return (
                                 <div
                                   key={index}
@@ -213,7 +211,7 @@ const AnswerReviewDrawer: React.FC<Props> = ({
                                       <Check className="w-4 h-4 text-blue-600" />
                                     )}
                                   </div>
-                                  <span className="ml-1">{choice.text}</span>
+                                  <span className="ml-1">{q.answer}</span>
                                 </div>
                               );
                             }

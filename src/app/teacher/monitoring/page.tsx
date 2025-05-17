@@ -299,7 +299,6 @@ export default function MonitoringPage() {
       await deleteResultByExamUser(examId, studentId);
       toast.success("Шалгуулагч амжилттай хасагдлаа.");
 
-      // 🔄 Серверээс шинэ studentResults татах
       const resultResponse = await getResultByUsers(examId);
       if (resultResponse.success) {
         setStudentResults(resultResponse.data);
