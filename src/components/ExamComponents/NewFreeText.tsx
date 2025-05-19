@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
-import Texteditor from "@/components/rich-text/TextEditor";
 import SaveQuestion from "@/components/ui/savequestion";
-import AnswerOption from "@/components/create-exam/AnswerOption";
 import MarkingRules from "@/components/create-exam/MarkingRules";
-import SimpleAnswerOption from "@/components/create-exam/SimpleAnswerOption";
 import { X } from "lucide-react";
 import { toast } from "sonner";
 import RichTextEditor from "@/components/TinyMce/RichTextEditor";
@@ -80,12 +77,12 @@ export default function NewFreeText({
   };
   return (
     <div className="max-w-2xl mx-auto mb-20 shadow">
-      <div className="bg-gray-100 flex justify-between items-center">
+      <div className="bg-green-400 rounded-2xl flex justify-between items-center">
         <div className="py-4">
-          <p className="pl-4 text-gray-900">Эссэ</p>
+          <p className="pl-4 text-white">Эссэ</p>
         </div>
         <button
-          className="cursor-pointer pr-4"
+          className="cursor-pointer pr-4 text-white"
           onClick={() => {
             handleSelect(null), setEditingIndex(null), setSelectedType(null);
           }}

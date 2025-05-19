@@ -85,7 +85,6 @@ export interface User {
 }
 
 export interface Exam extends ExamInput {
-
   _id: Types.ObjectId | string;
   createdAt: Date;
   updatedAt: Date;

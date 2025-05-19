@@ -31,18 +31,6 @@ export default function AnswerOption({
     }
   }, [initialOptions]);
 
-  useEffect(() => {
-    if (isShuffled) {
-      shuffleAnswer();
-    }
-  }, [isShuffled]);
-
-  const shuffleAnswer = () => {
-    const shuffled = [...addAnswer].sort(() => Math.random() - 0.5);
-    setAddAnswer(shuffled);
-    syncToParent(shuffled);
-  };
-
   const syncToParent = (updatedAnswers: typeof addAnswer) => {
     const optionsToSend = updatedAnswers.map((a) => ({
       text: a.text,
@@ -114,37 +102,6 @@ export default function AnswerOption({
 
       {open && (
         <div className="flex flex-col space-y-5 bg-gray-100 p-3 py-5">
-          {/* Shuffle toggle */}
-          <div className="flex items-center gap-3">
-            <label className="flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                className="sr-only peer"
-                checked={isShuffled}
-                onChange={() => setIsShuffled(!isShuffled)}
-              />
-              <div className="relative w-20 h-8 bg-gray-200 rounded-lg flex items-center justify-between p-1">
-                <div
-                  className={`flex items-center justify-center w-8 h-6 rounded-md ${
-                    !isShuffled ? "bg-gray-800 text-white" : "text-gray-500"
-                  }`}
-                >
-                  <ListOrdered size={16} />
-                </div>
-                <div
-                  className={`flex items-center justify-center w-8 h-6 rounded-md ${
-                    isShuffled ? "bg-gray-800 text-white" : "text-gray-500"
-                  }`}
-                >
-                  <Shuffle size={16} />
-                </div>
-              </div>
-            </label>
-            <div className="text-sm">
-              {isShuffled ? "Shuffled Order" : "Fixed Order"}
-            </div>
-          </div>
-
           {/* Input & Add Button */}
           <div className="flex flex-col space-y-5">
             <input

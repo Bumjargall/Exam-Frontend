@@ -13,6 +13,7 @@ import NewSimpleChoice from "@/components/ExamComponents/NewSimple-Choice";
 import NewFreeText from "@/components/ExamComponents/NewFreeText";
 import NewInformationBlock from "@/components/ExamComponents/NewInformation-block";
 import NewCode from "@/components/ExamComponents/NewCode";
+import NewFillChoice from "@/components/ExamComponents/NewFillChoice";
 import { useExamStore } from "@/store/ExamStore";
 import { updateExam } from "@/lib/api";
 
@@ -55,7 +56,7 @@ export default function Page() {
                 <li>
                   <Link
                     href={`/teacher/exams/edit/${exam?._id}/configure`}
-                    className="p-2.5 border border-gray-900 rounded-lg text-black hover:bg-gray-200"
+                    className="p-2.5 border bg-green-500 rounded-lg text-white hover:bg-green-700"
                     onClick={() => createExamHandleSave()}
                   >
                     Баталгаажуулах
@@ -67,8 +68,8 @@ export default function Page() {
           <div className="max-w-2xl mx-auto mb-20">
             {exam && exam.questions.length > 0 && (
               <div className="w-full text-gray-900 space-y-5 border p-4 rounded-lg mb-10">
-                <div className="flex items-center justify-between gap-3 bg-gray-100 p-3 rounded">
-                  <span className="text-gray-800 font-semibold rounded-lg">
+                <div className="flex items-center justify-between gap-3 bg-green-500 p-3 rounded">
+                  <span className="text-white font-semibold rounded-lg">
                     Шалгалтын асуултууд
                   </span>
                 </div>
@@ -180,7 +181,7 @@ export default function Page() {
                       <NewMultipleChoice
                         handleSelect={handleSelectType}
                         editingIndex={editingIndex}
-                        setEditingIndex={setEditingIndex} // энэ заавал байх ёстой
+                        setEditingIndex={setEditingIndex}
                         setSelectedType={setSelectedType}
                       />
                     );
@@ -189,13 +190,13 @@ export default function Page() {
                       <NewSimpleChoice
                         handleSelect={handleSelectType}
                         editingIndex={editingIndex}
-                        setEditingIndex={setEditingIndex} // энэ заавал байх ёстой
+                        setEditingIndex={setEditingIndex}
                         setSelectedType={setSelectedType}
                       />
                     );
                   case "fill-choice":
                     return (
-                      <NewCode
+                      <NewFillChoice
                         handleSelect={handleSelectType}
                         editingIndex={editingIndex}
                         setEditingIndex={setEditingIndex}
@@ -207,7 +208,7 @@ export default function Page() {
                       <NewFreeText
                         handleSelect={handleSelectType}
                         editingIndex={editingIndex}
-                        setEditingIndex={setEditingIndex} // энэ заавал байх ёстой
+                        setEditingIndex={setEditingIndex}
                         setSelectedType={setSelectedType}
                       />
                     );
@@ -216,7 +217,7 @@ export default function Page() {
                       <NewInformationBlock
                         handleSelect={handleSelectType}
                         editingIndex={editingIndex}
-                        setEditingIndex={setEditingIndex} // энэ заавал байх ёстой
+                        setEditingIndex={setEditingIndex}
                         setSelectedType={setSelectedType}
                       />
                     );
@@ -230,7 +231,7 @@ export default function Page() {
                       />
                     );
                   default:
-                    return null; // Аль ч тохирохгүй тохиолдолд юу ч буцаахгүй
+                    return null;
                 }
               })()
             )}

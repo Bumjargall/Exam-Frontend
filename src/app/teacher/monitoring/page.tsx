@@ -4,6 +4,7 @@ import SelectExamComponent from "@/app/teacher/monitoring/components/SelectExamC
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import * as XLSX from "xlsx";
 import {
   Exam,
   ExamWithStudentInfo,
@@ -61,7 +62,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import {
-  getExams,
   getResultByUsers,
   updateExamStatus,
   getResultByCreateUser,
@@ -310,6 +310,29 @@ export default function MonitoringPage() {
       console.error(error);
     }
   };
+  const exportToExcel = () => {
+    if (!studentResults.length) {
+      toast.error("Оюутны дүнгийн мэдээлэл байхгүй байна");
+      return;
+    }
+
+    const worksheetData = studentResults
+      .filter((student) => student.status === "submitted")
+      .map((student) => ({
+        Нэр: `${student.studentInfo.lastName} ${student.studentInfo.firstName}`,
+        Имэйл: student.studentInfo.email,
+        Оноо: `${student.score.toFixed(1)} / ${lastExam.totalScore}`,
+        "Огноо ба цаг": student.submittedAt
+          ? new Date(student.submittedAt).toLocaleString()
+          : "N/A",
+      }));
+
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Шалгалтын дүн");
+
+    XLSX.writeFile(workbook, "exam_results.xlsx");
+  };
 
   //database дуудах
   useEffect(() => {
@@ -377,7 +400,7 @@ export default function MonitoringPage() {
         setLastExam(exam);
       } else {
         console.warn(
-          "⚠️ resultResponse data буруу форматтай байна:",
+          "resultResponse data буруу форматтай байна:",
           resultResponse
         );
       }
@@ -385,7 +408,6 @@ export default function MonitoringPage() {
       console.error("Шалгалтын мэдээллийг авахад алдаа гарлаа:", error);
     }
   };
-  // Өгсөн, өгөөгүй оюутнуудын тоо
   const takingStudents = studentResults.filter(
     (s) => s.status === "taking"
   ).length;
@@ -454,11 +476,11 @@ export default function MonitoringPage() {
         <div className="left_container w-1/5 px-2">
           <div
             onClick={() => setExamTitleVisible(!isExamTitleVisible)}
-            className="last_exam flex border-b-2 bg-gray-200 px-2 relative cursor-pointer rounded-lg"
+            className="last_exam flex border-b-2 bg-green-400 px-2 relative cursor-pointer rounded-lg"
             id="menu-button"
           >
-            <p className="text-[18px]">{lastExam.title}</p>
-            <i className="ri-arrow-down-s-fill absolute right-2 text-2xl"></i>
+            <p className="text-[18px] text-white">{lastExam.title}</p>
+            <i className="text-white ri-arrow-down-s-fill absolute right-2 text-2xl"></i>
           </div>
           {/*Гарчиг*/}
           {isExamTitleVisible && (
@@ -505,11 +527,17 @@ export default function MonitoringPage() {
         {/*Main*/}
         <div className="w-3/5 mx-4 bg-gray-50 rounded-2xl border-2 border-gray-100">
           <Tabs defaultValue="account" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="account" className="text-xl cursor-pointer">
+            <TabsList className="grid w-full grid-cols-2 text-green-800 rounded-t-xl">
+              <TabsTrigger
+                value="account"
+                className="text-xl cursor-pointer data-[state=active]:bg-green-500 data-[state=active]:text-white rounded-xl transition"
+              >
                 Хянах
               </TabsTrigger>
-              <TabsTrigger value="password" className="text-xl cursor-pointer">
+              <TabsTrigger
+                value="password"
+                className="text-xl cursor-pointer data-[state=active]:bg-green-500 data-[state=active]:text-white rounded-xl transition"
+              >
                 Хариу
               </TabsTrigger>
             </TabsList>
@@ -546,17 +574,14 @@ export default function MonitoringPage() {
                               хуулах
                             </li>
                             <li
-                              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                              className="px-4 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
                                 handleCopy(
                                   `https://exam.com/${lastExam.key}`,
                                   "Линк хуулагдлаа"
                                 );
                               }}
-                            >
-                              <i className="ri-link mr-2"></i>Шалгалтын линк
-                              хуулах
-                            </li>
+                            ></li>
                           </ul>
                         </div>
                       )}
@@ -628,10 +653,9 @@ export default function MonitoringPage() {
                   <div className="right w-1/2 flex flex-col items-center">
                     <Sheet>
                       <SheetTrigger asChild>
-                        <button className="flex items-center justify-center w-4/5 bg-slate-200 rounded-full my-2 py-1 hover:bg-white hover:border-2 transition duration-300">
-                          {" "}
-                          <i className="ri-expand-right-line text-[14px] mr-2"></i>{" "}
-                          Шалгалтаас хасах{" "}
+                        <button className="flex items-center justify-center w-4/5 bg-green-500 text-white rounded-full my-2 py-1 hover:bg-green-100 hover:text-green-700 hover:border-2 hover:border-green-600 transition duration-300 cursor-pointer">
+                          <i className="ri-expand-right-line text-[14px] mr-2"></i>
+                          Шалгалтаас хасах
                         </button>
                       </SheetTrigger>
                       <SheetContent className="w-full sm:max-w-4xl">
@@ -765,7 +789,7 @@ export default function MonitoringPage() {
                       </SheetContent>
                     </Sheet>
                     <button
-                      className="flex items-center justify-center w-4/5 bg-slate-200 rounded-full my-2 py-1 hover:bg-white hover:border-2 transition duration-300"
+                      className="flex items-center justify-center w-4/5 bg-green-500 text-white rounded-full my-2 py-1 hover:bg-green-100 hover:text-green-700 hover:border-2 hover:border-green-600 transition duration-300 cursor-pointer"
                       onClick={() => {
                         if (!lastExam._id) {
                           toast.error("Шалгалт байхгүй байна");
@@ -777,10 +801,6 @@ export default function MonitoringPage() {
                       <i className="ri-eye-line text-[14px] mr-2"></i>Материал
                       харах
                     </button>
-                    <button className="flex items-center justify-center w-4/5 bg-slate-200 rounded-full my-2 py-1 hover:bg-white hover:border-2  transition duration-300">
-                      <i className="ri-printer-line text-[14px] mr-2"></i>Хэвлэх
-                      <i className="ri-arrow-down-s-fill"></i>
-                    </button>
                   </div>
                 </div>
               </div>
@@ -789,15 +809,7 @@ export default function MonitoringPage() {
               <div className="container my-4 mx-2">
                 <p className="text-[18px] mb-4">{lastExam.title}</p>
                 <div className="">
-                  <div className="share_link flex justify-start pr-6 py-2 items-center">
-                    <p className="mr-4">Илгээх</p>
-                    <i
-                      className="ri-share-fill px-1 border-2  rounded-full cursor-pointer hover:text-yellow-500"
-                      onClick={() => {
-                        alert("Илгээх мэйлээ оруулна уу?");
-                      }}
-                    ></i>
-                  </div>
+                  <div className="share_link flex justify-start pr-6 py-2 items-center"></div>
 
                   <div className="buttons flex">
                     <div className="pr-4 relative">
@@ -825,7 +837,7 @@ export default function MonitoringPage() {
                             <li
                               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
-                                alert("Excel файл үүсгэх үйлдэл"); // Excel файл үүсгэх
+                                exportToExcel();
                                 closeAllDropdowns();
                               }}
                             >
@@ -885,14 +897,6 @@ export default function MonitoringPage() {
                     </div>
                     {/*send*/}
                     <div className="relative" ref={dropdownRefs.send}>
-                      <button
-                        className="flex items-center justify-center w-[18vh] border border-slate-400 rounded-full my-1 py-1 hover:bg-slate-100 hover:border-2 transition duration-300"
-                        onClick={() => toggleDropdown("send")}
-                      >
-                        <i className="ri-printer-line text-[14px] mr-2"></i>
-                        Илгээх
-                        <i className="ri-arrow-down-s-fill"></i>
-                      </button>
                       {dropdownStates.send && (
                         <div className="absolute mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 w-48">
                           <ul className="py-1">
@@ -955,7 +959,7 @@ export default function MonitoringPage() {
                                 />
                               </td>
                               <td className="p-2">
-                                {student.score}/{lastExam.totalScore}
+                                {student.score.toFixed(1)}/{lastExam.totalScore}
                               </td>
                               <td className="p-2">
                                 {student.submittedAt

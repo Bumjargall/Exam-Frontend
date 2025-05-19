@@ -45,6 +45,7 @@ export default function ConfigureForm() {
   const { exam, setExam } = useExamStore();
   const router = useRouter();
   const { user } = useAuth();
+
   useEffect(() => {
     const questions = exam?.questions ?? [];
     const calculatedTotal = questions.reduce(
@@ -82,6 +83,12 @@ export default function ConfigureForm() {
   }, [router]);
 
   const onSubmit = async (data: FormData) => {
+    const now = new Date();
+    const selected = new Date(data.dateTime);
+    if (selected < now) {
+      toast.error("Өнгөрсөн хугацаанд шалгалт товлох боломжгүй.");
+      return;
+    }
     try {
       setLoading(true);
 
@@ -132,7 +139,7 @@ export default function ConfigureForm() {
   });
 
   return (
-    <div className="max-w-4xl mx-auto border rounded-2xl p-5 mt-[10vh]">
+    <div className="max-w-3xl mx-auto border rounded-2xl p-5 mt-[10vh]">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="space-y-8">
@@ -181,7 +188,7 @@ export default function ConfigureForm() {
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-[280px] justify-start text-left font-normal",
+                          "w-[280px] justify-start text-left font-normal cursor-pointer",
                           !field.value && "text-muted-foreground"
                         )}
                       >
@@ -199,6 +206,7 @@ export default function ConfigureForm() {
                         selected={field.value}
                         onSelect={field.onChange}
                         initialFocus
+                        disabled={{ before: new Date() }}
                       />
                       <div className="p-3 border-t border-border">
                         <TimePicker
@@ -236,7 +244,7 @@ export default function ConfigureForm() {
               )}
             />
           </div>
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" className="bg-green-500" disabled={loading}>
             {loading ? "Ачааллаж байна..." : "Шалгалт үүсгэх"}
           </Button>
         </form>

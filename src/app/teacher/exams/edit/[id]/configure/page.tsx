@@ -55,13 +55,18 @@ export default function ConfigureForm() {
       time: exam?.duration || 0,
     },
   });
-  const convertedQuestions: Question[] = (exam?.questions || []).map((q) => ({
-    _id: q._id || uuidv4(), // ← id шаардлагатай бол үүсгэнэ
-    question: q.question,
-    score: q.score,
-    type: q.type,
-    answers: q.answers || [],
-  }));
+  const convertedQuestions: Partial<Question>[] = (exam?.questions || []).map(
+    (q) => ({
+      question: q.question,
+      score: q.score,
+      type: q.type,
+      answers:
+        q.answers?.map((a) => ({
+          text: a.text,
+          isCorrect: a.isCorrect ?? false,
+        })) || [],
+    })
+  );
 
   const parseDuration = (input: string): number => {
     const hourMatch = input.match(/(\d+)\s*h/);
@@ -102,7 +107,9 @@ export default function ConfigureForm() {
         setError("Шалгалтын ID байхгүй байна.");
         return;
       }
+      console.log("exam-id", exam._id);
       console.log("Шалгалтын мэдээлэл:----", examData);
+
       await updateExam(exam?._id as string, examData);
 
       router.push("/teacher/exams");
@@ -223,7 +230,11 @@ export default function ConfigureForm() {
             />
             {error && <p className="text-red-500 font-medium">{error}</p>}
           </div>
-          <Button type="submit" disabled={loading}>
+          <Button
+            type="submit"
+            className="bg-green-500 hover:bg-green-700 cursor-pointer"
+            disabled={loading}
+          >
             {loading ? "Ачааллаж байна..." : "Шалгалт хадгалах"}
           </Button>
         </form>

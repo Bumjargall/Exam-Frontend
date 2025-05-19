@@ -220,7 +220,7 @@ export default function AnswerOption({
               type="button"
               onClick={handleAddAnswer}
               disabled={!value.trim()}
-              className="text-white bg-gray-800 hover:bg-gray-900 rounded-lg text-sm px-5 py-2.5 cursor-pointer"
+              className="text-white bg-green-400 hover:bg-green-600 rounded-lg text-sm px-5 py-2.5 cursor-pointer"
             >
               Хариулт нэмэх
             </button>

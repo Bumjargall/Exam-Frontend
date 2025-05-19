@@ -97,7 +97,7 @@ const AnswerReviewDrawer: React.FC<Props> = ({
       <DrawerContent className="p-4 max-w-4xl mx-auto">
         <DrawerHeader className="px-0">
           <DrawerTitle className="text-xl font-bold flex items-center gap-2">
-            <span className="text-blue-600">{studentName}</span> -{" "}
+            <span className="text-green-500">{studentName}</span> -{" "}
             {examEdit?.title}
           </DrawerTitle>
           <DrawerDescription className="text-gray-600">
@@ -143,33 +143,69 @@ const AnswerReviewDrawer: React.FC<Props> = ({
 
                   {/* Fill-choice */}
                   {originalQuestion.type === "fill-choice" &&
-                    Array.isArray(q.answer) &&
                     Array.isArray(originalQuestion.answers) &&
-                    originalQuestion.answers.map((correct, idx) => {
-                      const studentAnswer = (q.answer as string[])[idx] || "";
-                      const isCorrect =
-                        studentAnswer.trim().toLowerCase() ===
-                        (correct.text?.trim().toLowerCase() || "");
-                      return (
-                        <div
-                          key={idx}
-                          className={`p-2 rounded mb-2 border ${
-                            isCorrect
-                              ? "bg-green-50 border-green-300 text-green-700"
-                              : "bg-red-50 border-red-300 text-red-700"
-                          }`}
-                        >
-                          <span className="font-medium">{idx + 1}.</span>{" "}
-                          Хариулт: {studentAnswer || "—"}
-                          <br />
-                          <span className="text-sm italic">
-                            {isCorrect
-                              ? "Зөв"
-                              : `Буруу, зөв нь: ${correct.text}`}
-                          </span>
-                        </div>
-                      );
-                    })}
+                    (Array.isArray(q.answer) ? (
+                      originalQuestion.answers.map((correct, idx) => {
+                        const studentAnswer = (q.answer as string[])[idx] || "";
+                        const isCorrect =
+                          studentAnswer.trim().toLowerCase() ===
+                          (correct.text?.trim().toLowerCase() || "");
+
+                        return (
+                          <div
+                            key={idx}
+                            className={`p-2 rounded mb-2 border ${
+                              isCorrect
+                                ? "bg-green-50 border-green-300 text-green-700"
+                                : "bg-red-50 border-red-300 text-red-700"
+                            }`}
+                          >
+                            <span className="font-medium">{idx + 1}.</span>{" "}
+                            Хариулт: {studentAnswer || "—"}
+                            <br />
+                            <span className="text-sm italic">
+                              {isCorrect
+                                ? "Зөв"
+                                : `Буруу, зөв нь: ${correct.text}`}
+                            </span>
+                          </div>
+                        );
+                      })
+                    ) : typeof q.answer === "string" ? (
+                      (() => {
+                        const studentAnswer = q.answer.trim().toLowerCase();
+                        const correctAnswer =
+                          originalQuestion.answers?.[0]?.text
+                            ?.trim()
+                            .toLowerCase() || "";
+                        const isCorrect = studentAnswer === correctAnswer;
+
+                        return (
+                          <div
+                            className={`p-2 rounded mb-2 border ${
+                              isCorrect
+                                ? "bg-green-100 border-green-500 text-green-800"
+                                : "bg-red-100 border-red-500 text-red-800"
+                            }`}
+                          >
+                            <span className="font-medium">1.</span> Хариулт:{" "}
+                            {q.answer || "—"}
+                            <br />
+                            <span className="text-sm italic">
+                              {isCorrect
+                                ? "Зөв"
+                                : `Буруу, зөв нь: ${
+                                    originalQuestion.answers?.[0]?.text || "—"
+                                  }`}
+                            </span>
+                          </div>
+                        );
+                      })()
+                    ) : (
+                      <p className="text-red-500 italic mt-2">
+                        Хариулт өгөгдөөгүй байна
+                      </p>
+                    ))}
 
                   {/* Multiple choice */}
                   {isMultipleChoice && (
@@ -221,7 +257,11 @@ const AnswerReviewDrawer: React.FC<Props> = ({
                   {originalQuestion.type === "simple-choice" &&
                     typeof q.answer === "string" &&
                     originalQuestion.answers?.map((choice, index) => {
-                      const isSelected = q.answer === choice.text;
+                      const studentAnswer = (q.answer as string)
+                        .trim()
+                        .toLowerCase();
+                      const correctAnswer = choice.text.trim().toLowerCase();
+                      const isSelected = studentAnswer === correctAnswer;
                       return (
                         <div
                           key={index}
@@ -248,7 +288,7 @@ const AnswerReviewDrawer: React.FC<Props> = ({
 
                   {/* Code */}
                   {originalQuestion.type === "code" && (
-                    <div className="border border-gray-300 rounded-md p-3 font-mono text-sm bg-gray-900 text-gray-100 overflow-x-auto">
+                    <div className="border border-gray-300 rounded-md p-3 font-mono text-sm bg-gray-700 text-gray-100 overflow-x-auto">
                       <pre className="whitespace-pre-wrap">
                         {String(q.answer)}
                       </pre>
@@ -263,19 +303,21 @@ const AnswerReviewDrawer: React.FC<Props> = ({
                     {isManualGrading ? (
                       <Input
                         type="number"
-                        value={q.score}
-                        onChange={(e) =>
-                          handleScoreChange(
-                            q.questionId,
-                            Number(e.target.value)
-                          )
-                        }
+                        value={q.score.toFixed(1)}
+                        max={originalQuestion.score || 0}
+                        onChange={(e) => {
+                          let inputScore = Number(e.target.value);
+                          const maxScore = originalQuestion.score || 0;
+                          if (inputScore > maxScore) inputScore = maxScore;
+                          if (inputScore < 0) inputScore = 0; // optionally prevent negative
+                          handleScoreChange(q.questionId, inputScore);
+                        }}
                         className="w-24 text-center border-gray-300"
                         placeholder="Оноо"
                       />
                     ) : (
-                      <span className="px-2 py-1 bg-blue-50 text-blue-700 font-medium rounded">
-                        {q.score} оноо
+                      <span className="px-2 py-1 bg-blue-50 text-green-500 font-medium rounded">
+                        {q.score.toFixed(1)} оноо
                       </span>
                     )}
                   </div>
@@ -288,7 +330,7 @@ const AnswerReviewDrawer: React.FC<Props> = ({
         <DrawerFooter className="px-0 pt-4">
           <Button
             onClick={handleSave}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-green-500 hover:bg-green-700 text-white cursor-pointer"
           >
             Хадгалах
           </Button>

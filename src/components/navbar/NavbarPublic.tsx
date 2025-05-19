@@ -17,8 +17,14 @@ export default function Navbar() {
   return (
     <header className="w-full shadow-sm border-b">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        <Link href="/" className="text-xl font-medium">
+        <Link
+          href="/"
+          className="flex items-center space-x-2 text-xl font-medium"
+        >
           <img src="/logo.jpg" alt="logo" className="w-12 rounded-xl" />
+          <span className="hidden sm:inline text-gray-800 hover:text-blue-600 transition">
+            ExamApp
+          </span>
         </Link>
 
         {/* Desktop Navigation */}

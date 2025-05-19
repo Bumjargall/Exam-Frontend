@@ -27,6 +27,10 @@ export default function NavbarExam() {
 
   const logoutUser = async () => {
     await logout();
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("exam-storage");
+    localStorage.clear();
     router.push("/");
   };
 
@@ -44,18 +48,16 @@ export default function NavbarExam() {
           {navItems.map((item) => (
             <div key={item.href}>
               {item.href === "/teacher/create-exam" ? (
-                <a
-                  href={item.href}
-                  className="text-gray-700 hover:text-black text-sm font-medium border border-gray-900 p-2 px-4 rounded-lg hover:bg-gray-100"
-                >
-                  {item.label}
-                </a>
+                <Link href={item.href} legacyBehavior>
+                  <a className="text-white text-sm font-medium border border-white p-2 px-4 rounded-lg hover:bg-green-600 bg-green-500">
+                    {item.label}
+                  </a>
+                </Link>
               ) : (
-                <Link
-                  href={item.href}
-                  className="text-gray-700 hover:text-black text-sm font-medium border border-gray-900 p-2 px-4 rounded-lg hover:bg-gray-100"
-                >
-                  {item.label}
+                <Link href={item.href} legacyBehavior>
+                  <a className="text-white text-sm font-medium border border-white p-2 px-4 rounded-lg hover:bg-green-600 bg-green-500">
+                    {item.label}
+                  </a>
                 </Link>
               )}
             </div>
@@ -65,7 +67,7 @@ export default function NavbarExam() {
             <>
               <button
                 onClick={logoutUser}
-                className="text-gray-600 hover:border p-2 rounded-lg border-gray-900"
+                className="text-white bg-green-500 hover:border p-2 rounded-lg border-white-900 cursor-pointer"
               >
                 <LogOut className="h-5 w-5" />
               </button>
@@ -81,30 +83,37 @@ export default function NavbarExam() {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left">
-              <nav className="flex flex-col space-y-4 m-6">
+            <SheetContent
+              side="left"
+              className="w-64 bg-green-500 text-white px-6 py-6"
+            >
+              <nav className="flex flex-col space-y-4">
                 {role && (
                   <Link
                     href={`/${role}/profile`}
-                    className="text-gray-600 hover:text-black text-base font-medium border-b pb-2 flex items-center space-x-2"
+                    className="flex items-center space-x-2 px-4 py-2 rounded-md bg-green-600 hover:bg-green-700 transition"
                   >
                     <User className="h-5 w-5" />
-                    <span>Профайл</span>
+                    <span className="text-sm font-medium tracking-wide">
+                      Профайл
+                    </span>
                   </Link>
                 )}
+
                 {navItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="text-gray-600 hover:text-black text-base font-medium border-b pb-2"
+                    className="px-4 py-2 rounded-md bg-green-600 hover:bg-green-700 transition text-sm font-medium tracking-wide"
                   >
                     {item.label}
                   </Link>
                 ))}
+
                 {role && (
                   <button
                     onClick={logoutUser}
-                    className="text-gray-600 hover:text-black text-base font-medium border-b pb-2 flex items-center space-x-2"
+                    className="flex items-center space-x-2 px-4 py-2 rounded-md bg-red-500 hover:bg-red-600 transition text-sm font-medium tracking-wide"
                   >
                     <LogOut className="h-5 w-5" />
                     <span>Гарах</span>

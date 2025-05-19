@@ -90,6 +90,15 @@ export default function ViewExam({
     studentResult?.questions?.find((q: any) => q.questionId === questionId);
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-2xl border border-gray-200 space-y-4 mt-10">
+      {studentResult?.pending === "off" && (
+        <div
+          className="p-4 mb-4 text-yellow-800 bg-yellow-100 border-l-4 border-yellow-500 rounded"
+          role="alert"
+        >
+          <p className="font-bold">Анхааруулга</p>
+          <p>Энэ шалгалт хараахан засагдаагүй байна.</p>
+        </div>
+      )}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold text-gray-800">{exam.title}</h2>
         <span
@@ -184,34 +193,43 @@ export default function ViewExam({
                 </RadioGroup>
               )}
               {question.type === "fill-choice" &&
-                Array.isArray(question.answers) &&
-                Array.isArray(studentAns?.answer) && (
+                question.answers &&
+                studentAns?.answer && (
                   <div className="p-3 space-y-4">
                     <p className="font-semibold">Оюутны хариулт:</p>
 
-                    {question.answers.map((correctOption, index) => {
-                      const correct = correctOption?.text || "";
-                      const student = studentAns.answer[index] || "";
-                      const isCorrect =
-                        student.trim().toLowerCase() ===
-                        correct.trim().toLowerCase();
+                    {(() => {
+                      // Хариултыг массив болгоно
+                      const correctAnswers = question.answers;
+                      const studentAnswers = Array.isArray(studentAns.answer)
+                        ? studentAns.answer
+                        : [studentAns.answer];
 
-                      return (
-                        <div
-                          key={index}
-                          className={`w-full p-2 rounded-md border-2 my-1 ${
-                            isCorrect
-                              ? "border-green-500 bg-green-50 text-green-800"
-                              : "border-red-500 bg-red-50 text-red-800"
-                          }`}
-                        >
-                          <p>
-                            <span className="font-medium">{index + 1}:</span>{" "}
-                            {student || "Хариулт өгөөгүй"}
-                          </p>
-                        </div>
-                      );
-                    })}
+                      return correctAnswers.map((correctOption, index) => {
+                        const correct =
+                          correctOption?.text?.trim().toLowerCase() || "";
+                        const student = (studentAnswers[index] || "")
+                          .trim()
+                          .toLowerCase();
+                        const isCorrect = student === correct;
+
+                        return (
+                          <div
+                            key={index}
+                            className={`w-full p-2 rounded-md border-2 my-1 ${
+                              isCorrect
+                                ? "border-green-500 bg-green-50 text-green-800"
+                                : "border-red-500 bg-red-50 text-red-800"
+                            }`}
+                          >
+                            <p>
+                              <span className="font-medium">{index + 1}:</span>{" "}
+                              {studentAnswers[index] || "Хариулт өгөөгүй"}
+                            </p>
+                          </div>
+                        );
+                      });
+                    })()}
 
                     <p className="font-semibold text-sm text-gray-500 pt-2">
                       Зөв хариулт:
@@ -270,7 +288,8 @@ export default function ViewExam({
               {/* Оноо */}
               {question.type !== "information-block" && (
                 <div className="text-sm text-right text-gray-600 mt-2">
-                  Авсан оноо: <b>{studentAns?.score ?? 0}</b> / {question.score}
+                  Авсан оноо: <b>{(studentAns?.score ?? 0).toFixed(1)}</b> /{" "}
+                  {question.score}
                 </div>
               )}
             </div>

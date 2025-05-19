@@ -77,12 +77,12 @@ export default function NewCode({
   };
   return (
     <div className="max-w-2xl mx-auto mb-20 shadow">
-      <div className="bg-gray-100 flex justify-between items-center">
+      <div className="bg-green-400 rounded-2xl flex justify-between items-center">
         <div className="py-4">
-          <p className="pl-4 text-gray-900">Кодын шалгалт</p>
+          <p className="pl-4 text-white">Кодын шалгалт</p>
         </div>
         <button
-          className="cursor-pointer pr-4"
+          className="cursor-pointer pr-4 text-white"
           onClick={() => {
             handleSelect(null), setEditingIndex(null), setSelectedType(null);
           }}

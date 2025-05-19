@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Texteditor from "@/components/rich-text/TextEditor";
 import SaveQuestion from "@/components/ui/savequestion";
-import SimpleAnswerOption from "@/components/ExamComponents/SimpleAnswerOpton";
+import SimpleAnswerOption from "@/components/create-exam/SimpleAnswerOpton";
 import { useForm } from "react-hook-form";
 import { X } from "lucide-react";
 import * as z from "zod";

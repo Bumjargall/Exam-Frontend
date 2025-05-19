@@ -43,40 +43,58 @@ export default function NavbarStudent() {
 
   const handleSearch = async () => {
     if (!inputValue.trim()) {
-      toast.error("Exam key хоосон байна.");
+      toast.error("Шалгалтын түлхүүр хоосон байна.");
       return;
     }
 
     try {
       const response = await getExamByKey(inputValue.trim());
-      if (!response) {
+      if (!response || !response.data) {
         toast.error("Ийм түлхүүртэй шалгалт олдсонгүй.");
         return;
       }
+
       const data = response.data;
-      if (!data._id || !userId) {
+
+      // ✅ ObjectId шалгахын өмнө баталгаажуулалт
+      if (!data._id || !user?._id) {
+        toast.error("Шалгалт эсвэл хэрэглэгчийн мэдээлэл дутуу байна.");
         return;
       }
-      const status = await checkedResultByExamUser(data._id, userId);
+
+      if (data.status === "inactive") {
+        toast.warning("Энэ шалгалт хаагдсан байна.");
+        return;
+      }
+
+      const now = new Date();
+      const examStartTime = new Date(data.dateTime);
+      if (examStartTime > now) {
+        toast.warning("Шалгалт хараахан эхлээгүй байна.");
+        return;
+      }
+
+      const status = await checkedResultByExamUser(data._id, user._id);
+
       if (status === "submitted") {
-        toast.error("Хэрэглэгч энэ шалгалтыг өгсөн байна...");
+        toast.error("Та энэ шалгалтыг өмнө нь өгсөн байна.");
       } else if (status === "taking") {
-        router.push(`/student/exam/${response.data._id}`);
+        router.push(`/student/exam/${data._id}`);
       } else {
         const examResult = {
           status: "taking",
-          userId,
+          userId: user._id,
           examId: data._id,
           score: 0,
           pending: "off",
         };
         const createResultUser = await createResult(examResult);
         localStorage.setItem("ResultId", createResultUser.data._id);
-        const ResultItem = localStorage.getItem("ResultId");
-        router.push(`/student/exam/${response.data._id}-${ResultItem}`);
+        router.push(`/student/exam/${data._id}-${createResultUser.data._id}`);
       }
     } catch (error) {
       toast.error("Шалгалтын мэдээлэл авч чадсангүй.");
+      console.error(error);
     }
   };
 
@@ -89,15 +107,15 @@ export default function NavbarStudent() {
             type="text"
             onChange={(e) => setInputValue(e.target.value)}
             value={inputValue}
-            placeholder="Exam Key"
-            className="block p-2.5 w-full text-gray-900 bg-white border border-gray-900 rounded-lg placeholder:text-gray-900"
+            placeholder="Шалгалтын түлхүүр"
+            className="block w-full py-2.5 pr-12 pl-4 text-gray-900 placeholder-gray-500 bg-white border border-gray-300 rounded-full focus:ring-2 focus:ring-sky-400 focus:outline-none transition"
           />
           <Button
             onClick={handleSearch}
             type="button"
-            className="absolute top-0 end-0 p-2.5 h-full font-medium text-black bg-white border border-gray-900 rounded-e-lg cursor-pointer hover:bg-gray-100"
+            className="absolute top-0 right-0 h-full px-4 rounded-r-full bg-green-500 hover:bg-green-700 text-white border border-green-500 transition cursor-pointer"
           >
-            <MoveRight />
+            <MoveRight size={18} />
           </Button>
         </div>
       </nav>

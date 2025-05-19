@@ -32,7 +32,16 @@ const initialExamState: StudentExam = {
   createUserById: "",
   createdAt: new Date(),
 };
-
+function normalizeToArray(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.map((v) => String(v).trim().toLowerCase());
+  } else if (typeof value === "string") {
+    return value
+      .split(",") // эсвэл та `;` эсвэл `|`-г хэрэглэж болно
+      .map((v) => v.trim().toLowerCase());
+  }
+  return [];
+}
 export default function Exam({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { id } = use(params);
@@ -168,7 +177,7 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
       });
     },
     [exam.questions]
-  ); // эсвэл exam.questions өөрчлөгдөхөд л дахин үүснэ
+  );
 
   const handleSubmit = async () => {
     const submittedAt = new Date().toISOString();
@@ -211,23 +220,19 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
           const correctAnswers =
             question.answers?.map((a) => a.text.trim().toLowerCase()) || [];
 
-          const studentAnswers = Array.isArray(answer)
-            ? answer.map((a) => a.trim().toLowerCase())
-            : [];
+          const studentAnswers = normalizeToArray(answer);
 
           const totalGaps = correctAnswers.length;
-
           const correctCount = studentAnswers.filter((ans, i) => {
             return correctAnswers[i] === ans;
           }).length;
 
-          if (correctCount === totalGaps) {
-            score = question.score || 0;
-          } else if (correctCount > 0) {
-            score = ((question.score || 0) * correctCount) / totalGaps;
-          } else {
-            score = 0;
-          }
+          score =
+            correctCount === totalGaps
+              ? question.score || 0
+              : correctCount > 0
+              ? ((question.score || 0) * correctCount) / totalGaps
+              : 0;
         }
 
         return {
@@ -359,7 +364,7 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
         {!isStarted ? (
           <div className="flex justify-center">
             <button
-              className="bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600"
+              className="bg-green-500 text-white px-6 py-2 rounded-full hover:bg-green-600 cursor-pointer"
               onClick={() => setIsStarted(true)}
             >
               Шалгалтыг эхлүүлэх

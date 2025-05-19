@@ -39,10 +39,7 @@ const LoginForm = () => {
 
     try {
       const userData = await login(data.email, data.password);
-      //console.log("Амжилттай нэвтэрлээ:", userData?.user);
-      //console.log("Амжилттай нэвтэрлээ:", userData?.token);
       const role = userData?.user.role;
-      //localStorage.setItem("user", JSON.stringify(userData));
       localStorage.setItem("token", userData.token);
       localStorage.setItem("user", JSON.stringify(userData.user));
       setAuth(userData.user, userData.token);
@@ -117,7 +114,7 @@ const LoginForm = () => {
           {error && <p className="text-red-500 text-sm my-4">{error}</p>}
           <Button
             type="submit"
-            className="w-full bg-green-600"
+            className="w-full bg-green-600 hover:bg-green-700 cursor-pointer"
             disabled={loading}
           >
             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}

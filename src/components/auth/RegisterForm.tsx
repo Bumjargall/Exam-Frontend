@@ -25,6 +25,8 @@ import { error } from "console";
 
 const RegisterForm = () => {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const form = useForm<RegisterInput>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
@@ -39,26 +41,28 @@ const RegisterForm = () => {
   });
   const onSubmit = async (data: RegisterInput) => {
     try {
+      setLoading(true);
       if (!data.organization) {
-        data.organization = "NaN";
+        data.organization = "N/A";
       }
       const newUser = await registerUser(data);
       if (!newUser.success) {
-      throw new Error(newUser.message || "Бүртгэл амжилтгүй боллоо.");
-    }
-     // console.log("new user------->>>>>>", newUser);
+        throw new Error(newUser.message || "Бүртгэл амжилтгүй боллоо.");
+      }
 
       toast.success(`Хэрэглэгчийн бүртгэл амжилттай үүслээ.`);
       router.push("/login");
     } catch (err: any) {
-      //console.error("Бүртгэл алдаа:", err);
-      if (err.message.includes("имэйл")) {
+      const msg = err.message?.toLowerCase() || "";
+      if (msg.includes("имэйл")) {
         toast.error("Имэйл аль хэдийн бүртгэлтэй байна.");
-      } else if (err.message.includes("утас")) {
+      } else if (msg.includes("утас")) {
         toast.error("Утасны дугаар бүртгэлтэй байна.");
       } else {
         toast.error("Бүртгэл үүсгэхэд алдаа гарлаа.");
       }
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -126,7 +130,7 @@ const RegisterForm = () => {
                   <FormControl>
                     <Input
                       {...field}
-                      type="phone"
+                      type="tel"
                       placeholder="Утасны дугаараа оруулна уу!"
                     />
                   </FormControl>
@@ -180,19 +184,32 @@ const RegisterForm = () => {
                 <FormItem>
                   <FormLabel>Нууц үг</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      type="password"
-                      placeholder="Нууц үгээ оруулна уу!"
-                    />
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        type="password"
+                        placeholder="Нууц үгээ оруулна уу!"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute inset-y-0 right-2 flex items-center text-gray-500 text-sm focus:outline-none"
+                      >
+                        {showPassword ? "Нууцлах" : "Харах"}
+                      </button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
-          <Button type="submit" className="w-full">
-            Бүртгүүлэх
+          <Button
+            type="submit"
+            className="w-full bg-green-500"
+            disabled={loading}
+          >
+            {loading ? "Түр хүлээнэ үү..." : "Бүртгүүлэх"}
           </Button>
         </form>
       </Form>
