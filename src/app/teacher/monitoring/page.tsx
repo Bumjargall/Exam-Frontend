@@ -814,7 +814,7 @@ export default function MonitoringPage() {
                   <div className="buttons flex">
                     <div className="pr-4 relative">
                       <button
-                        className="flex items-center justify-center w-[18vh] border border-slate-400 rounded-full my-1 py-1 hover:bg-slate-100 hover:border-2 transition duration-300"
+                        className="flex items-center justify-center w-[18vh] border border-slate-400 rounded-full my-1 py-1 hover:bg-slate-100 transition duration-300 cursor-pointer"
                         onClick={() => toggleDropdown("download")}
                       >
                         <i className="ri-download-line text-[14px] mr-2"></i>
@@ -824,7 +824,7 @@ export default function MonitoringPage() {
                       {dropdownStates.download && (
                         <div className="absolute mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 w-48">
                           <ul className="py-1">
-                            <li
+                            {/* <li
                               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
                                 downloadPDF(); // Хуудсыг хэвлэх
@@ -833,7 +833,7 @@ export default function MonitoringPage() {
                             >
                               <i className="ri-printer-line mr-2"></i>PDF
                               Хадгалах
-                            </li>
+                            </li> */}
                             <li
                               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
@@ -844,7 +844,7 @@ export default function MonitoringPage() {
                               <i className="ri-file-excel-line mr-2"></i>Excel
                               Хадгалах
                             </li>
-                            <li
+                            {/* <li
                               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
                                 alert("Word файл үүсгэх үйлдэл"); // Word файл үүсгэх
@@ -853,21 +853,21 @@ export default function MonitoringPage() {
                             >
                               <i className="ri-file-word-line mr-2"></i>Word
                               Хадгалах
-                            </li>
+                            </li> */}
                           </ul>
                         </div>
                       )}
                     </div>
                     {/*print*/}
                     <div className="pr-4 relative">
-                      <button
+                      {/* <button
                         className="flex items-center justify-center w-[18vh] border border-slate-400 rounded-full my-1 py-1 hover:bg-slate-100 hover:border-2 transition duration-300"
                         onClick={() => toggleDropdown("print")}
                       >
                         <i className="ri-printer-line text-[14px] mr-2"></i>
                         Хэвлэх
                         <i className="ri-arrow-down-s-fill"></i>
-                      </button>
+                      </button> */}
                       {dropdownStates.print && (
                         <div className="absolute  mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 w-48">
                           <ul className="py-1">
@@ -980,7 +980,7 @@ export default function MonitoringPage() {
         </div>
         {/*Right*/}
         <div className="right_container  w-1/5 px-2 ">
-          <div className="bg-slate-100 rounded-2xl">
+          {/* <div className="bg-slate-100 rounded-2xl">
             <div className="flex justify-center items-center text-slate-700 border-b p-2">
               <i className="ri-question-answer-fill text-[14px] pr-2"></i>
               <p>Мессеж</p>
@@ -994,7 +994,7 @@ export default function MonitoringPage() {
               />
               <i className="ri-send-plane-fill px-1 float-right mt-1 cursor-pointer"></i>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
