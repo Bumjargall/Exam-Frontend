@@ -90,6 +90,7 @@ export default function NavbarStudent() {
         };
         const createResultUser = await createResult(examResult);
         localStorage.setItem("ResultId", createResultUser.data._id);
+        setInputValue("");
         router.push(`/student/exam/${data._id}-${createResultUser.data._id}`);
       }
     } catch (error) {

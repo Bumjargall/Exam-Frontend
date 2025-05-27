@@ -36,9 +36,7 @@ function normalizeToArray(value: unknown): string[] {
   if (Array.isArray(value)) {
     return value.map((v) => String(v).trim().toLowerCase());
   } else if (typeof value === "string") {
-    return value
-      .split(",") // эсвэл та `;` эсвэл `|`-г хэрэглэж болно
-      .map((v) => v.trim().toLowerCase());
+    return value.split(",").map((v) => v.trim().toLowerCase());
   }
   return [];
 }
@@ -86,14 +84,12 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
     }
   }, []);
 
-  // Save timeLeft to localStorage
   useEffect(() => {
     if (isStarted) {
       localStorage.setItem(`timeLeft-${id}`, timeLeft.toString());
     }
   }, [timeLeft, id, isStarted]);
 
-  // Save isStarted state
   useEffect(() => {
     if (isStarted) {
       localStorage.setItem(`started-${id}`, "true");
@@ -106,7 +102,21 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
       localStorage.setItem(`answers-${id}`, JSON.stringify(answers));
     }
   }, [answers, id, isStarted]);
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Tab") {
+        e.preventDefault();
+      }
+    };
 
+    if (isStarted) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isStarted]);
   // Fetch exam data
   useEffect(() => {
     const fetchData = async () => {
