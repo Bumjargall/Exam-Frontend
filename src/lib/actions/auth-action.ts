@@ -79,13 +79,11 @@ export async function register(values: z.infer<typeof RegisterSchema>) {
 
 export const login = async (email: string, password: string) => {
   try {
-    console.log("Хүсэлт илгээж байна:", email, password);
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`,
       { email, password }
     );
     const data = await response.data;
-    console.log("Хариу :", data);
     return data;
   } catch (error: any) {
     console.log("Login алдаа:", error);

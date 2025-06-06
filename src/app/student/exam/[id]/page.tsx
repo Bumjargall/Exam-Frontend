@@ -168,12 +168,14 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
 
         let updatedValue: string[];
 
-        if (isMultiple && typeof value === "string") {
+        if (isMultiple) {
           const currentAnswers = prev[questionId] || [];
-          const alreadySelected = currentAnswers.includes(value);
+          const selected = typeof value === "string" ? value : String(value);
+
+          const alreadySelected = currentAnswers.includes(selected);
           updatedValue = alreadySelected
-            ? currentAnswers.filter((ans) => ans !== value)
-            : [...currentAnswers, value];
+            ? currentAnswers.filter((ans) => ans !== selected)
+            : [...currentAnswers, selected];
         } else if (isFillChoice && Array.isArray(value)) {
           updatedValue = value;
         } else {
@@ -270,7 +272,6 @@ export default function Exam({ params }: { params: Promise<{ id: string }> }) {
       const ResultId = localStorage.getItem("ResultId");
       if (ResultId) {
         const examData = await updateResult(ResultId, payload);
-        console.log("examData", examData);
         if (!examData) {
           toast.error("Илгээхэд алдаа гарлаа.");
         }

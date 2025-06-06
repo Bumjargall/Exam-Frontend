@@ -583,10 +583,11 @@ export const deleteResultByExamUser = async (
 // Шинэ шалгалт үүсгэх
 export const createResult = async (createResult: any) => {
   try {
-    const res = await fetchWithAuth(`${getBackendUrl()}/monitoring`, {
+    const res = await fetch(`${getBackendUrl()}/monitoring`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        // Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
       body: JSON.stringify({ createResult }),
     });
@@ -599,17 +600,14 @@ export const createResult = async (createResult: any) => {
 //submit дарах үед database руу result шинэчлэх
 export const updateResult = async (resultId: string, examData: any) => {
   try {
-    const response = await fetchWithAuth(
-      `${getBackendUrl()}/monitoring/${resultId}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify(examData),
-      }
-    );
+    const response = await fetch(`${getBackendUrl()}/monitoring/${resultId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        // Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify(examData),
+    });
     const updateExam = await handleResponse(response);
     return updateExam;
   } catch (err) {

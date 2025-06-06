@@ -71,7 +71,6 @@ import {
 } from "@/lib/api";
 import { useAuth } from "@/store/useAuth";
 import AnswerReviewDrawer from "@/components/AnswerReviewDrawer";
-import Redis from "ioredis";
 const defaultExam: Exam = {
   _id: "",
   title: "Хоосон",

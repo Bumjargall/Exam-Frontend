@@ -56,7 +56,6 @@ export default function NavbarStudent() {
 
       const data = response.data;
 
-      // ✅ ObjectId шалгахын өмнө баталгаажуулалт
       if (!data._id || !user?._id) {
         toast.error("Шалгалт эсвэл хэрэглэгчийн мэдээлэл дутуу байна.");
         return;
